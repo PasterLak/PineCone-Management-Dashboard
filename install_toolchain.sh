@@ -44,7 +44,7 @@ exec "$SHELL"
 pyenv install 3.12
 pyenv virtualenv 3.12 bl_venv
 
-pyenv activate bl_venv
+
 
 #  BL602 SDK Environment Setup
 
