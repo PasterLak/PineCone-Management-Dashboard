@@ -38,10 +38,36 @@ sudo usermod -a -G dialout $USER
 
 exec "$SHELL"
 
+
+
+
 pyenv install 3.12
 pyenv virtualenv 3.12 bl_venv
 
 pyenv activate bl_venv
+
+#  BL602 SDK Environment Setup
+
+
+sudo tee /etc/profile.d/bl602.sh >/dev/null <<EOF
+export BL60X_SDK_PATH=~/bl602_iot_sdk
+export CONFIG_CHIP_NAME=BL602
+EOF
+
+sudo tee -a /etc/bash.bashrc >/dev/null <<EOF
+
+# BL602 SDK Configuration
+export BL60X_SDK_PATH=~/bl602_iot_sdk
+export CONFIG_CHIP_NAME=BL602
+EOF
+
+source /etc/bash.bashrc
+
+echo $BL60X_SDK_PATH
+
+
+
+
 
 
 
