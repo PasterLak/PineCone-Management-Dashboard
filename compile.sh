@@ -1,6 +1,11 @@
-
 #!/bin/bash
-# run before run this file: pyenv activate bl_venv
- 
+
+# Standard pyenv initialization
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+# Activate virtual environment
+pyenv activate bl_venv
 
 ./genromap
