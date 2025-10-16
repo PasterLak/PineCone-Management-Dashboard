@@ -1,0 +1,9 @@
+
+## RUN A BASH FILE
+
+1) Open the terminl in the folder with .sh file
+2) Run these commands:
+
+
+chmod +x install_toolchain.sh
+./install_toolchain.sh
