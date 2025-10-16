@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := sdk_app_helloworld
+PROJECT_NAME := src
 PROJECT_PATH := $(abspath .)
 PROJECT_BOARD := evb
 export PROJECT_PATH PROJECT_BOARD
