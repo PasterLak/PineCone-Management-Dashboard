@@ -8,4 +8,5 @@ eval "$(pyenv virtualenv-init -)"
 # Activate virtual environment
 pyenv activate bl_venv
 
+# run compile file
 ./genromap

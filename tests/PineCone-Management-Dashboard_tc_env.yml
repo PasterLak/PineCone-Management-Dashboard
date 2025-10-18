@@ -31,7 +31,7 @@ default:
             input_path:
                 pt_bin_input: "${FLASHER_ROOT}/bl602/partition/partition_cfg_2M.toml"
                 boot2_bin_input: "${FLASHER_ROOT}/bl602/builtin_imgs/blsp_boot2.bin"
-                cfg2_bin_input: "${SDK_ROOT}/customer_app/sdk_app_helloworld/build_out/sdk_app_helloworld.bin"
+                cfg2_bin_input: "${SDK_ROOT}/customer_app/PineCone-Management-Dashboard/build_out/PineCone-Management-Dashboard.bin"
                 meida_bin_input: ""
                 romfs_dir_input: ""
                 mfg_bin_input: ""
