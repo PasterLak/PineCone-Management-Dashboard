@@ -69,7 +69,9 @@ source /etc/bash.bashrc
 echo "Verifying BL602 SDK path..."
 echo "BL60X_SDK_PATH is set to: $BL60X_SDK_PATH"
 
+source ~/.bashrc
+
 echo "================================================"
 echo "Toolchain Installation Completed Successfully"
 echo "================================================"
-echo "Please restart your terminal or run: source ~/.bashrc"
+
