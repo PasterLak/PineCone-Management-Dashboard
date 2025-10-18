@@ -13,6 +13,7 @@ eval "$(pyenv virtualenv-init -)"
 pyenv activate bl_venv
 
 # Run compile file
+chmod u+x genromap
 ./genromap
 
 echo "================================================"
