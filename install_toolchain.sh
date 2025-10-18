@@ -2,7 +2,7 @@
 
 #!/bin/bash
 
-echo "INSTALLING"
+echo ">>>>> INSTALLING <<<<<"
 
 cd $HOME
 

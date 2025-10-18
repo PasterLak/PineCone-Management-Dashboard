@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := src
+PROJECT_NAME := PineCone-Management-Dashboard
 PROJECT_PATH := $(abspath .)
 PROJECT_BOARD := evb
 export PROJECT_PATH PROJECT_BOARD
