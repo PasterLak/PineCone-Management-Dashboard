@@ -23,5 +23,6 @@ if [ -f "dashboard.bin" ]; then
     echo "Removing dashboard.bin..."
     rm -f dashboard.bin
 fi
-
+echo "================================================"
 echo "Cleanup completed!"
+echo "================================================"
