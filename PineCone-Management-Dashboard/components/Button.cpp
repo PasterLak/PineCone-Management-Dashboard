@@ -1,10 +1,10 @@
-#include "Button.h"
+#include "Button.hpp"
 
 #include "../pins.h"
 
 
 
-Button::Button(int8_t pin)
+Button::Button(uint8_t pin)
 {
     this->_pin = pin;
     pinMode(pin, INPUT_PULLUP);
