@@ -4,13 +4,22 @@
 1) Open the terminal in the folder with .sh file
 2) Run these commands:
 
-
 chmod +x install_toolchain.sh
 ./install_toolchain.sh
 
 
+## HOW SETUP THE PROJECT
+ 
+ 1) run  ./install_toolchain.sh in the terminal
+ 2) move the project to user/bl602_iot_sdk/customer_app
+    (the project will not compile if not in the sdk folder :/ )
+ 3) run  ./compile.sh in terminal for compile the project
+ 4) run ./flash.sh in terminal to upload the compiled files to pinecone and follow the instructions in the terminal
+
+
+
 ## COMPILE  -> run:   ./compile.sh
 ## FLASH  -> run and follow the instructons:   ./flash.sh
-
+## REBUILD -> just doing clean + compile
 
 ## CLEAN  (clean compiled files )-> run:   ./clean.sh
