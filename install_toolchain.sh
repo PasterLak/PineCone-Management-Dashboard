@@ -43,8 +43,8 @@ echo "Adding user to dialout group for serial access..."
 sudo usermod -a -G dialout $USER
 
 echo "Reloading shell configuration..."
-exec "$SHELL"
-# source ~/.bashrc
+#exec "$SHELL"
+ source ~/.bashrc
 
 echo "Installing Python 3.12 and virtual environment..."
 pyenv install 3.12
