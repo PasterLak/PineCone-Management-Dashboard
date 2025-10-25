@@ -18,7 +18,7 @@ echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
 echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
 echo 'eval "$(pyenv init - bash)"' >> ~/.bashrc
 
-echo "Cloning BL602 IoT SDK..."
+echo "Cloning BL602 SDK..."
 git clone --recursive https://github.com/ttefke/bl602_iot_sdk.git
 
 cd bl602_iot_sdk
@@ -43,12 +43,14 @@ echo "Adding user to dialout group for serial access..."
 sudo usermod -a -G dialout $USER
 
 echo "Reloading shell configuration..."
-#exec "$SHELL"
-source ~/.bashrc
+exec "$SHELL"
+# source ~/.bashrc
 
 echo "Installing Python 3.12 and virtual environment..."
-pyenv install 3.12.12
-pyenv virtualenv 3.12.12 bl_venv
+pyenv install 3.12
+pyenv virtualenv 3.12 bl_venv
+
+pyenv activate bl_venv
 
 echo "Creating system-wide BL602 environment configuration..."
 sudo tee /etc/profile.d/bl602.sh >/dev/null <<EOF
