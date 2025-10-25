@@ -9,6 +9,9 @@ export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
+
+pyenv virtualenv 3.12 bl_venv
+
 # Activate virtual environment
 pyenv activate bl_venv
 
