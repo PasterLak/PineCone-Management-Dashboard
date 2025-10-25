@@ -1,0 +1,4 @@
+
+// get ports of connected usb devices
+
+dmesg | grep tty
