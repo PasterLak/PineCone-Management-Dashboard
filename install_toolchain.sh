@@ -71,6 +71,14 @@ source /etc/bash.bashrc
 echo "Verifying BL602 SDK path..."
 echo "BL60X_SDK_PATH is set to: $BL60X_SDK_PATH"
 
+
+
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - bash)"
+eval "$(pyenv virtualenv-init -)"
+
+
 source ~/.bashrc
 
 echo "================================================"
