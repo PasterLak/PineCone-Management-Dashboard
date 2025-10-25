@@ -4,6 +4,8 @@
 
 echo "BL602 Compilation Started"
 
+export BL60X_SDK_PATH="$HOME/bl602_iot_sdk"
+
 # Standard pyenv initialization
 export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
