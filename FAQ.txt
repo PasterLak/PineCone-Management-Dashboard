@@ -20,6 +20,6 @@ chmod +x install_toolchain.sh
 
 ## COMPILE  -> run:   ./compile.sh
 ## FLASH  -> run and follow the instructons:   ./flash.sh
-## REBUILD -> just doing clean + compile
+## REBUILD -> same as clean + compile
 
 ## CLEAN  (clean compiled files )-> run:   ./clean.sh
