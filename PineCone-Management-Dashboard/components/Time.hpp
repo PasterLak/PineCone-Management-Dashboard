@@ -7,7 +7,7 @@ extern "C" {
 
 extern int deltaTime;
 
-extern unsigned long oldTime;
+extern unsigned long oldTime_us;
 
 
 static void updateDelta()
@@ -16,8 +16,8 @@ static void updateDelta()
     //deltaTime = static_cast<uint8_t>(Arduino_h::millis() - oldTime);
    // oldTime = Arduino_h::millis();
 
-    deltaTime = static_cast<int>(bl_timer_now_us64() - oldTime); 
-    oldTime = bl_timer_now_us64();
+    deltaTime = static_cast<int>(bl_timer_now_us64() - oldTime_us); 
+    oldTime_us = bl_timer_now_us64();
 }
 
 /*
