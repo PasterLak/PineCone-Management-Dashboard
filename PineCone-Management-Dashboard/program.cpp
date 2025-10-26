@@ -8,11 +8,15 @@ extern "C" {
 
 #define BUILD_VERSION 4
 
+
 static long counter = 0;
-static long counter2 = 0;
 #define LED_PIN 11
 
+static float time = 0.0f;
+const float timeIntervalSec = 2.0f; 
+
 DeltaTime deltaTime;
+static char deltaStr[64];
 
 void start() {
     printf("====== PINECONE BL602 STARTED! ======\r\n");
@@ -20,17 +24,21 @@ void start() {
 }
 
 void loop() {
-    counter++;
+    
     deltaTime.update();
 
-    if(counter > 1000000) {
-        counter = 0;
-        counter2++;
+    time += deltaTime.getSec();
+
+
+    if(time > timeIntervalSec) {
+        time = 0.0f;
+       
+        counter++;
         
-        char deltaStr[64];
+        
         deltaTime.getAsString(deltaStr, sizeof(deltaStr));
         
-        printf("Counter: %ld\r\n", counter2);
+        printf("Counter: %ld\r\n", counter);
         printf("%s\r\n", deltaStr);
         printf("Current: %luus (%.3fms) FPS: %.1f\r\n", 
                deltaTime.getUs(), deltaTime.getMs(), deltaTime.getFps());

@@ -1,4 +1,4 @@
-#include "Blink.hpp"
+#include "blink.hpp"
 #include "../pins.h"
 
 Blink::Blink(uint8_t pin) : _pin(pin) {

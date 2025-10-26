@@ -16,6 +16,7 @@ public:
     void update();
     uint32_t getUs() const;
     float getMs() const;
+    float getSec() const;
     float getFps() const;
     uint32_t getMaxUs() const;
     uint32_t getMinUs() const;
