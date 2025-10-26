@@ -1,5 +1,5 @@
 #include "program.hpp"
-#include "DeltaTime.hpp"
+#include "delta_time.hpp"
 
 extern "C" {
 #include <stdio.h>

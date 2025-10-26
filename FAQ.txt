@@ -23,3 +23,10 @@ chmod +x install_toolchain.sh
 ## REBUILD -> same as clean + compile
 
 ## CLEAN  (clean compiled files )-> run:   ./clean.sh
+
+
+commands
+
+// get ports of connected usb devices
+
+dmesg | grep tty
