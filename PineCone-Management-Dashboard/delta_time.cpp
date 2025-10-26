@@ -44,6 +44,10 @@ float DeltaTime::getMs() const {
     return currentDelta_us / 1000.0f;
 }
 
+float DeltaTime::getSec() const {
+    return getMs() / 1000.0f;
+}
+
 float DeltaTime::getFps() const {
     if (currentDelta_us == 0) return 0.0f;
     return 1000000.0f / currentDelta_us;
