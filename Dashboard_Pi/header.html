@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>PineCone Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --bg: #f4f7fa;
+      --card: #fff;
+      --text: #222;
+      --brand: #0077aa;
+      --border: #ccc;
+      --th: #eaf4ff;
+      --row-alt: #f9f9f9;
+      --btn: #eee;
+      --btn-border: #aaa;
+      --btn-ok: #c7f3c7;
+      --btn-cancel: #f3c7c7;
+      --flash: #fff3cd;
+    }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 20px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    h1 {
+      color: var(--brand);
+      margin: 0 0 16px;
+      font-size: 1.6rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      box-shadow: 0 0 5px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: var(--th);
+      font-weight: 600;
+    }
+    tbody tr:nth-child(even) {
+      background: var(--row-alt);
+    }
+
+    .desc-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .desc-text {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .edit-btn, .ok-btn, .cancel-btn {
+      cursor: pointer;
+      font-size: 0.85em;
+      background: var(--btn);
+      border: 1px solid var(--btn-border);
+      border-radius: 6px;
+      padding: 2px 8px;
+      line-height: 1.6;
+      user-select: none;
+    }
+    .edit-btn:hover { background: #def6ff; }
+    .ok-btn { background: var(--btn-ok); }
+    .cancel-btn { background: var(--btn-cancel); }
+    .desc-input {
+      flex: 1;
+      font: inherit;
+      padding: 3px 6px;
+      box-sizing: border-box;
+    }
+
+    @keyframes rowFlash {
+      0%   { background: var(--flash); }
+      100% { background: transparent; }
+    }
+    tr.flash {
+      animation: rowFlash 1.6s ease-out;
+    }
+    tr.offline {
+      background-color: #cf4444 !important;
+    }
+  </style>
+</head>
+<body>
