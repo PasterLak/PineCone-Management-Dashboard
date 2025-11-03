@@ -1,9 +1,5 @@
 #include "button.hpp"
 
-#include "../pins.h"
-
-
-
 Button::Button(uint8_t pin)
 {
     this->_pin = pin;

@@ -1,12 +1,15 @@
-#include "program.hpp"
-#include "delta_time.hpp"
+
 
 extern "C" {
 #include <stdio.h>
 #include <bl_timer.h>
 }
+#include "program.hpp"
+#include "components/delta_time.hpp"
+//#include "button.hpp"
+//#include <iostream> // For std::cout, std::endl
 
-#define BUILD_VERSION 4
+#define BUILD_VERSION 6
 
 
 static long counter = 0;
@@ -17,6 +20,8 @@ const float timeIntervalSec = 2.0f;
 
 DeltaTime deltaTime;
 static char deltaStr[64];
+
+//Button button1(LED_PIN);
 
 void start() {
     printf("====== PINECONE BL602 STARTED! ======\r\n");
