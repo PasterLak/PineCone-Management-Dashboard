@@ -1,6 +1,7 @@
-#include "pins.h"
+
 #include <FreeRTOS.h>
 #include <task.h>
+#include "pins.h"
 
 void pinMode(uint8_t pin, uint8_t mode)
 {

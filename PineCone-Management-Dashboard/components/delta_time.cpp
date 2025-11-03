@@ -1,8 +1,9 @@
-#include "delta_time.hpp"
+
 extern "C" {
 #include <bl_timer.h>
 #include <stdio.h>
 }
+#include "delta_time.hpp"
 
 DeltaTime::DeltaTime() {
     oldTime_us = bl_timer_now_us64();

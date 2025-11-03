@@ -1,6 +1,7 @@
 #pragma once
-#include <cstdint>
+#include <stdint.h>
 
+#include "pins.h"
 class Button
 {
 private:
