@@ -1,5 +1,4 @@
-#ifndef EVENT_H
-#define EVENT_H
+#pragma once
 
 #include <vector>
 
@@ -15,5 +14,3 @@ public:
 private:
     std::vector<void (*)(Args...)> handlers;
 };
-
-#endif  // EVENT_H

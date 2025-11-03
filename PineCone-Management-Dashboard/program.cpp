@@ -8,7 +8,7 @@ extern "C" {
 #include "components/delta_time.hpp"
 #include "components/button.hpp"
 
-#define BUILD_VERSION 6
+#define BUILD_VERSION 7
 
 
 static long counter = 0;
