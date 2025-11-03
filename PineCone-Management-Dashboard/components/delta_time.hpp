@@ -1,7 +1,6 @@
 #pragma once
 
 extern "C" {
-
     #include <stdint.h>
 }
 
@@ -18,15 +17,19 @@ private:
 
 public:
     DeltaTime();
+
     void update();
     uint32_t getUs() const;
     float getMs() const;
     float getSec() const;
     float getFps() const;
+
     uint32_t getMaxUs() const;
     uint32_t getMinUs() const;
+
     float getAverageUs() const;
     float getAverageMs() const;
+
     void getAsString(char* buffer, uint32_t bufferSize) const;
     void resetStats();
 };
