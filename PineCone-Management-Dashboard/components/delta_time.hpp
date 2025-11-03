@@ -4,7 +4,6 @@ extern "C" {
     #include <stdint.h>
 }
 
-
 class DeltaTime {
 private:
     uint64_t oldTime_us;
