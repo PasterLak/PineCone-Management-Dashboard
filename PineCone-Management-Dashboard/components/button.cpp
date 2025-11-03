@@ -1,8 +1,8 @@
-
 #include "button.hpp"
 
 extern "C" {
     #include "pins.h"
+    #include "bl_timer.h"
 }
 
 Button::Button(uint8_t pin)
@@ -14,7 +14,17 @@ Button::Button(uint8_t pin)
 void Button::update()
 {
     lastState = state;
-    state = digitalRead(_pin);
+    
+    bool reading = digitalRead(_pin);
+    
+    if (reading != lastStableState) {
+        lastDebounceTime = bl_timer_now_us64();
+        lastStableState = reading;
+    }
+    
+    if ((bl_timer_now_us64() - lastDebounceTime) > debounceDelay) {
+        state = reading;
+    }
 }
 
 bool Button::isPressed()
@@ -24,12 +34,12 @@ bool Button::isPressed()
 
 bool Button::isDown()
 {
-    return (lastState == false && state != lastState);
+    return (!lastState && state);
 }
 
 bool Button::isUp()
 {
-   return (lastState == true && state != lastState);
+    return (lastState && !state);
 }
 
 bool Button::getState()
@@ -40,4 +50,14 @@ bool Button::getState()
 bool Button::getLastState()
 {
     return lastState;
+}
+
+void Button::setDebounceDelayUS(uint32_t delay_us)
+{
+    debounceDelay = delay_us;
+}
+
+void Button::setDebounceDelayMS(uint32_t delay_ms)
+{
+    debounceDelay = delay_ms * 1000;
 }

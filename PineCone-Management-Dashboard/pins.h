@@ -1,8 +1,6 @@
 #ifndef PINS_H
 #define PINS_H
 
-#include <bl_gpio.h>
-#include <hal_gpio.h>
 #include <stdint.h>
 
 // Arduino-like api for pin manipulation
