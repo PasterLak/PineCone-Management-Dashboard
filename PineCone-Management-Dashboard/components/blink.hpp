@@ -1,6 +1,9 @@
 #pragma once
+extern "C" {
+    #include <stdint.h>
+  
+}
 
-#include <stdint.h>
 
 class Blink {
 public:

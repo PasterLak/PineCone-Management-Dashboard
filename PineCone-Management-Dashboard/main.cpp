@@ -1,5 +1,4 @@
 extern "C" {
- 
 #include <bl_uart.h>
 }
 

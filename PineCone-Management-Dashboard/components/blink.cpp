@@ -1,5 +1,8 @@
 #include "blink.hpp"
-#include "../pins.h"
+
+extern "C" { 
+    #include "../pins.h"
+}
 
 Blink::Blink(uint8_t pin) : _pin(pin) {
     pinMode(_pin, OUTPUT);

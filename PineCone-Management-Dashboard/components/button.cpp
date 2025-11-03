@@ -1,4 +1,9 @@
+
 #include "button.hpp"
+
+extern "C" {
+    #include "pins.h"
+}
 
 Button::Button(uint8_t pin)
 {
