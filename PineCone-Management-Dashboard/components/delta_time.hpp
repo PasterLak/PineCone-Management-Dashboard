@@ -1,5 +1,10 @@
 #pragma once
-#include <stdint.h>
+
+extern "C" {
+
+    #include <stdint.h>
+}
+
 
 class DeltaTime {
 private:

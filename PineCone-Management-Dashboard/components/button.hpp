@@ -1,7 +1,11 @@
 #pragma once
-#include <stdint.h>
 
-#include "pins.h"
+
+extern "C" {
+   
+    #include <stdint.h>
+}
+
 class Button
 {
 private:
