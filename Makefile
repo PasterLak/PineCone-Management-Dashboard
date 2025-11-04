@@ -27,7 +27,7 @@ COMPONENTS_VFS     := romfs
 
 
 
-INCLUDE_COMPONENTS += freertos bl602 bl602_std hal_drv vfs yloop utils cli blog blog_testc
+INCLUDE_COMPONENTS += freertos bl602 bl602_std hal_drv vfs yloop utils cli blog blog_testc etl
 INCLUDE_COMPONENTS += bl_gpio hal_gpio bl_sys
 INCLUDE_COMPONENTS += $(COMPONENTS_NETWORK)
 INCLUDE_COMPONENTS += $(COMPONENTS_BLSYS)
