@@ -5,6 +5,7 @@ extern "C" {
     #include <bl_timer.h>
 }
 
+
 Profiler::Profiler() {
     startTime_us = 0;
     endTime_us = 0;

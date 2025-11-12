@@ -15,5 +15,6 @@ public:
 
 private:
     uint8_t _pin;
+    
 };
 
