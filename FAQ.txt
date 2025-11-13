@@ -24,6 +24,17 @@ chmod +x install_toolchain.sh
 
 ## CLEAN  (clean compiled files )-> run:   ./clean.sh
 
+#
+
+install vs code:
+https://go.microsoft.com/fwlink/?LinkID=760868
+
+install github:
+
+wget https://github.com/shiftkey/desktop/releases/download/release-3.2.1-linux1/GitHubDesktop-linux-3.2.1-linux1.deb
+sudo dpkg -i GitHubDesktop-linux-3.2.1-linux1.deb
+rm GitHubDesktop-linux-3.2.1-linux1.deb
+
 
 
 #------------------------------------------------------------------------------#
