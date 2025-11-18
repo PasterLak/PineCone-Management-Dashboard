@@ -8,6 +8,7 @@
         <th class="col-ip">IP</th>
         <th class="col-desc">Description</th>
         <th class="col-seen">Last Seen</th>
+        <th class="col-actions">Actions</th>
       </tr>
     </thead>
     <tbody id="tbody">
@@ -22,6 +23,11 @@
           </button>
         </td>
         <td>{{ d.last_seen }}</td>
+        <td class="actions-cell">
+          <button class="delete-btn" type="button" data-id="{{ id }}">
+            <i data-feather="trash-2"></i>
+          </button>
+        </td>
       </tr>
       {% endfor %}
     </tbody>

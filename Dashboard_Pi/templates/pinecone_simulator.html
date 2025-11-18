@@ -1,8 +1,19 @@
-<section class="page" data-page="simulator">
-  <h1>PineCone Simualtor Settings</h1>
-  <p>
-    Es koennen beliebig viele Simulator PineCones hinzugefuegt werden, welche
-    anfragen anhand verschiedener parameter an den Server schicken, um diesen zu
-    testen.
+<section class="page simulator-page" data-page="simulator">
+  <h1>PineCone Simulator</h1>
+  <p class="sim-intro">
+    Create virtual PineCone devices that automatically send POST requests to
+    <code>/api/data</code>. Configure the interval and JSON payload for each
+    simulator.
   </p>
+
+  <div class="sim-controls">
+    <button id="addSimulator" class="btn-primary" type="button">
+      <i data-feather="plus"></i>
+      <span>New Simulator</span>
+    </button>
+  </div>
+
+  <div id="simulatorList" class="simulator-list">
+    <!-- Simulators are dynamically inserted here (simulator-manager.js) -->
+  </div>
 </section>

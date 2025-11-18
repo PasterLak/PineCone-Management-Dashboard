@@ -1,0 +1,91 @@
+<section class="page settings-page" data-page="settings">
+  <h1>Settings</h1>
+
+  <div class="settings-container">
+    <div class="settings-card">
+      <h2>Polling & Update Intervals</h2>
+      <p class="settings-description">
+        Configure the intervals for automatic updates and status checks (in
+        milliseconds).
+      </p>
+
+      <div class="settings-field">
+        <label for="pollIntervalInput">Polling Interval (ms)</label>
+        <input
+          type="number"
+          id="pollIntervalInput"
+          min="100"
+          step="100"
+          value="1000"
+          inputmode="numeric"
+          pattern="[0-9]*"
+        />
+        <span class="settings-hint"
+          >How often device data is fetched from the server. Default: 1000ms (1
+          second)</span
+        >
+      </div>
+
+      <div class="settings-field">
+        <label for="offlineThresholdInput">Offline Threshold (ms)</label>
+        <input
+          type="number"
+          id="offlineThresholdInput"
+          min="1000"
+          step="1000"
+          value="5000"
+          inputmode="numeric"
+          pattern="[0-9]*"
+        />
+        <span class="settings-hint"
+          >Time until a device is marked as offline. Default: 5000ms (5
+          seconds)</span
+        >
+      </div>
+
+      <div class="settings-field">
+        <label for="tickOfflineInput">Offline Check Interval (ms)</label>
+        <input
+          type="number"
+          id="tickOfflineInput"
+          min="100"
+          step="100"
+          value="1000"
+          inputmode="numeric"
+          pattern="[0-9]*"
+        />
+        <span class="settings-hint"
+          >How often the offline status is checked. Default: 1000ms (1
+          second)</span
+        >
+      </div>
+
+      <div class="settings-field">
+        <label for="simulatorPollInput">Simulator Polling Interval (ms)</label>
+        <input
+          type="number"
+          id="simulatorPollInput"
+          min="100"
+          step="100"
+          value="500"
+          inputmode="numeric"
+          pattern="[0-9]*"
+        />
+        <span class="settings-hint"
+          >How often simulator responses are fetched. Default: 500ms (0.5
+          seconds)</span
+        >
+      </div>
+      <div class="center-btn">
+        <button id="resetSettingsBtn" class="btn-secondary" type="button">
+          <i data-feather="rotate-ccw"></i>
+          <span>Reset</span>
+        </button>
+        <button id="saveSettingsBtn" class="btn-primary" type="button">
+          <i data-feather="save"></i>
+          <span>Save</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

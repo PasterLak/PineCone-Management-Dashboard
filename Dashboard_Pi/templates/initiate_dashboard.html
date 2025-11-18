@@ -1,0 +1,29 @@
+<script>
+  /**
+   * Dashboard Initialization
+   */
+  (() => {
+    // Initialize managers
+    const settingsManager = new SettingsManager();
+    const sidebarManager = new SidebarManager();
+    const pageManager = new PageManager();
+    const deviceManager = new DeviceManager(settingsManager);
+    const simulatorManager = new SimulatorManager(settingsManager);
+    const settingsUIManager = new SettingsUIManager(settingsManager);
+
+    // Initialize all components
+    sidebarManager.init();
+    pageManager.init();
+    deviceManager.init();
+    simulatorManager.init();
+    settingsUIManager.init();
+
+    // Scroll to top on load
+    window.scrollTo({ top: 0, behavior: "instant" });
+
+    // Initialize Feather icons
+    if (window.feather) {
+      feather.replace();
+    }
+  })();
+</script>

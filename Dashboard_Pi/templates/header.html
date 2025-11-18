@@ -17,11 +17,19 @@
       href="{{ url_for('static', filename='css/sidebar.css') }}"
     />
     <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/settings.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/pinecone_simulator.css') }}"
+    />
+    <link
       rel="icon"
       type="image/x-icon"
       href="{{ url_for('static', filename='img/favicon.ico') }}"
     />
   </head>
   <script src="https://unpkg.com/feather-icons"></script>
-  <body></body>
+  <script src="{{ url_for('static', filename='js/input-validation.js') }}"></script>
 </html>

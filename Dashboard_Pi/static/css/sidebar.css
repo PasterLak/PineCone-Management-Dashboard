@@ -1,10 +1,8 @@
-/* Layout */
 .layout {
   display: flex;
   min-height: 100vh;
 }
 
-/* Sidebar */
 .sidebar {
   position: fixed;
   top: 0;
@@ -40,12 +38,11 @@
   box-sizing: border-box;
 }
 
-/* Toggle Button */
 .sidebar-toggle {
   align-self: flex-end;
   margin-bottom: 16px;
-  border: 1px solid var(--sidebar-border);
-  background: transparent;
+  border: transparent;
+  background: var(--sidebar-icon-bg);
   color: var(--sidebar-text);
   width: 28px;
   height: 28px;
@@ -57,7 +54,7 @@
 }
 
 .sidebar-toggle:hover {
-  background: rgba(255,255,255,0.1);
+  background: var(--sidebar-toggle-hover);
 }
 
 .sidebar-toggle-icon {
@@ -73,27 +70,26 @@
   stroke: var(--sidebar-text);
 }
 
-/* Rotation, wenn Sidebar offen */
 .sidebar--open .sidebar-toggle-icon {
   transform: rotate(180deg);
 }
 
 
-/* Items */
 .sidebar-items {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  height: 100%;
 }
 
 .sidebar-item {
   width: 100%;
   box-sizing: border-box;
-  display: flex; /* unified layout to avoid jump when opening/closing */
+  display: flex;
   align-items: center;
   gap: 10px;
   height: 48px;
-  padding: 0 14px 0 10px; /* consistent horizontal padding */
+  padding: 0 14px 0 10px;
   border-radius: 10px;
   background: transparent;
   color: var(--sidebar-text);
@@ -103,33 +99,37 @@
   transition: background 0.25s ease, transform 0.15s ease;
 }
 
+.sidebar-item--bottom {
+  margin-top: auto;
+}
+
 
 .sidebar-item:hover {
-  background: rgba(255,255,255,0.12);
+  background: var(--sidebar-hover);
   transform: translateX(1px);
 }
 
 .sidebar-item--active {
-  background: rgba(255,255,255,0.22);
+  background: var(--sidebar-active);
 }
 
-/* Closed: item keeps same height, icon centered horizontally, no layout flicker */
+
 .sidebar--closed .sidebar-item {
-  justify-content: flex-start; /* keep icon at left edge, matching open state */
-  gap: 10px; /* keep gap so transition is smooth */
-  padding: 0 14px 0 10px; /* identical padding to open state */
+  justify-content: flex-start; 
+  gap: 10px;
+  padding: 0 14px 0 10px; 
 }
 
-/* Ensure icon never stretches or shifts */
+
 .sidebar-icon { flex-shrink: 0; }
 .sidebar--closed .sidebar-icon { margin: 0; }
 
-/* Icon + Label */
+
 .sidebar-icon {
   width: 32px;
   height: 32px;
   border-radius: 999px;
-  background: rgba(0,0,0,0.15);
+  background: var(--sidebar-icon-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -141,39 +141,35 @@
   stroke: var(--sidebar-text);
 }
 
-/* Label with smooth fade in/out */
 .sidebar-label {
   color: var(--sidebar-text);
   white-space: nowrap;
-  opacity: 0; /* start hidden */
+  opacity: 0; 
   overflow: hidden;
-  transition: opacity 0.3s ease 0.1s; /* fade in after sidebar opens (0.1s delay) */
+  transition: opacity 0.3s ease 0.1s;
 }
 
-/* Open: fade in label */
 .sidebar--open .sidebar-label {
   opacity: 1;
 }
 
-/* Closed: fade out label immediately */
 .sidebar--closed .sidebar-label {
   opacity: 0;
   pointer-events: none;
-  transition-delay: 0s; /* no delay when closing */
+  transition-delay: 0s;
 }
 
-/* Reduce inner padding when closed so icon doesn't look clipped */
-/* Closed: keep slight horizontal padding to prevent clipping against viewport edge */
 .sidebar--closed .sidebar-inner { padding: 12px 8px; }
 
-/* Neutralize hover shift in closed mode (keeps icon perfectly centered) */
+
 .sidebar--closed .sidebar-item:hover { transform: none; }
 
-/* Main content */
+
 .main-content {
   flex: 1;
   margin-left: 70px;
-  padding: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
   transition: margin-left 0.3s ease-in-out;
 }
 
@@ -181,21 +177,42 @@
   margin-left: 224px;
 }
 
-/* Pages */
+.sidebar--open ~ .main-content {
+  filter: blur(3px);
+  transform-origin: center;
+  transform: scale(0.86);
+  transition: filter 0.3s ease, transform 0.3s ease, margin-left 0.3s ease-in-out, box-shadow 0.3s ease;
+}
+
+.sidebar--closed ~ .main-content {
+  filter: none;
+  transform-origin: center;
+  transform: none;
+  transition: filter 0.3s ease, transform 0.3s ease, margin-left 0.3s ease-in-out, box-shadow 0.3s ease;
+}
+
 .page-container {
   position: relative;
-  min-height: calc(100vh - 40px);
+  min-height: 100vh;
 }
 
 .page {
-  position: absolute;
-  inset: 0;
+  display: none;
   opacity: 0;
-  pointer-events: none;
   transition: opacity 0.25s ease-out;
 }
 
 .page--active {
+  display: block;
   opacity: 1;
-  pointer-events: auto;
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
