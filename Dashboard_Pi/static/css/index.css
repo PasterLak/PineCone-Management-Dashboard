@@ -1,28 +1,37 @@
 
 :root {
-  --bg: #151515;
-  --card: #222;
-  --text: #fff;
-  --brand: #0077aa;
-  --border: #444;
-  --row-alt: #1b1b1b;
-  --th: #1f3a4d;
+  --bg: #1a1919;
+  --text: #e0e0e0;
+  --brand: #1e88e5;
+  --border: #2a2a2a;
+  --row-alt: #1a1a1a;
+  --th: var(--brand);
 
-  --btn: #eeeeee;
-  --btn-border: #aaaaaa;
-  --btn-ok: #c7f3c7;
-  --btn-cancel: #f3c7c7;
+  --btn-edit: #1976d2;
+  --btn-edit-hover: #1565c0;
+  --btn-ok: #4caf50;
+  --btn-ok-hover: #45a049;
+  --btn-cancel: #363434;
+  --btn-cancel-hover: #212121;
 
-  --flash: #fff3cd;
-  --offline: #cf4444;
+  --flash: #4b4a4a;
+  --offline: #590101;
 
-  --footer-text: #666666;
+  
+  /* Sidebar colors */
+  --sidebar-bg: var(--brand);
+  --sidebar-text: #ffffff;
+  --sidebar-border: #1565c0;
 }
 
 /* Grundlayout */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
 body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  margin: 20px;
   background: var(--bg);
   color: var(--text);
 }
@@ -31,6 +40,9 @@ h1 {
   color: var(--brand);
   margin: 0 0 16px;
   font-size: 1.6rem;
+  padding: 16px 0;
+  padding-left: 20px;
+  border-radius: 8px;
 }
 
 /* Utility */
