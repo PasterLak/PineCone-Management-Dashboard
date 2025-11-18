@@ -137,7 +137,7 @@ th.col-actions { width: 8%; text-align: center; }
   background: var(--btn-cancel-hover);
   border-color: var(--btn-cancel-hover);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-danger);
+  box-shadow: var(--shadow-sm);
 }
 
 .delete-btn {
