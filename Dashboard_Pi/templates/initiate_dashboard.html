@@ -6,10 +6,10 @@
     // Initialize managers
     const sidebarManager = new SidebarManager();
     const pageManager = new PageManager();
-    const deviceManager = new DeviceManager(settingsManager);
-    const simulatorManager = new SimulatorManager(settingsManager);
     const settingsManager = new SettingsManager();
     const settingsUIManager = new SettingsUIManager(settingsManager);
+    const deviceManager = new DeviceManager(settingsManager);
+    const simulatorManager = new SimulatorManager(settingsManager);
 
     // Initialize all components
     sidebarManager.init();
