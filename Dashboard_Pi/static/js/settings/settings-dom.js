@@ -1,6 +1,6 @@
 /**
  * Settings DOM Handler
- * Kümmert sich um alle DOM-Zugriffe für Settings
+ * Does all DOM interactions for settings page
  */
 class SettingsDOM {
   constructor() {
@@ -9,45 +9,45 @@ class SettingsDOM {
     this._initializeElements();
   }
 
-  // Initialisiert alle DOM-Elemente
+  // Initializes all DOM elements
   _initializeElements() {
-    // Input-Felder laden
+    // Load input fields
     for (const [fieldName, config] of Object.entries(SettingsConfig.FIELDS)) {
       this.inputs[fieldName] = document.getElementById(config.id);
     }
 
-    // Buttons laden
+    // Load buttons
     this.buttons.save = document.getElementById('saveSettingsBtn');
     this.buttons.reset = document.getElementById('resetSettingsBtn');
   }
 
-  // Prüft ob DOM-Elemente verfügbar sind
+  // Checks if DOM elements are available
   isAvailable() {
     return Object.values(this.inputs).some(el => el !== null);
   }
 
-  // Gibt ein Input-Element zurück
+  // Returns an input element
   getInput(fieldName) {
     return this.inputs[fieldName];
   }
 
-  // Gibt alle Input-Elemente zurück
+  // Returns all input elements
   getAllInputs() {
     return Object.values(this.inputs).filter(el => el !== null);
   }
 
-  // Gibt einen Button zurück
+  // Returns a button element
   getButton(buttonName) {
     return this.buttons[buttonName];
   }
 
-  // Liest Wert aus Input-Feld
+  // Reads value from input field
   getValue(fieldName) {
     const input = this.getInput(fieldName);
     return input ? parseInt(input.value, 10) : null;
   }
 
-  // Setzt Wert in Input-Feld
+  // Sets value in input field
   setValue(fieldName, value) {
     const input = this.getInput(fieldName);
     if (input) {
@@ -55,7 +55,7 @@ class SettingsDOM {
     }
   }
 
-  // Setzt alle Werte auf einmal
+  // Sets all values at once
   setAllValues(values) {
     for (const [fieldName, value] of Object.entries(values)) {
       this.setValue(fieldName, value);
