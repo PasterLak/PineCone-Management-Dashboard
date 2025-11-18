@@ -1,6 +1,6 @@
 /**
  * Settings Configuration
- * Zentrale Konfiguration für alle Settings-Felder
+ * Configuration for all settings fields
  */
 class SettingsConfig {
   static FIELDS = {
@@ -30,12 +30,12 @@ class SettingsConfig {
     }
   };
 
-  // Gibt alle Feldnamen zurück
+  // Returns all field names
   static getFieldNames() {
     return Object.keys(this.FIELDS);
   }
 
-  // Gibt Default-Werte zurück
+  // Returns default values
   static getDefaults() {
     const defaults = {};
     for (const [key, config] of Object.entries(this.FIELDS)) {
@@ -44,7 +44,7 @@ class SettingsConfig {
     return defaults;
   }
 
-  // Gibt Validierungsregel für ein Feld zurück
+  // Returns validation rule for a field
   static getValidationRule(fieldName) {
     const field = this.FIELDS[fieldName];
     return field ? { min: field.min, name: field.name } : null;
