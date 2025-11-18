@@ -14,6 +14,34 @@ class SimulatorManager {
     
     this.simulatorList = document.getElementById('simulatorList');
     this.addSimulatorBtn = document.getElementById('addSimulator');
+    
+    // Example payloads
+    this.examples = {
+      button: {
+        node_id: "PineCone_001",
+        description: "Button Device",
+        pins: {
+          GPIO0: { name: "button", mode: "pullup", value: "1" }
+        }
+      },
+      led: {
+        node_id: "PineCone_002",
+        description: "LED Controller",
+        pins: {
+          GPIO1: { name: "led_red", mode: "output", value: "0" },
+          GPIO2: { name: "led_green", mode: "output", value: "1" },
+          GPIO3: { name: "led_blue", mode: "output", value: "0" }
+        }
+      },
+      sensor: {
+        node_id: "PineCone_003",
+        description: "Sensor Module",
+        pins: {
+          GPIO4: { name: "temp_sensor", mode: "input", value: "23" },
+          GPIO5: { name: "motion_detect", mode: "pulldown", value: "0" }
+        }
+      }
+    };
   }
 
   // Get next available simulator ID
@@ -40,6 +68,42 @@ class SimulatorManager {
       }
     } catch (e) {
       console.error('Failed to load simulators:', e);
+    }
+  }
+
+  // Sync running state from server
+  async syncRunningState() {
+    for (const sim of this.simulators) {
+      try {
+        const response = await fetch(`/api/simulator/status/${sim.id}`);
+        if (!response.ok) continue;
+        
+        const data = await response.json();
+        
+        // Update running state from server
+        sim.running = data.running || false;
+        
+        // Update console if responses available
+        if (data.responses && data.responses.length > 0) {
+          sim.console = data.responses.join('\n');
+        }
+        
+        // Update payload if autoUpdate enabled and payload available
+        if (sim.autoUpdate && data.currentPayload) {
+          sim.json = JSON.stringify(data.currentPayload, null, 2);
+        }
+      } catch (err) {
+        console.error(`Failed to sync status for simulator ${sim.id}:`, err);
+        sim.running = false; // Assume stopped on error
+      }
+    }
+    
+    // Re-render with correct states
+    this.render();
+    
+    // Start polling if any simulator is running
+    if (this.simulators.some(s => s.running)) {
+      this.startPolling();
     }
   }
 
@@ -405,6 +469,41 @@ class SimulatorManager {
 
   // Handle button clicks
   handleClick(e) {
+    // Pin info toggle
+    const pinInfoHeader = e.target.closest('#togglePinInfo');
+    if (pinInfoHeader) {
+      const content = document.getElementById('pinInfoContent');
+      pinInfoHeader.classList.toggle('active');
+      content.classList.toggle('show');
+      if (window.feather) feather.replace();
+      return;
+    }
+
+    // Example button
+    const exampleBtn = e.target.closest('.sim-example-btn');
+    if (exampleBtn) {
+      const exampleType = exampleBtn.dataset.example;
+      const example = this.examples[exampleType];
+      if (example) {
+        // Find first non-running simulator or create new one
+        let targetSim = this.simulators.find(s => !s.running);
+        if (!targetSim) {
+          this.createSimulator();
+          targetSim = this.simulators[this.simulators.length - 1];
+        }
+        // Apply example
+        targetSim.json = JSON.stringify(example, null, 2);
+        this.saveSimulators();
+        this.render();
+        // Scroll to simulator
+        setTimeout(() => {
+          const simCard = document.querySelector(`.simulator-card`);
+          if (simCard) simCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+      return;
+    }
+
     // Scroll to bottom button
     const scrollBtn = e.target.closest('.scroll-to-bottom-btn');
     if (scrollBtn) {
@@ -497,7 +596,10 @@ class SimulatorManager {
 
     // Load and render
     this.loadSimulators();
-    this.render();
+    
+    // Sync running state from server
+    this.syncRunningState();
+    
     this.setupEventHandlers();
   }
 }

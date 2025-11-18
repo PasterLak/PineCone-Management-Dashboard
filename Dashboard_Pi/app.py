@@ -33,6 +33,8 @@ def load_devices():
                 v.setdefault("description", "")
                 v.setdefault("ip", "")
                 v.setdefault("last_seen", "")
+                v.setdefault("pins", {})
+                v.setdefault("blink", False)
             return data
         except Exception:
             pass
@@ -61,30 +63,43 @@ def receive_data():
 
     req_node_id = (data.get("node_id") or "").strip()
     incoming_desc = (data.get("description") or "").strip()
+    incoming_pins = data.get("pins") or {}
 
     # Case 1: new or unknown device
     if not req_node_id or req_node_id not in devices:
         node_id = req_node_id or f"auto-{uuid.uuid4().hex[:8]}"
         # On first contact, description is taken from device
         description = incoming_desc
+        pins = incoming_pins
+        blink = False  
     else:
-        # Case 2: known device -> server description is retained
+        # Case 2: known device -> server description is retained, pins are updated
         node_id = req_node_id
         description = devices[node_id].get("description", "")
+        pins = incoming_pins  # Always update pins from device
+        blink = devices[node_id].get("blink", False)  # Keep blink state
 
     devices[node_id] = {
         "ip": request.remote_addr or "",
         "description": description,
         "last_seen": datetime.now().isoformat(timespec="seconds"),
+        "pins": pins,
+        "blink": blink,
     }
 
     save_devices()
 
-    return jsonify({
+    # Response includes blink only if blink = true
+    response = {
         "status": "ok",
         "node_id": node_id,
         "description": description,
-    })
+    }
+    
+    if blink:
+        response["blink"] = True
+
+    return jsonify(response)
 
 
 # API endpoint to update device description – Web interface
@@ -100,6 +115,26 @@ def update_description():
     save_devices()
 
     return jsonify({"status": "ok"})
+
+
+# API endpoint to toggle blink status via the node_id
+@app.route("/api/toggle_blink", methods=["POST"])
+def toggle_blink():
+    data = request.json or {}
+    node_id = data.get("node_id")
+
+    if node_id not in devices:
+        return jsonify({"error": "not found"}), 404
+
+    # Toggle blink state
+    current_blink = devices[node_id].get("blink", False)
+    devices[node_id]["blink"] = not current_blink
+    save_devices()
+
+    return jsonify({
+        "status": "ok",
+        "blink": devices[node_id]["blink"]
+    })
 
 
 # API endpoint to delete a device

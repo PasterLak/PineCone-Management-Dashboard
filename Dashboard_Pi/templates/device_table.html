@@ -16,7 +16,7 @@
       <tr data-id="{{ id }}">
         <td>{{ id }}</td>
         <td>{{ d.ip }}</td>
-        <td class="desc-cell" data-id="{{ id }}">
+        <td data-id="{{ id }}">
           <span class="desc-text">{{ d.description }}</span>
           <button class="edit-btn" type="button">
             <i data-feather="edit-3"></i>
@@ -24,7 +24,28 @@
         </td>
         <td>{{ d.last_seen }}</td>
         <td class="actions-cell">
-          <button class="delete-btn" type="button" data-id="{{ id }}">
+          <button
+            class="pins-btn"
+            type="button"
+            data-id="{{ id }}"
+            aria-label="View pins"
+          >
+            <i data-feather="cpu"></i>
+          </button>
+          <button
+            class="blink-btn {{ 'blink-active' if d.blink else '' }}"
+            type="button"
+            data-id="{{ id }}"
+            aria-label="Toggle blink"
+          >
+            <i data-feather="zap"></i>
+          </button>
+          <button
+            class="delete-btn"
+            type="button"
+            data-id="{{ id }}"
+            aria-label="Delete device"
+          >
             <i data-feather="trash-2"></i>
           </button>
         </td>
