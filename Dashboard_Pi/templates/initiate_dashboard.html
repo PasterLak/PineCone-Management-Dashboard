@@ -4,11 +4,11 @@
    */
   (() => {
     // Initialize managers
-    const settingsManager = new SettingsManager();
     const sidebarManager = new SidebarManager();
     const pageManager = new PageManager();
     const deviceManager = new DeviceManager(settingsManager);
     const simulatorManager = new SimulatorManager(settingsManager);
+    const settingsManager = new SettingsManager();
     const settingsUIManager = new SettingsUIManager(settingsManager);
 
     // Initialize all components
