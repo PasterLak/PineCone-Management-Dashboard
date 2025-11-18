@@ -1,0 +1,39 @@
+
+:root {
+  --bg: #151515;
+  --card: #222;
+  --text: #fff;
+  --brand: #0077aa;
+  --border: #444;
+  --row-alt: #1b1b1b;
+  --th: #1f3a4d;
+
+  --btn: #eeeeee;
+  --btn-border: #aaaaaa;
+  --btn-ok: #c7f3c7;
+  --btn-cancel: #f3c7c7;
+
+  --flash: #fff3cd;
+  --offline: #cf4444;
+
+  --footer-text: #666666;
+}
+
+/* Grundlayout */
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  margin: 20px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+h1 {
+  color: var(--brand);
+  margin: 0 0 16px;
+  font-size: 1.6rem;
+}
+
+/* Utility */
+.hidden {
+  display: none !important;
+}
