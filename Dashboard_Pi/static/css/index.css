@@ -9,6 +9,7 @@
   --card: var(--bg);
   --row-alt: #1a1a1a;
   --row-alt-muted: #2a2a2a;
+  --row-alt-hover: rgba(30, 136, 229, 0.1);
   --th: var(--brand);
   
   --btn-edit: #1976d2;
@@ -48,6 +49,12 @@
   --switch-off: #666;
   --switch-on: var(--btn-ok);
   --switch-thumb: #ffffff;
+
+  --pullup: #9c27b0;
+  --pulldown: #607d8b;
+  --output: #1976d2;
+  --input: #4caf50;
+
 }
 
 html, body {

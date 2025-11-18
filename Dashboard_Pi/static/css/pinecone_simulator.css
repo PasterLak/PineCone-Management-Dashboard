@@ -16,6 +16,173 @@
     color: var(--brand);
 }
 
+.sim-info-card {
+    background: var(--row-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.sim-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    user-select: none;
+}
+
+.sim-info-header:hover {
+    background: var(--bg);
+}
+
+.sim-info-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--brand);
+}
+
+.sim-info-title svg {
+    width: 20px;
+    height: 20px;
+}
+
+.sim-info-toggle {
+    width: 20px;
+    height: 20px;
+    color: var(--text);
+    transition: transform 0.3s ease;
+}
+
+.sim-info-header.active .sim-info-toggle {
+    transform: rotate(180deg);
+}
+
+.sim-info-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.sim-info-content.show {
+    max-height: 1000px;
+    border-top: 1px solid var(--border);
+}
+
+.sim-info-section {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.sim-info-section:last-child {
+    border-bottom: none;
+}
+
+.sim-info-section h3 {
+    margin: 0 0 12px 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.sim-info-section pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    overflow-x: auto;
+    margin: 0;
+}
+
+.sim-info-section code {
+    font-family: "Courier New", monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--console-text);
+}
+
+.pin-modes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.pin-mode-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.pin-mode-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.pin-mode-badge--input {
+    background: var(--input);
+    color: var(--sidebar-text);
+}
+
+.pin-mode-badge--output {
+    background: var(--output);
+    color: var(--sidebar-text);
+}
+
+.pin-mode-badge--pullup {
+    background: var(--pullup);
+    color: var(--sidebar-text);
+}
+
+.pin-mode-badge--pulldown {
+    background: var(--pulldown);
+    color: var(--sidebar-text);
+}
+
+.pin-mode-info > span {
+    font-size: 0.85rem;
+    color: var(--text);
+}
+
+.sim-examples {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.sim-example-btn {
+    padding: 8px 16px;
+    background: var(--brand);
+    color: var(--sidebar-text);
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sim-example-btn:hover {
+    background: var(--btn-edit-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-primary);
+}
+
 .sim-controls {
     margin-bottom: 24px;
 }

@@ -6,7 +6,7 @@ obj/
 Debug/
 Release/
 build_out/
-
+Dashboard_Pi/data/devices.json
 
 # Prerequisites
 *.d
