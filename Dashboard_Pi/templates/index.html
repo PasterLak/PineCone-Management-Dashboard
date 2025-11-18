@@ -24,10 +24,10 @@
 </script>
 
 <!-- Utility Scripts -->
-<script src="{{ url_for('static', filename='js/input-validation.js') }}"></script>
+<script src="{{ url_for('static', filename='js/utils/input-validation.js') }}"></script>
 
 <!-- Settings Manager -->
-<script src="{{ url_for('static', filename='js/settings-manager.js') }}"></script>
+<script src="{{ url_for('static', filename='js/core/settings-manager.js') }}"></script>
 
 <!-- Settings UI Components -->
 <script src="{{ url_for('static', filename='js/settings/settings-config.js') }}"></script>
@@ -38,11 +38,15 @@
 <script src="{{ url_for('static', filename='js/settings/settings-actions.js') }}"></script>
 <script src="{{ url_for('static', filename='js/settings/settings-ui-manager.js') }}"></script>
 
-<!-- Other Managers -->
-<script src="{{ url_for('static', filename='js/sidebar-manager.js') }}"></script>
-<script src="{{ url_for('static', filename='js/page-manager.js') }}"></script>
-<script src="{{ url_for('static', filename='js/device-manager.js') }}"></script>
-<script src="{{ url_for('static', filename='js/simulator-manager.js') }}"></script>
+<!-- Sidebar & Page Managers -->
+<script src="{{ url_for('static', filename='js/sidebar/sidebar-manager.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sidebar/page-manager.js') }}"></script>
+
+<!-- Device (Table) Manager -->
+<script src="{{ url_for('static', filename='js/table/device-manager.js') }}"></script>
+
+<!-- PineCone Simulator Manager -->
+<script src="{{ url_for('static', filename='js/simulator/simulator-manager.js') }}"></script>
 
 <!-- Initialize Dashboard -->
 {% include 'initiate_dashboard.html' %}
