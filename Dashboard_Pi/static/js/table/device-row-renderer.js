@@ -1,13 +1,13 @@
 /**
  * Device Row Renderer
- * Erstellt und aktualisiert Table Rows
+ * Contains logic to create and update individual device table rows
  */
 class DeviceRowRenderer {
   constructor(dataService) {
     this.dataService = dataService;
   }
 
-  // Erstellt eine vollständige Table Row
+  // Creates a full table row
   createRow(rowData, offlineThreshold) {
     const tr = document.createElement('tr');
     tr.dataset.id = rowData.id;
@@ -34,7 +34,7 @@ class DeviceRowRenderer {
       </td>
     `;
 
-    // Flash-Animation für neue/aktualisierte Devices
+    // Flash animation for new/updated devices
     const prevDevice = this.dataService.getDevice(rowData.id);
     if (!prevDevice || prevDevice.last_seen !== rowData.last_seen) {
       tr.classList.add(DeviceConfig.CSS_CLASSES.FLASH);
@@ -43,7 +43,7 @@ class DeviceRowRenderer {
       }, { once: true });
     }
 
-    // Offline markieren
+    // Mark offline
     if (this.dataService.isOffline(rowData, offlineThreshold)) {
       tr.classList.add(DeviceConfig.CSS_CLASSES.OFFLINE);
     }
@@ -51,7 +51,7 @@ class DeviceRowRenderer {
     return tr;
   }
 
-  // Erstellt "No Devices" Nachricht
+  // Creates "No Devices" message
   createEmptyRow() {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
@@ -64,7 +64,7 @@ class DeviceRowRenderer {
     return tr;
   }
 
-  // Aktualisiert Row-Daten in-place
+  // Updates row data in-place
   updateRowInPlace(row, deviceData) {
     const cells = row.querySelectorAll('td');
 
@@ -73,7 +73,7 @@ class DeviceRowRenderer {
       cells[DeviceConfig.COLUMNS.IP].textContent = deviceData.ip;
     }
 
-    // Update Description (nur wenn nicht im Edit-Modus)
+    // Update Description (only if not in edit mode)
     if (cells[DeviceConfig.COLUMNS.DESCRIPTION]) {
       const descSpan = cells[DeviceConfig.COLUMNS.DESCRIPTION].querySelector('.desc-text');
       if (descSpan && descSpan.textContent !== deviceData.description) {
@@ -81,13 +81,13 @@ class DeviceRowRenderer {
       }
     }
 
-    // Update Last Seen mit Flash-Animation
+    // Update Last Seen with Flash Animation
     if (cells[DeviceConfig.COLUMNS.LAST_SEEN] && 
         cells[DeviceConfig.COLUMNS.LAST_SEEN].textContent !== deviceData.last_seen) {
       cells[DeviceConfig.COLUMNS.LAST_SEEN].textContent = deviceData.last_seen;
       
       row.classList.remove(DeviceConfig.CSS_CLASSES.FLASH);
-      void row.offsetWidth; // Force reflow
+      void row.offsetWidth; // Force reflow to restart animation
       row.classList.add(DeviceConfig.CSS_CLASSES.FLASH);
       row.addEventListener('animationend', () => {
         row.classList.remove(DeviceConfig.CSS_CLASSES.FLASH);
@@ -98,7 +98,7 @@ class DeviceRowRenderer {
     this.updateBlinkButton(row, deviceData.blink);
   }
 
-  // Aktualisiert Blink-Button Status
+  // Updates Blink Button status
   updateBlinkButton(row, isBlinking) {
     const blinkBtn = row.querySelector(DeviceConfig.BUTTONS.BLINK);
     if (blinkBtn) {
@@ -106,7 +106,7 @@ class DeviceRowRenderer {
     }
   }
 
-  // Aktualisiert Offline-Status
+  // Updates offline status
   updateOfflineStatus(row, isOffline) {
     row.classList.toggle(DeviceConfig.CSS_CLASSES.OFFLINE, isOffline);
   }

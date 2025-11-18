@@ -1,6 +1,6 @@
 /**
  * Device Polling Service
- * Verwaltet das Polling von Device-Updates
+ * Handles periodic polling of device data
  */
 class DevicePollingService {
   constructor(apiService, dataService, renderer, actions, settingsManager) {
@@ -14,7 +14,7 @@ class DevicePollingService {
     this.offlineIntervalId = null;
   }
 
-  // Startet Polling
+  // Starts polling
   start() {
     const pollInterval = this.settings.get('pollInterval');
     const tickOffline = this.settings.get('tickOffline');
@@ -28,7 +28,7 @@ class DevicePollingService {
     }, tickOffline);
   }
 
-  // Stoppt Polling
+  // Stops polling
   stop() {
     if (this.pollIntervalId) {
       clearInterval(this.pollIntervalId);
@@ -40,34 +40,34 @@ class DevicePollingService {
     }
   }
 
-  // Neustart mit neuen Settings
+  // Restarts with new settings
   restart() {
     this.stop();
     this.start();
   }
 
-  // Einmaliges Polling
+  // Single poll
   async _pollOnce() {
     try {
       const newDevices = await this.api.fetchDevices();
 
-      // Bei Editing: State aktualisieren, aber nicht rendern
+      // If editing: update state but do not render
       if (this.actions.isEditing()) {
         this.dataService.setAll(newDevices);
         return;
       }
 
-      // Änderungen erkennen
+      // Detect changes
       const changes = this.dataService.detectChanges(newDevices);
       
       if (changes.structureChanged) {
-        // Vollständiges Re-Rendering
+        // Full re-render
         this.renderer.render(newDevices);
       } else if (changes.dataChanged) {
         // In-Place Update
         this.renderer.updateInPlace(newDevices, changes.changedIds);
       } else {
-        // Nur State aktualisieren
+        // Update state only
         this.dataService.setAll(newDevices);
       }
     } catch (err) {

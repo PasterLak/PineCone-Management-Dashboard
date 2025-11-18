@@ -1,40 +1,40 @@
 /**
  * Device Data Service
- * Verwaltet Device-Daten und Business-Logik
+ * Manages device data in-memory
  */
 class DeviceDataService {
   constructor() {
     this.devices = window.initialDevices || {};
   }
 
-  // Gibt alle Devices zurück
+  // Returns all devices
   getAll() {
     return this.devices;
   }
 
-  // Gibt ein Device zurück
+  // Returns a device
   getDevice(deviceId) {
     return this.devices[deviceId];
   }
 
-  // Setzt alle Devices
+  // Sets all devices
   setAll(devices) {
     this.devices = devices;
   }
 
-  // Aktualisiert ein Device
+  // Updates a device
   updateDevice(deviceId, updates) {
     if (this.devices[deviceId]) {
       this.devices[deviceId] = { ...this.devices[deviceId], ...updates };
     }
   }
 
-  // Löscht ein Device
+  // Deletes a device
   deleteDevice(deviceId) {
     delete this.devices[deviceId];
   }
 
-  // Konvertiert Devices zu sortierten Rows
+  // Converts devices to sorted rows
   toSortedRows(devices = this.devices) {
     return Object.entries(devices).map(([id, d]) => ({
       id,
@@ -47,19 +47,19 @@ class DeviceDataService {
     })).sort((a, b) => b.timestamp - a.timestamp);
   }
 
-  // Prüft ob Device offline ist
+  // Checks if device is offline
   isOffline(device, offlineThreshold) {
     const now = Date.now();
     const timestamp = new Date(device.last_seen).getTime();
     return (now - timestamp) > offlineThreshold;
   }
 
-  // Erkennt Änderungen zwischen alten und neuen Devices
+  // Detects changes between old and new devices
   detectChanges(newDevices) {
     const prevIds = new Set(Object.keys(this.devices));
     const newIds = Object.keys(newDevices);
 
-    // Struktur-Änderungen (Devices hinzugefügt/entfernt)
+    // Structure changes (devices added/removed)
     const structureChanged = newIds.length !== prevIds.size || 
                             newIds.some(id => !prevIds.has(id));
 
@@ -67,7 +67,7 @@ class DeviceDataService {
       return { structureChanged: true, dataChanged: false, changedIds: [] };
     }
 
-    // Daten-Änderungen
+    // Data changes
     const changedIds = newIds.filter(id => {
       const prev = this.devices[id];
       const curr = newDevices[id];
