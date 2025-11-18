@@ -5,22 +5,22 @@
 <table>
   <thead>
     <tr>
-      <th class="col-id">ID</th>
-      <th class="col-ip">IP</th>
-      <th class="col-desc">Description</th>
-      <th class="col-seen">Last Seen</th>
+      <th style="width: 24%">ID</th>
+      <th style="width: 18%">IP</th>
+      <th>Description</th>
+      <th style="width: 20%">Last Seen</th>
     </tr>
   </thead>
   <tbody id="tbody">
     {% for id, d in devices.items() %}
-    <tr data-id="{{ id }}">
-      <td>{{ id }}</td>
-      <td>{{ d.ip }}</td>
-      <td class="desc-cell" data-id="{{ id }}">
-        <span class="desc-text">{{ d.description }}</span>
+    <tr data-id="{{id}}">
+      <td>{{id}}</td>
+      <td>{{d.ip}}</td>
+      <td class="desc-cell" data-id="{{id}}">
+        <span class="desc-text">{{d.description}}</span>
         <button class="edit-btn" type="button">✏️</button>
       </td>
-      <td>{{ d.last_seen }}</td>
+      <td>{{d.last_seen}}</td>
     </tr>
     {% endfor %}
   </tbody>

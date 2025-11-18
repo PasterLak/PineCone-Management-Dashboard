@@ -1,0 +1,102 @@
+/* Tabelle */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card);
+  box-shadow: 0 0 5px rgba(0,0,0,0.08);
+  border: 1px solid var(--border);
+}
+
+th, td {
+  border: 1px solid var(--border);
+  padding: 8px;
+  text-align: left;
+  vertical-align: middle;
+  color: var(--text);
+}
+
+th {
+  background: var(--th);
+  font-weight: 600;
+  color: var(--text);
+}
+
+tbody tr:nth-child(even) {
+  background: var(--row-alt);
+}
+
+/* Spaltenbreiten */
+th.col-id    { width: 24%; }
+th.col-ip    { width: 18%; }
+th.col-desc  { width: 38%; }
+th.col-seen  { width: 20%; }
+
+/* Description-Zelle */
+.desc-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.desc-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+/* Buttons */
+.edit-btn,
+.ok-btn,
+.cancel-btn {
+  cursor: pointer;
+  font-size: 0.85em;
+  background: var(--btn);
+  border: 1px solid var(--btn-border);
+  border-radius: 6px;
+  padding: 2px 8px;
+  line-height: 1.6;
+  user-select: none;
+  color: var(--text);
+}
+
+.edit-btn:hover {
+  background: var(--brand);
+  color: white;
+}
+
+.ok-btn {
+  background: var(--btn-ok);
+}
+
+.cancel-btn {
+  background: var(--btn-cancel);
+}
+
+.desc-input {
+  flex: 1;
+  font: inherit;
+  padding: 3px 6px;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  background: var(--card);
+}
+
+/* Flash + offline */
+@keyframes rowFlash {
+  0%   { background: var(--flash); }
+  100% { background: transparent; }
+}
+
+tr.flash {
+  animation: rowFlash 1.6s ease-out;
+}
+
+tr.offline {
+  background-color: var(--offline) !important;
+  color: white;
+}
