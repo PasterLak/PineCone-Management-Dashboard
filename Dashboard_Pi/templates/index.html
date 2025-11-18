@@ -25,12 +25,24 @@
 
 <!-- Utility Scripts -->
 <script src="{{ url_for('static', filename='js/input-validation.js') }}"></script>
+
+<!-- Settings Manager -->
 <script src="{{ url_for('static', filename='js/settings-manager.js') }}"></script>
+
+<!-- Settings UI Components -->
+<script src="{{ url_for('static', filename='js/settings/settings-config.js') }}"></script>
+<script src="{{ url_for('static', filename='js/settings/settings-dom.js') }}"></script>
+<script src="{{ url_for('static', filename='js/settings/settings-validator.js') }}"></script>
+<script src="{{ url_for('static', filename='js/settings/settings-feedback.js') }}"></script>
+<script src="{{ url_for('static', filename='js/settings/settings-form.js') }}"></script>
+<script src="{{ url_for('static', filename='js/settings/settings-actions.js') }}"></script>
+<script src="{{ url_for('static', filename='js/settings/settings-ui-manager.js') }}"></script>
+
+<!-- Other Managers -->
 <script src="{{ url_for('static', filename='js/sidebar-manager.js') }}"></script>
 <script src="{{ url_for('static', filename='js/page-manager.js') }}"></script>
 <script src="{{ url_for('static', filename='js/device-manager.js') }}"></script>
 <script src="{{ url_for('static', filename='js/simulator-manager.js') }}"></script>
-<script src="{{ url_for('static', filename='js/settings-ui-manager.js') }}"></script>
 
 <!-- Initialize Dashboard -->
 {% include 'initiate_dashboard.html' %}
