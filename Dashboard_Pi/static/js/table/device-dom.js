@@ -1,6 +1,6 @@
 /**
  * Device DOM Handler
- * Verwaltet DOM-Zugriffe für die Device Table
+ * Does all DOM interactions for device table
  */
 class DeviceDOM {
   constructor() {

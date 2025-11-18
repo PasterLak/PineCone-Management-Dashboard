@@ -1,9 +1,9 @@
 /**
  * Device API Service
- * Kommuniziert mit Backend API
+ * Communicates with Backend API
  */
 class DeviceAPIService {
-  // Holt alle Devices vom Server
+  // Fetches all devices from the server
   async fetchDevices() {
     try {
       const response = await fetch(DeviceConfig.API.DEVICES);
@@ -17,7 +17,7 @@ class DeviceAPIService {
     }
   }
 
-  // Löscht ein Device
+  // Deletes a device
   async deleteDevice(deviceId) {
     try {
       const response = await fetch(DeviceConfig.API.DELETE, {
@@ -34,7 +34,7 @@ class DeviceAPIService {
     }
   }
 
-  // Togglet Blink-Status
+  // Toggles Blink
   async toggleBlink(deviceId) {
     try {
       const response = await fetch(DeviceConfig.API.TOGGLE_BLINK, {

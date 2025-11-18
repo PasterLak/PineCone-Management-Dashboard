@@ -1,6 +1,6 @@
 /**
  * Device Actions
- * Führt Device-Aktionen aus (Delete, Blink, Edit, Pins)
+ * runs actions (Delete, Blink, Edit, Pins)
  */
 class DeviceActions {
   constructor(dataService, apiService, rowRenderer, editHandler, pinRenderer) {
@@ -11,7 +11,7 @@ class DeviceActions {
     this.pinRenderer = pinRenderer;
   }
 
-  // Löscht ein Device
+  // Deletes a device
   async deleteDevice(deviceId, onSuccess) {
     try {
       await this.api.deleteDevice(deviceId);
@@ -23,7 +23,7 @@ class DeviceActions {
     }
   }
 
-  // Togglet Blink
+  // Toggles Blink
   async toggleBlink(deviceId, onSuccess) {
     try {
       const newBlinkState = await this.api.toggleBlink(deviceId);
@@ -35,17 +35,17 @@ class DeviceActions {
     }
   }
 
-  // Startet Edit
+  // Starts Edit
   startEdit(deviceId) {
     this.editHandler.startEdit(deviceId);
   }
 
-  // Beendet Edit
+  // Finishes Edit
   async finishEdit(deviceId, cancel) {
     return await this.editHandler.finishEdit(deviceId, cancel);
   }
 
-  // Prüft ob gerade editiert wird
+  // Checks if currently editing
   isEditing() {
     return this.editHandler.isCurrentlyEditing();
   }

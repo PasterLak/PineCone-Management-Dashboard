@@ -1,9 +1,9 @@
 /**
  * Device Configuration
- * Zentrale Konfiguration für Device Table
+ * config for Device Table
  */
 class DeviceConfig {
-  // Spalten-Definitionen
+  // Column Definitions
   static COLUMNS = {
     ID: 0,
     IP: 1,
@@ -12,7 +12,7 @@ class DeviceConfig {
     ACTIONS: 4
   };
 
-  // CSS-Klassen
+  // CSS Classes
   static CSS_CLASSES = {
     FLASH: 'flash',
     OFFLINE: 'offline',
@@ -21,7 +21,7 @@ class DeviceConfig {
     ACTIVE: 'active'
   };
 
-  // Button-Selektoren
+  // Button Selectors
   static BUTTONS = {
     EDIT: '.edit-btn',
     DELETE: '.delete-btn',
@@ -31,7 +31,7 @@ class DeviceConfig {
     CANCEL: '.cancel-btn'
   };
 
-  // API-Endpunkte
+  // API Endpoints
   static API = {
     DEVICES: '/api/devices',
     UPDATE_DESC: '/api/update_description',

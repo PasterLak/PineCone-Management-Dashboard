@@ -1,6 +1,6 @@
 /**
  * Device Edit Handler
- * Verwaltet Inline-Editing von Descriptions
+ * Manages editing of device descriptions in the table
  */
 class DeviceEditHandler {
   constructor(dom) {
@@ -23,7 +23,7 @@ class DeviceEditHandler {
     const currentText = (cell.querySelector('.desc-text')?.textContent || '').trim();
     const actionsCell = row.querySelector('.actions-cell');
 
-    // Input erstellen
+    // Create input field
     const input = this._createInput(currentText);
     cell.dataset.old = currentText;
     cell.replaceChildren(input);
@@ -37,11 +37,11 @@ class DeviceEditHandler {
       if (e.key === 'Escape') this.finishEdit(deviceId, true);
     });
 
-    // Action Buttons ersetzen
+    // Replace action buttons with edit buttons
     this._replaceActionsWithEditButtons(actionsCell, deviceId);
   }
 
-  // Beendet Edit-Modus
+  // Ends edit mode
   async finishEdit(deviceId, cancel) {
     const row = this.dom.getRow(deviceId);
     if (!row) return;
@@ -53,27 +53,27 @@ class DeviceEditHandler {
 
     const actionsCell = row.querySelector('.actions-cell');
 
-    // Description wiederherstellen
+    // Restore description text
     this._renderDescriptionText(cell, newText);
     
-    // Original Buttons wiederherstellen
+    // Restore original buttons
     this._restoreOriginalButtons(actionsCell);
 
     this.activeCell = null;
     this.isEditing = false;
 
-    // Speichern wenn geändert
+    // Save if changed
     if (!cancel && newText !== oldText) {
       return await this._saveDescription(deviceId, newText, cell, oldText);
     }
   }
 
-  // Gibt Edit-Status zurück
+  // Checks if currently editing
   isCurrentlyEditing() {
     return this.isEditing;
   }
 
-  // Erstellt Input-Element
+  // Creates input element
   _createInput(value) {
     const input = document.createElement('input');
     input.type = 'text';
@@ -82,7 +82,7 @@ class DeviceEditHandler {
     return input;
   }
 
-  // Ersetzt Actions mit Edit-Buttons
+  // Replaces action buttons with edit buttons
   _replaceActionsWithEditButtons(actionsCell, deviceId) {
     if (!actionsCell) return;
 
@@ -104,7 +104,7 @@ class DeviceEditHandler {
     if (window.feather) feather.replace();
   }
 
-  // Stellt Original-Buttons wieder her
+  // Restores original buttons
   _restoreOriginalButtons(actionsCell) {
     if (actionsCell && actionsCell.dataset.originalButtons) {
       actionsCell.innerHTML = actionsCell.dataset.originalButtons;
@@ -113,7 +113,7 @@ class DeviceEditHandler {
     }
   }
 
-  // Rendert Description Text
+  // Renders description text  
   _renderDescriptionText(cell, text) {
     if (!cell) return;
 
@@ -123,7 +123,7 @@ class DeviceEditHandler {
     cell.replaceChildren(span);
   }
 
-  // Speichert Description via API
+  // Saves description via API
   async _saveDescription(deviceId, newText, cell, oldText) {
     try {
       const response = await fetch(DeviceConfig.API.UPDATE_DESC, {

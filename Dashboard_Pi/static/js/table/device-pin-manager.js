@@ -1,6 +1,6 @@
 /**
  * Device Pin Manager
- * Verwaltet das Ein-/Ausklappen von Pin-Details
+ * Manages the display of device pin details
  */
 class DevicePinManager {
   constructor(dom, pinRenderer) {
@@ -9,7 +9,7 @@ class DevicePinManager {
     this.expandedPinRow = null;
   }
 
-  // Togglet Pin-Details für ein Device
+  // Toggles pin details for a device
   togglePinDetails(deviceId, deviceData) {
     if (!deviceData) return;
 
@@ -20,13 +20,13 @@ class DevicePinManager {
     const isCurrentlyExpanded = existingPinRow && 
                                 existingPinRow.classList.contains(DeviceConfig.CSS_CLASSES.PIN_DETAILS_ROW);
 
-    // Schließe andere offene Pin-Details
+    // Close other open pin details
     if (this.expandedPinRow && this.expandedPinRow !== existingPinRow) {
       this.dom.removeRow(this.expandedPinRow);
       this._deactivatePinsButton(this.expandedPinRow.dataset.deviceId);
     }
 
-    // Toggle aktuelles Device
+    // Toggle current device
     if (isCurrentlyExpanded) {
       this.dom.removeRow(existingPinRow);
       this.expandedPinRow = null;
@@ -41,7 +41,7 @@ class DevicePinManager {
     }
   }
 
-  // Aktualisiert Pin-Details falls geöffnet
+  // Updates pin details if expanded
   updateExpandedPins(deviceId, pins) {
     if (!this.expandedPinRow) return;
     if (this.expandedPinRow.dataset.deviceId !== deviceId) return;
@@ -51,7 +51,7 @@ class DevicePinManager {
     if (window.feather) feather.replace();
   }
 
-  // Stellt erweiterte Pins nach Re-Render wieder her
+  // Restores expanded pins after re-render
   restoreExpandedPins(deviceId, deviceData) {
     if (!this.expandedPinRow) return;
     if (this.expandedPinRow.dataset.deviceId !== deviceId) return;
@@ -71,7 +71,7 @@ class DevicePinManager {
     if (window.feather) feather.replace();
   }
 
-  // Aktiviert Pins-Button
+  // Activates Pins button
   _activatePinsButton(deviceId, deviceRow = null) {
     const row = deviceRow || this.dom.getRow(deviceId);
     const btn = this.dom.findButton(row, DeviceConfig.BUTTONS.PINS);
@@ -80,7 +80,7 @@ class DevicePinManager {
     }
   }
 
-  // Deaktiviert Pins-Button
+  // Deactivates Pins button
   _deactivatePinsButton(deviceId, deviceRow = null) {
     const row = deviceRow || this.dom.getRow(deviceId);
     const btn = this.dom.findButton(row, DeviceConfig.BUTTONS.PINS);
@@ -89,7 +89,7 @@ class DevicePinManager {
     }
   }
 
-  // Gibt aktuell erweiterte Device-ID zurück
+  // Returns currently expanded device ID
   getExpandedDeviceId() {
     return this.expandedPinRow?.dataset.deviceId || null;
   }

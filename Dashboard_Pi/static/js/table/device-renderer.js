@@ -1,6 +1,6 @@
 /**
  * Device Renderer
- * Koordiniert das Rendering der Device Table
+ * Contains rendering logic for Device Table
  */
 class DeviceRenderer {
   constructor(dom, dataService, rowRenderer, pinManager, settingsManager) {
@@ -11,21 +11,21 @@ class DeviceRenderer {
     this.settings = settingsManager;
   }
 
-  // Vollständiges Re-Rendering
+  // Full re-render
   render(devices) {
     if (!this.dom.isAvailable()) return;
     
     const rows = this.dataService.toSortedRows(devices);
     const expandedDeviceId = this.pinManager.getExpandedDeviceId();
 
-    // Keine Devices vorhanden
+    // No devices available
     if (rows.length === 0) {
       this.dom.replaceContent(this.rowRenderer.createEmptyRow());
       this.dataService.setAll(devices);
       return;
     }
 
-    // Rows erstellen
+    // Create rows
     const fragment = document.createDocumentFragment();
     const offlineThreshold = this.settings.get('offlineThreshold');
 
@@ -38,13 +38,13 @@ class DeviceRenderer {
 
     if (window.feather) feather.replace();
 
-    // Erweiterte Pins wiederherstellen
+    // Restore expanded pins
     if (expandedDeviceId && devices[expandedDeviceId]) {
       this.pinManager.restoreExpandedPins(expandedDeviceId, devices[expandedDeviceId]);
     }
   }
 
-  // In-Place Update (ohne vollständiges Re-Rendering)
+  // In-Place Update (without full re-render)
   updateInPlace(newDevices, changedIds) {
     changedIds.forEach(deviceId => {
       const row = this.dom.getRow(deviceId);
@@ -52,17 +52,17 @@ class DeviceRenderer {
 
       const deviceData = newDevices[deviceId];
       
-      // Row-Daten aktualisieren
+      // Update row data
       this.rowRenderer.updateRowInPlace(row, deviceData);
 
-      // Pin-Details aktualisieren falls geöffnet
+      // Update pin details if expanded
       this.pinManager.updateExpandedPins(deviceId, deviceData.pins || {});
     });
 
     this.dataService.setAll(newDevices);
   }
 
-  // Aktualisiert Offline-Status aller Rows
+  // Updates offline status of all rows
   updateOfflineStatus() {
     if (!this.dom.isAvailable()) return;
     

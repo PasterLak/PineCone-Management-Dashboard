@@ -1,9 +1,9 @@
 /**
  * Pin Details Renderer
- * Erstellt und verwaltet Pin-Details Anzeige
+ * Contains logic to create and update pin details rows
  */
 class PinDetailsRenderer {
-  // Erstellt Pin-Details Row
+  // Creates Pin Details Row
   createPinDetailsRow(deviceId, pins) {
     const tr = document.createElement('tr');
     tr.className = DeviceConfig.CSS_CLASSES.PIN_DETAILS_ROW;
@@ -19,7 +19,7 @@ class PinDetailsRenderer {
     return tr;
   }
 
-  // Erstellt Pin-Container
+  // Creates Pin Container
   _createContainer(pins) {
     const container = document.createElement('div');
     container.className = 'pin-details-container';
@@ -40,7 +40,7 @@ class PinDetailsRenderer {
     return container;
   }
 
-  // Erstellt Header
+  // Creates Header
   _createHeader(pinCount) {
     const header = document.createElement('div');
     header.className = 'pin-details-header';
@@ -57,7 +57,7 @@ class PinDetailsRenderer {
     return header;
   }
 
-  // Erstellt "Keine Pins" Nachricht
+  // Creates "No Pins" message
   _createEmptyMessage() {
     const noMsg = document.createElement('div');
     noMsg.className = 'no-pins-message';
@@ -65,7 +65,7 @@ class PinDetailsRenderer {
     return noMsg;
   }
 
-  // Erstellt Pins Grid
+  // Creates Pins Grid
   _createPinsGrid(pinEntries) {
     const grid = document.createElement('div');
     grid.className = 'pins-grid';
@@ -77,7 +77,7 @@ class PinDetailsRenderer {
     return grid;
   }
 
-  // Erstellt einzelne Pin Card
+  // Creates individual Pin Card
   _createPinCard(gpio, pin) {
     const card = document.createElement('div');
     card.className = 'pin-card';
@@ -100,7 +100,7 @@ class PinDetailsRenderer {
     return card;
   }
 
-  // Aktualisiert Pin-Details Inhalt
+  // Updates Pin Details content
   updatePinDetailsContent(pinRow, pins) {
     const td = pinRow.querySelector('td');
     if (!td) return;

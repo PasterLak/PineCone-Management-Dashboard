@@ -1,6 +1,6 @@
 /**
  * Device Event Handler
- * Verwaltet alle Event-Listener für die Device Table
+ * Handles all click events for device table
  */
 class DeviceEventHandler {
   constructor(actions, pinManager, renderer) {
@@ -9,12 +9,12 @@ class DeviceEventHandler {
     this.renderer = renderer;
   }
 
-  // Setup Event-Listener
+  // Setup event listener
   setup() {
     document.addEventListener('click', (e) => this._handleClick(e));
   }
 
-  // Zentraler Click-Handler
+  // Central click handler
   _handleClick(e) {
     const okBtn = e.target.closest(DeviceConfig.BUTTONS.OK);
     const cancelBtn = e.target.closest(DeviceConfig.BUTTONS.CANCEL);
@@ -38,7 +38,7 @@ class DeviceEventHandler {
     }
   }
 
-  // OK Button (Speichern)
+  // OK Button (Save)
   _handleOkButton(button) {
     const deviceId = button.dataset.id;
     if (deviceId) {
@@ -46,7 +46,7 @@ class DeviceEventHandler {
     }
   }
 
-  // Cancel Button (Abbrechen)
+  // Cancel Button (Cancel)
   _handleCancelButton(button) {
     const deviceId = button.dataset.id;
     if (deviceId) {
@@ -67,7 +67,7 @@ class DeviceEventHandler {
     const deviceId = button.dataset.id;
     if (deviceId) {
       this.actions.deleteDevice(deviceId, () => {
-        // Nach Delete: Re-Render
+        // After delete: Re-render
         const devices = this.actions.dataService.getAll();
         this.renderer.render(devices);
       });
@@ -88,7 +88,7 @@ class DeviceEventHandler {
     const deviceId = button.dataset.id;
     if (deviceId) {
       this.actions.toggleBlink(deviceId, (newBlinkState) => {
-        // Update Button UI
+        // Update button UI
         this.renderer.rowRenderer.updateBlinkButton(
           button.closest('tr'),
           newBlinkState
