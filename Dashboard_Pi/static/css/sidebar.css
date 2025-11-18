@@ -1,0 +1,201 @@
+/* Layout */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  border-right: 1px solid var(--sidebar-border);
+
+  transition: width 0.3s ease-in-out;
+  overflow: hidden;
+  z-index: 50;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar--closed {
+  width: 70px;
+}
+
+.sidebar--open {
+  width: 224px;
+}
+
+.sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 12px 8px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Toggle Button */
+.sidebar-toggle {
+  align-self: flex-end;
+  margin-bottom: 16px;
+  border: 1px solid var(--sidebar-border);
+  background: transparent;
+  color: var(--sidebar-text);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.sidebar-toggle:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.sidebar-toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease-in-out;
+}
+
+.sidebar-toggle-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--sidebar-text);
+}
+
+/* Rotation, wenn Sidebar offen */
+.sidebar--open .sidebar-toggle-icon {
+  transform: rotate(180deg);
+}
+
+
+/* Items */
+.sidebar-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-item {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex; /* unified layout to avoid jump when opening/closing */
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 14px 0 10px; /* consistent horizontal padding */
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  border: none;
+  text-align: left;
+  transition: background 0.25s ease, transform 0.15s ease;
+}
+
+
+.sidebar-item:hover {
+  background: rgba(255,255,255,0.12);
+  transform: translateX(1px);
+}
+
+.sidebar-item--active {
+  background: rgba(255,255,255,0.22);
+}
+
+/* Closed: item keeps same height, icon centered horizontally, no layout flicker */
+.sidebar--closed .sidebar-item {
+  justify-content: flex-start; /* keep icon at left edge, matching open state */
+  gap: 10px; /* keep gap so transition is smooth */
+  padding: 0 14px 0 10px; /* identical padding to open state */
+}
+
+/* Ensure icon never stretches or shifts */
+.sidebar-icon { flex-shrink: 0; }
+.sidebar--closed .sidebar-icon { margin: 0; }
+
+/* Icon + Label */
+.sidebar-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--sidebar-text);
+}
+
+/* Label with smooth fade in/out */
+.sidebar-label {
+  color: var(--sidebar-text);
+  white-space: nowrap;
+  opacity: 0; /* start hidden */
+  overflow: hidden;
+  transition: opacity 0.3s ease 0.1s; /* fade in after sidebar opens (0.1s delay) */
+}
+
+/* Open: fade in label */
+.sidebar--open .sidebar-label {
+  opacity: 1;
+}
+
+/* Closed: fade out label immediately */
+.sidebar--closed .sidebar-label {
+  opacity: 0;
+  pointer-events: none;
+  transition-delay: 0s; /* no delay when closing */
+}
+
+/* Reduce inner padding when closed so icon doesn't look clipped */
+/* Closed: keep slight horizontal padding to prevent clipping against viewport edge */
+.sidebar--closed .sidebar-inner { padding: 12px 8px; }
+
+/* Neutralize hover shift in closed mode (keeps icon perfectly centered) */
+.sidebar--closed .sidebar-item:hover { transform: none; }
+
+/* Main content */
+.main-content {
+  flex: 1;
+  margin-left: 70px;
+  padding: 20px;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.sidebar--open + .main-content {
+  margin-left: 224px;
+}
+
+/* Pages */
+.page-container {
+  position: relative;
+  min-height: calc(100vh - 40px);
+}
+
+.page {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out;
+}
+
+.page--active {
+  opacity: 1;
+  pointer-events: auto;
+}

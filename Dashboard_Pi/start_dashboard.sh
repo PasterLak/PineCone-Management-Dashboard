@@ -19,9 +19,7 @@ fi
 
 pyenv local bl_venv
 pip install --upgrade pip
-pip install flask flask-socketio eventlet
-
-mkdir -p "$APP_DIR/templates" "$APP_DIR/static"
+pip install flask
 
 APP_PY="$APP_DIR/app.py"
 
@@ -32,15 +30,6 @@ else
   echo -e "Bitte lege app.py im Projektordner an (Python-Code ist jetzt ausgelagert)."
   exit 1
 fi
-
-for f in index.html header.html footer.html scripts.html; do
-  if [ -f "$APP_DIR/$f" ]; then
-    cp "$APP_DIR/$f" "$APP_DIR/templates/$f"
-    echo -e "$f → templates/$f copied."
-  else
-    echo -e "$f not found – pls add manually."
-  fi
-done
 
 echo -e "Setup completed!"
 echo "-----------------------------------------"
