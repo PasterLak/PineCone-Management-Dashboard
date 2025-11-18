@@ -7,7 +7,7 @@ APP_DIR="$(pwd)"
 echo -e "PineCone Dashboard Setup (Linux, Current Folder)"
 
 if ! command -v pyenv &> /dev/null; then
-  echo -e "Fehler: pyenv is not installed."
+  echo -e "Error: pyenv is not installed."
   echo "pls install first: (https://github.com/pyenv/pyenv)."
   exit 1
 fi
@@ -24,10 +24,9 @@ pip install flask
 APP_PY="$APP_DIR/app.py"
 
 if [ -f "$APP_PY" ]; then
-  echo -e "Flask-App gefunden: $APP_PY"
+  echo -e "Flask-App found: $APP_PY"
 else
-  echo -e "Fehler: $APP_PY nicht gefunden."
-  echo -e "Bitte lege app.py im Projektordner an (Python-Code ist jetzt ausgelagert)."
+  echo -e "Error: $APP_PY not found."
   exit 1
 fi
 

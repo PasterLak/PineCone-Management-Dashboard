@@ -1,22 +1,36 @@
 {% include 'header.html' %}
+<body>
+  <div class="layout">
+    {% include 'sidebar.html' %}
 
-<div class="layout">
-  {% include 'sidebar.html' %}
+    <!-- Main content -->
+    <main class="main-content">
+      <div class="page-container">
+        <!-- Page: Home (Dashboard) -->
+        {% include 'device_table.html' %}
 
-  <!-- Hauptinhalt -->
-  <main class="main-content">
-    <div class="page-container">
-      <!-- Seite: Home (Dashboard) -->
-      {% include 'device_table.html' %}
+        <!-- Page: PineCone Device Simulator Settings -->
+        {% include 'pinecone_simulator.html' %}
 
-      <!-- Seite: PineCone Device Simulator Settings -->
-      {% include 'pinecone_simulator.html' %}
-    </div>
-  </main>
-</div>
+        <!-- Page: Settings -->
+        {% include 'settings.html' %}
+      </div>
+    </main>
+  </div>
+</body>
 
 <script>
   window.initialDevices = {{ devices | tojson }};
 </script>
 
-{% include 'scripts.html' %}
+<!-- Utility Scripts -->
+<script src="{{ url_for('static', filename='js/input-validation.js') }}"></script>
+<script src="{{ url_for('static', filename='js/settings-manager.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sidebar-manager.js') }}"></script>
+<script src="{{ url_for('static', filename='js/page-manager.js') }}"></script>
+<script src="{{ url_for('static', filename='js/device-manager.js') }}"></script>
+<script src="{{ url_for('static', filename='js/simulator-manager.js') }}"></script>
+<script src="{{ url_for('static', filename='js/settings-ui-manager.js') }}"></script>
+
+<!-- Initialize Dashboard -->
+{% include 'initiate_dashboard.html' %}
