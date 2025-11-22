@@ -26,6 +26,10 @@
   window.initialDevices = {{ devices | tojson }};
 </script>
 
+<!-- Base API Service -->
+<script src="{{ url_for('static', filename='js/utils/api-service.js') }}"></script>
+<script src="{{ url_for('static', filename='js/utils/polling-service.js') }}"></script>
+
 <!-- Utility Scripts -->
 <script src="{{ url_for('static', filename='js/utils/input-validation.js') }}"></script>
 

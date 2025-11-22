@@ -23,11 +23,7 @@ class SidebarManager {
   }
 
   toggleState() {
-    if (this.isOpen) {
-      this.close();
-    } else {
-      this.open();
-    }
+    this.isOpen ? this.close() : this.open();
   }
 
   init() {

@@ -1,31 +1,32 @@
-// Console Manager - Main orchestrator
+// Console Manager - Manages Console Functionality
 const ConsoleManager = {
   isActive: false,
+  pollingService: null,
+  apiService: null,
 
   init(settingsManager) {
     ConsoleDOM.init();
     ConsoleEventHandler.init();
-    
-    // Load saved state from localStorage
     ConsoleRenderer._loadState();
     
-    // Update config from settings
+    this.apiService = new ConsoleApiService();
+    this.pollingService = new ConsolePollingService(
+      this.apiService,
+      ConsoleRenderer,
+      settingsManager.get('consolePoll')
+    );
+    
     if (settingsManager) {
       ConsoleConfig.updateFromSettings(settingsManager.settings);
       
-      // Listen for settings updates
       settingsManager.onUpdate((newSettings) => {
         ConsoleConfig.updateFromSettings(newSettings);
-        
-        // Restart polling with new interval if active
-        if (this.isActive) {
-          ConsolePollingService.stop();
-          ConsolePollingService.start();
+        if (this.isActive && newSettings.consolePoll) {
+          this.pollingService.setInterval(newSettings.consolePoll);
         }
       });
     }
     
-    // Initialize feather icons for console buttons
     if (typeof feather !== 'undefined') {
       feather.replace();
     }
@@ -33,15 +34,13 @@ const ConsoleManager = {
 
   activate() {
     if (this.isActive) return;
-    
     this.isActive = true;
-    ConsolePollingService.start();
+    this.pollingService.start();
   },
 
   deactivate() {
     if (!this.isActive) return;
-    
     this.isActive = false;
-    ConsolePollingService.stop();
+    this.pollingService.stop();
   }
 };

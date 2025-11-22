@@ -89,11 +89,9 @@ class SimulatorManager {
     });
   }
 
-  // Setup settings listener
   _setupSettingsListener() {
     this.settings.onUpdate((changes) => {
       if (changes.simulatorPoll) {
-        console.log('Simulator polling interval updated to:', changes.simulatorPoll);
         this.pollingService.setInterval(changes.simulatorPoll);
       }
     });

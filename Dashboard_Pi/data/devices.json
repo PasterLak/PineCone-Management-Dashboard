@@ -1,15 +1,8 @@
 {
-  "auto-0930653d": {
+  "auto-83de4a50": {
     "ip": "127.0.0.1",
     "description": "",
-    "last_seen": "2025-11-22T10:43:46",
-    "pins": {},
-    "blink": false
-  },
-  "auto-0ebc5f4a": {
-    "ip": "127.0.0.1",
-    "description": "",
-    "last_seen": "2025-11-22T10:48:38",
+    "last_seen": "2025-11-22T11:50:40",
     "pins": {},
     "blink": false
   }

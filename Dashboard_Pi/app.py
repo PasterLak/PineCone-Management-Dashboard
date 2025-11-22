@@ -28,6 +28,23 @@ simulator_responses = {}  # Store last responses for each simulator
 console_logs = []
 console_log_lock = threading.Lock()
 MAX_CONSOLE_LOGS = 150  # Keep only last 150 logs (frontend shows 100)
+MAX_SIMULATOR_RESPONSES = 50  # Keep only last 50 responses per simulator
+
+
+def get_timestamp():
+    """Helper function to get consistent timestamp format"""
+    return datetime.now().strftime("%H:%M:%S")
+
+
+def add_simulator_log(sim_id, message):
+    """Helper function to add a log entry to simulator responses"""
+    if sim_id not in simulator_responses:
+        simulator_responses[sim_id] = []
+    simulator_responses[sim_id].append(f"[{get_timestamp()}] {message}")
+    
+    # Keep only last MAX_SIMULATOR_RESPONSES entries
+    if len(simulator_responses[sim_id]) > MAX_SIMULATOR_RESPONSES:
+        simulator_responses[sim_id] = simulator_responses[sim_id][-MAX_SIMULATOR_RESPONSES:]
 
 
 class ConsoleLogHandler(logging.Handler):
@@ -226,10 +243,6 @@ def simulator_worker(sim_id, interval_ms, payload_str, auto_update):
     except:
         current_payload = {"node_id": "", "description": ""}
     
-    # Initialize response log
-    if sim_id not in simulator_responses:
-        simulator_responses[sim_id] = []
-    
     while not stop_flag["stop"]:
         try:
             # Check if autoUpdate has changed
@@ -246,13 +259,7 @@ def simulator_worker(sim_id, interval_ms, payload_str, auto_update):
                 result = response.get_json()
                 
                 # Log response with timestamp
-                timestamp = datetime.now().strftime("%H:%M:%S")
-                log_entry = f"[{timestamp}] {json.dumps(result)}"
-                simulator_responses[sim_id].append(log_entry)
-                
-                # Keep only last 50 responses to limit memory usage
-                if len(simulator_responses[sim_id]) > 50:
-                    simulator_responses[sim_id] = simulator_responses[sim_id][-50:]
+                add_simulator_log(sim_id, json.dumps(result))
                 
                 # Store current payload for frontend sync
                 config["currentPayload"] = current_payload
@@ -269,9 +276,7 @@ def simulator_worker(sim_id, interval_ms, payload_str, auto_update):
                 
             print(f"[Simulator {sim_id}] Sent: {current_payload}")
         except Exception as e:
-            timestamp = datetime.now().strftime("%H:%M:%S")
-            log_entry = f"[{timestamp}] ERROR: {str(e)}"
-            simulator_responses[sim_id].append(log_entry)
+            add_simulator_log(sim_id, f"ERROR: {str(e)}")
             print(f"[Simulator {sim_id}] Error: {e}")
         
         # Sleep in small chunks to allow quick stop
@@ -296,10 +301,7 @@ def start_simulator():
     simulator_configs[sim_id] = {"autoUpdate": auto_update}
     
     # Preserve existing responses and add start message
-    timestamp = datetime.now().strftime("%H:%M:%S")
-    if sim_id not in simulator_responses:
-        simulator_responses[sim_id] = []
-    simulator_responses[sim_id].append(f"[{timestamp}] Simulator started")
+    add_simulator_log(sim_id, "Simulator started")
     
     # Create stop flag
     simulator_stop_flags[sim_id] = {"stop": False}
@@ -325,9 +327,7 @@ def stop_simulator():
         return jsonify({"error": "not found"}), 404
     
     # Add stop message to responses before cleaning up
-    if sim_id in simulator_responses:
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        simulator_responses[sim_id].append(f"[{timestamp}] Simulator stopped")
+    add_simulator_log(sim_id, "Simulator stopped")
     
     # Signal stop
     simulator_stop_flags[sim_id]["stop"] = True
@@ -398,9 +398,7 @@ def update_simulator_payload():
         simulator_configs[sim_id]["payload"] = payload
         
         # Add log entry
-        if sim_id in simulator_responses:
-            timestamp = datetime.now().strftime("%H:%M:%S")
-            simulator_responses[sim_id].append(f"[{timestamp}] Payload updated manually")
+        add_simulator_log(sim_id, "Payload updated manually")
         
         return jsonify({"status": "updated", "id": sim_id})
     except json.JSONDecodeError as e:
@@ -421,14 +419,7 @@ def send_simulator_once():
         
         # Add to simulator_responses if simulator exists
         if sim_id is not None:
-            if sim_id not in simulator_responses:
-                simulator_responses[sim_id] = []
-            timestamp = datetime.now().strftime("%H:%M:%S")
-            simulator_responses[sim_id].append(f"[{timestamp}] Send once: {json.dumps(result)}")
-            
-            # Keep only last 50 responses
-            if len(simulator_responses[sim_id]) > 50:
-                simulator_responses[sim_id] = simulator_responses[sim_id][-50:]
+            add_simulator_log(sim_id, f"Send once: {json.dumps(result)}")
         
         return jsonify({"status": "sent", "response": result})
     except Exception as e:
