@@ -7,7 +7,10 @@ class SettingsManager {
       offlineThreshold: 5000,
       tickOffline: 1000,
       pollInterval: 1000,
-      simulatorPoll: 500
+      simulatorPoll: 500,
+      consolePoll: 500,
+      maxConsoleLines: 1000,
+      maxSimulatorResponses: 100
     };
     this.settings = this.load();
   }

@@ -79,7 +79,7 @@ class ConfirmDialogInstance {
     this.dialog.innerHTML = `
       <div class="confirm-dialog-header">
         <div class="confirm-dialog-icon confirm-dialog-icon--${this.options.type}">
-          ${this.getIcon()}
+          <i data-feather="info"></i>
         </div>
         <h3 class="confirm-dialog-title">${this.escapeHtml(this.options.title)}</h3>
       </div>
@@ -207,18 +207,6 @@ class ConfirmDialogInstance {
       }
       ConfirmDialog.currentDialog = null;
     }, 300);
-  }
-
-  getIcon() {
-    const iconNames = {
-      danger: 'alert-circle',
-      warning: 'alert-triangle',
-      success: 'check-circle',
-      info: 'info'
-    };
-    
-    const iconName = iconNames[this.options.type] || iconNames.info;
-    return `<i data-feather="${iconName}"></i>`;
   }
 
   escapeHtml(text) {

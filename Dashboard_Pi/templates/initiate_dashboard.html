@@ -10,7 +10,11 @@
     const settingsUIManager = new SettingsUIManager(settingsManager);
     const deviceManager = new DeviceManager(settingsManager);
     const simulatorManager = new SimulatorManager(settingsManager);
-    ConsoleManager.init();
+
+    // Make settingsManager globally available for console
+    window.settingsManager = settingsManager;
+
+    ConsoleManager.init(settingsManager);
 
     // Initialize all components
     sidebarManager.init();
