@@ -1,8 +1,11 @@
+// Manages the console log viewer that shows Flask server output
+// Polls /api/console/logs every 500ms and displays with color-coded categories
 const ConsoleManager = {
   isActive: false,
   pollingService: null,
   apiService: null,
 
+  // Set up console on page load
   init(settingsManager) {
     ConsoleDOM.init();
     ConsoleEventHandler.init();
@@ -15,6 +18,7 @@ const ConsoleManager = {
       settingsManager.get('consolePoll')
     );
     
+    // Update polling interval when settings change
     if (settingsManager) {
       ConsoleConfig.updateFromSettings(settingsManager.settings);
       
@@ -31,15 +35,18 @@ const ConsoleManager = {
     }
   },
 
+  // Called when user navigates to console page
   activate() {
     if (this.isActive) return;
     this.isActive = true;
-    this.pollingService.start();
+    this.pollingService.start();  // Start fetching logs
   },
 
+  // Called when user navigates away
   deactivate() {
     if (!this.isActive) return;
     this.isActive = false;
-    this.pollingService.stop();
+    this.pollingService.stop();  // Stop fetching logs
   }
 };
+

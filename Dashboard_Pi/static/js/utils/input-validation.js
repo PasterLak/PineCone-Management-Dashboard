@@ -1,11 +1,7 @@
-/**
- * Input validation utilities for numeric fields
- */
+// Makes sure numeric input fields only accept numbers (no letters or special characters)
+// Also handles paste events to strip non-numeric characters
 
-/**
- * Setup numeric input validation for specified input elements
- * @param {HTMLElement[]} inputs - Array of input elements to validate
- */
+// Validate specific input elements
 function setupNumericInputValidation(inputs) {
   inputs.forEach(input => {
     // Prevent non-numeric input
@@ -30,11 +26,7 @@ function setupNumericInputValidation(inputs) {
   });
 }
 
-/**
- * Setup numeric input validation using event delegation
- * Useful when inputs are dynamically created
- * @param {string} fieldSelector - data-field attribute value to match (e.g., "interval")
- */
+// Validate dynamically created inputs by their data-field attribute
 function setupNumericInputValidationByField(fieldSelector) {
   // Prevent non-numeric input
   document.addEventListener('keypress', (e) => {

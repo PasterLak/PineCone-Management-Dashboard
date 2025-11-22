@@ -1,32 +1,37 @@
+<!-- Main Dashboard Template -->
+<!-- Combines all page templates into a single-page application -->
 {% include 'header.html' %}
 <body>
   <div class="layout">
+    <!-- Left navigation sidebar -->
     {% include 'sidebar.html' %}
 
-    <!-- Main content -->
+    <!-- Main content area (pages toggled by JavaScript) -->
     <main class="main-content">
       <div class="page-container">
-        <!-- Page: Home (Dashboard) -->
+        <!-- Device Table: Shows all connected BL602 devices -->
         {% include 'device_table.html' %}
 
-        <!-- Page: PineCone Device Simulator Settings -->
+        <!-- Simulator: Create virtual devices for testing -->
         {% include 'pinecone_simulator.html' %}
 
-        <!-- Page: Console -->
+        <!-- Console: View Flask server logs -->
         {% include 'console.html' %}
 
-        <!-- Page: Settings -->
+        <!-- Settings: Configure polling intervals and thresholds -->
         {% include 'settings.html' %}
       </div>
     </main>
   </div>
 </body>
 
+<!-- Pass initial device data from Flask to JavaScript -->
 <script>
   window.initialDevices = {{ devices | tojson }};
 </script>
 
-<!-- Base API Service -->
+<!-- Load JavaScript modules in dependency order -->
+<!-- Base utilities -->
 <script src="{{ url_for('static', filename='js/utils/api-service.js') }}"></script>
 <script src="{{ url_for('static', filename='js/utils/polling-service.js') }}"></script>
 

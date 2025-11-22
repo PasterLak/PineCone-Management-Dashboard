@@ -1,10 +1,14 @@
+// Unified API service that talks to the Flask backend
+// Handles all HTTP requests (GET/POST) for devices, simulators, and console logs
 class APIService {
+  // Basic HTTP GET wrapper
   async get(url) {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`GET ${url} failed`);
     return await response.json();
   }
 
+  // Basic HTTP POST wrapper
   async post(url, data) {
     const response = await fetch(url, {
       method: 'POST',
@@ -15,7 +19,7 @@ class APIService {
     return await response.json();
   }
 
-  // Device API methods
+  // Device-related API calls
   async fetchDevices() {
     const data = await this.get('/api/devices');
     return data.devices || {};
@@ -31,7 +35,7 @@ class APIService {
     return data.blink;
   }
 
-  // Simulator API methods
+  // Simulator-related API calls
   async startSimulator(id, interval, payload, autoUpdate) {
     return await this.post('/api/simulator/start', { id, interval, payload, autoUpdate });
   }
@@ -64,7 +68,7 @@ class APIService {
     return await this.post('/api/simulator/delete', { id });
   }
 
-  // Console API methods
+  // Console log API calls
   async fetchConsoleLogs() {
     try {
       const data = await this.get('/api/console/logs');
@@ -82,3 +86,4 @@ class APIService {
     }
   }
 }
+

@@ -1,29 +1,11 @@
-/**
- * Confirm Dialog Component
- * Modern, reusable confirmation dialog with animations
- * 
- * Usage:
- * const confirmed = await ConfirmDialog.show({
- *   title: 'Delete Device?',
- *   message: 'This action cannot be undone.',
- *   confirmText: 'Delete',
- *   cancelText: 'Cancel',
- *   type: 'danger' // 'danger', 'warning', 'info', 'success'
- * });
- * 
- * if (confirmed) {
- *   // User clicked confirm
- * }
- */
+// Reusable confirmation dialog that pops up when user wants to delete something
+// Returns a promise that resolves to true (confirmed) or false (cancelled)
+// Example: if (await ConfirmDialog.show({ title: 'Delete?', type: 'danger' })) { ... }
 
 class ConfirmDialog {
   static currentDialog = null;
 
-  /**
-   * Show confirmation dialog
-   * @param {Object} options - Dialog options
-   * @returns {Promise<boolean>} - Resolves with true if confirmed, false if cancelled
-   */
+  // Show a confirmation dialog and wait for user's choice
   static show(options = {}) {
     // Close any existing dialog
     if (this.currentDialog) {
