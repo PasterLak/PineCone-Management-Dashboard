@@ -9,13 +9,13 @@ class SettingsUIManager {
     
     // Initialize services
     this.validator = new SettingsValidator();
-    this.feedback = new SettingsFeedback();
+    this.buttonFeedback = new ButtonFeedback();
     this.form = new SettingsForm(this.dom, settingsManager);
     this.actions = new SettingsActions(
       this.form,
       this.validator,
       settingsManager,
-      this.feedback
+      this.buttonFeedback
     );
   }
 

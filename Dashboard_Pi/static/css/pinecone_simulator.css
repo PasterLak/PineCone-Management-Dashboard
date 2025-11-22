@@ -468,13 +468,51 @@ input:checked+.slider:before {
     position: relative;
 }
 
+.sim-console-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
 .sim-json label,
 .sim-console label {
     display: block;
-    margin-bottom: 8px;
     font-size: 0.9rem;
     font-weight: 500;
     color: var(--text);
+    margin: 0;
+}
+
+.copy-response-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    background: var(--color-secondary);
+    color: var(--color-white);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-response-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.copy-response-btn:hover {
+    background: var(--color-secondary-hover);
+    transform: translateY(-1px);
+}
+
+.copy-response-btn:active {
+    transform: translateY(0);
+}
+
+.sim-json label {
+    margin-bottom: 8px;
 }
 
 textarea:disabled {

@@ -73,7 +73,12 @@ class SimulatorCardRenderer {
           <textarea data-id="${sim.id}" data-field="${SimulatorConfig.FIELDS.JSON}" ${sim.running ? 'disabled' : ''}>${sim.json}</textarea>
         </div>
         <div class="sim-console">
-          <label>Server Response</label>
+          <div class="sim-console-header">
+            <label>Server Response</label>
+            <button class="copy-response-btn" data-id="${sim.id}" data-original-icon="copy" title="Copy server response">
+              <i data-feather="copy"></i>
+            </button>
+          </div>
           <div class="sim-console-output" data-id="${sim.id}">${sim.console || 'No responses...'}</div>
           <button class="scroll-to-bottom-btn" data-id="${sim.id}" title="Scroll to bottom">
             <i data-feather="arrow-down"></i>

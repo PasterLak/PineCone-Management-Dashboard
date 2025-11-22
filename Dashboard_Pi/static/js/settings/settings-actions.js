@@ -3,11 +3,11 @@
  * Does Save- and Reset actions
  */
 class SettingsActions {
-  constructor(form, validator, settingsManager, feedback) {
+  constructor(form, validator, settingsManager, buttonFeedback) {
     this.form = form;
     this.validator = validator;
     this.settings = settingsManager;
-    this.feedback = feedback;
+    this.buttonFeedback = buttonFeedback;
   }
 
   // Saves settings
@@ -25,7 +25,7 @@ class SettingsActions {
       this.settings.update(values);
 
       // Show feedback
-      this.feedback.showFeedback(saveButton, 'Saved!');
+      this.buttonFeedback.showTextFeedback(saveButton, 'Saved!');
 
       // Trigger event
       this._dispatchSettingsUpdated(values);
@@ -45,8 +45,8 @@ class SettingsActions {
     this.settings.update(defaults);
     
     // Show feedback
-    this.feedback.showFeedback(resetButton, 'Reset successful!', {
-      isSecondary: true
+    this.buttonFeedback.showTextFeedback(resetButton, 'Reset successful!', {
+      resetBorder: true
     });
     
     // Trigger event
