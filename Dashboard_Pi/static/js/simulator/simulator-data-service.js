@@ -1,7 +1,3 @@
-/**
- * Simulator Data Service
- * Manages simulator data and business logic
- */
 class SimulatorDataService {
   constructor() {
     this.simulators = [];

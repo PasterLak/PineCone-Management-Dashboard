@@ -1,8 +1,3 @@
-/**
- * Simulator Manager
- * Coordinates simulators for testing IoT device POST requests
- * Enables dashboard development and C++ code testing (for early state of dev)
- */
 class SimulatorManager {
   constructor(settingsManager) {
     this.settings = settingsManager;
@@ -10,7 +5,7 @@ class SimulatorManager {
     // Initialize services
     this.dom = new SimulatorDOM();
     this.dataService = new SimulatorDataService();
-    this.apiService = new SimulatorAPIService();
+    this.apiService = new APIService();
     
     // Initialize renderers and managers
     this.cardRenderer = new SimulatorCardRenderer();

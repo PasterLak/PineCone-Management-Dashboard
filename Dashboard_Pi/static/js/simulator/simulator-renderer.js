@@ -1,7 +1,3 @@
-/**
- * Simulator Renderer
- * Coordinates rendering of simulator UI
- */
 class SimulatorRenderer {
   constructor(dom, dataService, cardRenderer) {
     this.dom = dom;

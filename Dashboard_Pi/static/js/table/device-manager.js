@@ -1,6 +1,3 @@
-/**
- * Device Manager
- */
 class DeviceManager {
   constructor(settingsManager) {
     this.settings = settingsManager;
@@ -8,7 +5,7 @@ class DeviceManager {
     // Initialize services
     this.dom = new DeviceDOM();
     this.dataService = new DeviceDataService();
-    this.apiService = new DeviceAPIService();
+    this.apiService = new APIService();
     
     // Initialize renderers
     this.rowRenderer = new DeviceRowRenderer(this.dataService);

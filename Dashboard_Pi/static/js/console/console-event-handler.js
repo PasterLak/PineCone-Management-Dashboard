@@ -9,7 +9,7 @@ const ConsoleEventHandler = {
   attachClearButton() {
     if (ConsoleDOM.clearBtn) {
       ConsoleDOM.clearBtn.addEventListener('click', async () => {
-        await ConsoleManager.apiService.clearLogs();
+        await ConsoleManager.apiService.clearConsoleLogs();
         ConsoleRenderer.clear();
       });
     }

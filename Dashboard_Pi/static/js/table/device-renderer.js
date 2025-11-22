@@ -1,7 +1,3 @@
-/**
- * Device Renderer
- * Contains rendering logic for Device Table
- */
 class DeviceRenderer {
   constructor(dom, dataService, rowRenderer, pinManager, settingsManager) {
     this.dom = dom;
