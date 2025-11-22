@@ -42,11 +42,5 @@ class SettingsManager {
   // Register callback to be notified when settings change
   onUpdate(callback) {
     this.updateCallbacks.push(callback);
-    // Also listen to custom events (for backward compatibility)
-    window.addEventListener('settingsUpdated', (e) => {
-      if (e.detail) {
-        this.settings = { ...this.settings, ...e.detail };
-      }
-    });
   }
 }

@@ -15,47 +15,39 @@ class SimulatorActions {
     const sim = this.dataService.getById(id);
     if (!sim || sim.running) return;
 
-    // Validate JSON
     const validation = this.dataService.validateJSON(sim.json);
     if (!validation.valid) {
       alert(`Invalid JSON in payload of simulator ${sim.name}!\n\nError: ${validation.error}`);
       return;
     }
 
-    // Start on server first
     try {
-      // Get max responses setting
       const maxResponses = this.settings ? this.settings.get('maxSimulatorResponses') : 100;
       
       const result = await this.api.startSimulator(id, sim.interval, sim.json, sim.autoUpdate, maxResponses);
       console.log('Simulator started:', result);
       
-      // Fetch initial status 
       const data = await this.api.getSimulatorStatus(id);
       if (data.responses && data.responses.length > 0) {
         const initialConsole = data.responses.join('\n');
         sim.console = initialConsole;
       }
       
-      // Update state
       this.dataService.update(id, { running: true });
       this.dataService.save();
       
-      // Schedule scroll for after render
       if (this.renderer) {
         this.renderer.scheduleScroll(id);
       }
       
-      if (onSuccess) onSuccess(); // This triggers render() with message from backend
+      if (onSuccess) onSuccess();  
       
-      // Start polling service to fetch subsequent responses
       if (this.pollingService) {
         this.pollingService.start();
       }
       
       return true;
     } catch (err) {
-      // Revert on failure
       this.dataService.update(id, { running: false });
       if (onSuccess) onSuccess();
       return false;
@@ -67,12 +59,10 @@ class SimulatorActions {
     const sim = this.dataService.getById(id);
     if (!sim || !sim.running) return;
 
-    // Stop on server first
     try {
       const result = await this.api.stopSimulator(id);
       console.log('Simulator stopped:', result);
       
-      // Fetch final status BEFORE updating UI
       const data = await this.api.getSimulatorStatus(id);
       if (data.responses && data.responses.length > 0) {
         const finalConsole = data.responses.join('\n');
@@ -80,15 +70,13 @@ class SimulatorActions {
         this.dataService.save();
       }
       
-      // NOW update state and render
       this.dataService.update(id, { running: false });
       
-      // Schedule scroll for after render
       if (this.renderer) {
         this.renderer.scheduleScroll(id);
       }
       
-      if (onSuccess) onSuccess(); // This triggers render with updated console
+      if (onSuccess) onSuccess();  
       
       return true;
     } catch (err) {
@@ -105,7 +93,6 @@ class SimulatorActions {
       const result = await this.api.sendSimulatorOnce(id, sim.json);
       console.log('Sent once:', result);
       
-      // Backend will add to simulator_responses, just fetch updated status
       const data = await this.api.getSimulatorStatus(id);
       if (data.responses && data.responses.length > 0) {
         const newConsole = data.responses.join('\n');
@@ -128,10 +115,8 @@ class SimulatorActions {
     try {
       await this.api.clearSimulatorResponses(id);
       
-      // Clear console locally
       sim.console = '';
       
-      // Clear cache and update console
       this.consoleManager.clearCache(id);
       this.consoleManager.updateConsole(id, 'No responses...');
       
@@ -148,21 +133,17 @@ class SimulatorActions {
   async remove(id, onSuccess) {
     const sim = this.dataService.getById(id);
     
-    // Stop if running
     if (sim && sim.running) {
       await this.stop(id);
     }
 
-    // Animate removal (this removes from DOM)
     if (this.renderer) {
       await this.renderer.removeCardWithAnimation(id);
     }
 
-    // Now remove from data (no re-render needed, already gone from DOM)
     this.dataService.remove(id);
     this.dataService.save();
 
-    // Delete responses from backend
     try {
       await this.api.deleteSimulatorResponses(id);
     } catch (err) {
@@ -179,30 +160,24 @@ class SimulatorActions {
 
     const updates = { [field]: value };
     
-    // Handle autoUpdate toggle
     if (field === SimulatorConfig.FIELDS.AUTO_UPDATE) {
       if (sim.running) {
         if (!value) {
-          // AutoUpdate turned OFF while running -> save current JSON as original
           sim.originalJson = sim.json;
           sim.hasUnsavedChanges = false;
         } else {
-          // AutoUpdate turned ON while running -> clear original
           sim.originalJson = null;
           sim.hasUnsavedChanges = false;
         }
         
-        // Update server
         this.api.updateSimulatorConfig(id, value).catch(err => {
           console.error('Failed to update autoUpdate:', err);
         });
       }
     }
     
-    // Handle JSON field changes
     if (field === SimulatorConfig.FIELDS.JSON) {
       if (sim.running && !sim.autoUpdate && sim.originalJson !== null) {
-        // Mark as having unsaved changes if different from original
         sim.hasUnsavedChanges = (value !== sim.originalJson);
       }
     }
@@ -216,7 +191,6 @@ class SimulatorActions {
     const sim = this.dataService.getById(id);
     if (!sim || !sim.running || sim.autoUpdate) return;
 
-    // Validate JSON
     const validation = this.dataService.validateJSON(sim.json);
     if (!validation.valid) {
       alert(`Invalid JSON!\n\nError: ${validation.error}`);
@@ -224,10 +198,8 @@ class SimulatorActions {
     }
 
     try {
-      // Update payload on server
       await this.api.updateSimulatorPayload(id, sim.json);
       
-      // Update original to new value and clear unsaved flag
       sim.originalJson = sim.json;
       sim.hasUnsavedChanges = false;
       this.dataService.save();
@@ -246,7 +218,6 @@ class SimulatorActions {
     const sim = this.dataService.getById(id);
     if (!sim || !sim.originalJson) return;
 
-    // Revert to original
     sim.json = sim.originalJson;
     sim.hasUnsavedChanges = false;
     this.dataService.save();
@@ -260,19 +231,16 @@ class SimulatorActions {
     const example = SimulatorConfig.getExample(exampleType);
     if (!example) return null;
 
-    // Find the "Example Simulator" by ID 0
     let exampleSim = this.dataService.getById(0);
     let isNewSim = false;
 
     if (!exampleSim) {
-      // Create new "Example Simulator" with ID 0
       exampleSim = this.dataService.createSimulatorData(0);
       exampleSim.name = 'Example Simulator';
       this.dataService.add(exampleSim);
       isNewSim = true;
     }
 
-    // Apply example and ensure name stays "Example Simulator"
     exampleSim.name = 'Example Simulator';
     exampleSim.json = JSON.stringify(example, null, 2);
     this.dataService.save();

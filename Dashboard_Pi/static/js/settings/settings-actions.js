@@ -25,9 +25,6 @@ class SettingsActions {
       // Show feedback
       this.buttonFeedback.showTextFeedback(saveButton, 'Saved!');
 
-      // Trigger event
-      this._dispatchSettingsUpdated(values);
-
     } catch (error) {
       console.error('Failed to save settings:', error);
       alert('Failed to save settings!');
@@ -46,15 +43,5 @@ class SettingsActions {
     this.buttonFeedback.showTextFeedback(resetButton, 'Reset successful!', {
       resetBorder: true
     });
-    
-    // Trigger event
-    this._dispatchSettingsUpdated(defaults);
-  }
-
-  // Triggers settings update event
-  _dispatchSettingsUpdated(values) {
-    window.dispatchEvent(new CustomEvent('settingsUpdated', {
-      detail: values
-    }));
   }
 }

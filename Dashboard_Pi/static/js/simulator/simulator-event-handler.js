@@ -182,10 +182,8 @@ class SimulatorEventHandler {
     
     if (result && result.id !== null && result.id !== undefined) {
       if (result.isNew) {
-        // New simulator - use addCard for animation
         this.renderer.addCard(result.id);
       } else {
-        // Existing simulator - just update it
         this.renderer.render();
       }
       this.renderer.scrollToSimulator(result.id);

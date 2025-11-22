@@ -1,5 +1,4 @@
 // Manages the console log viewer that shows Flask server output
-// Polls /api/console/logs every 500ms (default, configurable) and displays with color-coded categories
 class ConsoleManager {
   constructor(settingsManager) {
     this.settings = settingsManager;

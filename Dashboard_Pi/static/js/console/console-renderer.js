@@ -3,7 +3,7 @@
 const ConsoleRenderer = {
   lastSeenLogs: [], // Store last seen logs to detect changes
   maxVisibleLogs: 1000, // Default: show last 1000 logs (configurable via settings)
-  clearTimestamp: null, // Track when clear was called
+  clearTimestamp: null, // Track when clear was called (to filter logs)
   serverLogCountAtClear: null, // Track server log count when clear was called
 
   // Initialize with settings
@@ -162,13 +162,11 @@ const ConsoleRenderer = {
     // Filter logs if we have a clear timestamp - only show logs AFTER the clear point
     let filteredLogs = logs;
     if (this.serverLogCountAtClear !== null) {
-      // Backend cleared after our clear, so show all new logs
       if (logs.length < this.serverLogCountAtClear) {
         this.serverLogCountAtClear = null;
         this.clearTimestamp = null;
         this._saveState();
       } else {
-        // Show only logs that came after the clear point
         const logsAfterClear = logs.length - this.serverLogCountAtClear;
         filteredLogs = logs.slice(-logsAfterClear);
       }
@@ -192,7 +190,7 @@ const ConsoleRenderer = {
         ConsoleDOM.output.innerHTML = '';
       }
       
-      // Get last 100 logs from filtered logs
+      // Get last 100 logs from filtered logs (configurable in settings)
       const recentLogs = filteredLogs.slice(-this.maxVisibleLogs);
       recentLogs.forEach(log => {
         const logLine = this.createLogElement(log);
@@ -205,7 +203,7 @@ const ConsoleRenderer = {
       newLogs.forEach(log => this.appendLog(log));
     }
     
-    // Update last seen logs (keep last 100 from filtered logs)
+    // Update last seen logs (keep last 100 from filtered logs - configurable in settings)
     this.lastSeenLogs = filteredLogs.slice(-this.maxVisibleLogs);
     
     // Save state to survive reloads
@@ -213,7 +211,7 @@ const ConsoleRenderer = {
   },
 
   clear() {
-    // We need to know the current server log count to filter correctly after reload
+    // server log count is used to filter correctly after reload
     this.needsServerCount = true;
     
     if (ConsoleDOM.output) {

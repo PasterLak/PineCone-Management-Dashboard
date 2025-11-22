@@ -1,4 +1,3 @@
-/* Console Page Styles */
 .console-container {
   display: flex;
   flex-direction: column;
@@ -82,42 +81,35 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* Info - Blue */
 .console-info {
   color: #4fc3f7;
 }
 
-/* Warning - Orange */
 .console-warning {
   color: #ffb74d;
   font-weight: 500;
 }
 
-/* Error - Red */
 .console-error {
   color: #ef5350;
   font-weight: 600;
 }
 
-/* Success - Green */
 .console-success {
   color: #66bb6a;
   font-weight: 500;
 }
 
-/* HTTP Requests - Dim gray (less intrusive) */
 .console-http {
   color: #808080;
   opacity: 0.7;
 }
 
-/* HTTP Success (200, 304) - Very dim */
 .console-http-success {
   color: #606060;
   opacity: 0.5;
 }
 
-/* Simulator logs - Purple/Magenta */
 .console-simulator {
   color: #ba68c8;
   font-weight: 500;
@@ -161,7 +153,6 @@
   height: 20px;
 }
 
-/* Scrollbar styling for console */
 .console-output::-webkit-scrollbar {
   width: 12px;
 }
