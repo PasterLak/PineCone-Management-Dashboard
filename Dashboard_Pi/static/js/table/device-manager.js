@@ -1,17 +1,19 @@
+// Main orchestrator for the device table feature
+// Creates and wires together all device-related modules (rendering, polling, actions, etc.)
 class DeviceManager {
   constructor(settingsManager) {
     this.settings = settingsManager;
     
-    // Initialize services
+    // Core services
     this.dom = new DeviceDOM();
     this.dataService = new DeviceDataService();
     this.apiService = new APIService();
     
-    // Initialize renderers
+    // Rendering
     this.rowRenderer = new DeviceRowRenderer(this.dataService);
     this.pinRenderer = new PinDetailsRenderer();
     
-    // Initialize managers
+    // Feature managers
     this.editHandler = new DeviceEditHandler(this.dom);
     this.pinManager = new DevicePinManager(this.dom, this.pinRenderer);
     this.renderer = new DeviceRenderer(
@@ -22,7 +24,7 @@ class DeviceManager {
       this.settings
     );
     
-    // Initialize actions
+    // User actions (delete, blink, etc.)
     this.actions = new DeviceActions(
       this.dataService,
       this.apiService,
@@ -31,7 +33,7 @@ class DeviceManager {
       this.pinRenderer
     );
     
-    // Initialize polling
+    // Periodic updates
     this.pollingService = new DevicePollingService(
       this.apiService,
       this.dataService,
@@ -40,7 +42,7 @@ class DeviceManager {
       this.settings
     );
     
-    // Initialize event handler
+    // Event handling
     this.eventHandler = new DeviceEventHandler(
       this.actions,
       this.pinManager,
@@ -48,7 +50,7 @@ class DeviceManager {
     );
   }
 
-  // Initializes the Device Manager
+  // Set up the device table on page load
   init() {
     if (!this.dom.isAvailable()) {
       console.warn('Device table not found in DOM');

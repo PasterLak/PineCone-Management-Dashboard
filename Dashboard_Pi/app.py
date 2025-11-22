@@ -1,3 +1,8 @@
+"""
+PineCone Management Dashboard - Flask Backend
+Receives POST requests from BL602 IoT devices and serves a web dashboard.
+"""
+
 from flask import Flask, request, jsonify, render_template
 from datetime import datetime
 from pathlib import Path
@@ -9,35 +14,35 @@ import sys
 import logging
 from io import StringIO
 
-# Storage location for device data
+# Where we store device data between restarts
 DATA_DIR = Path("data")
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 DEVICES_JSON = DATA_DIR / "devices.json"
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
-devices = {}
+devices = {}  # In-memory storage: { "node_id": { ip, description, pins, last_seen, blink } }
 
-# Simulator state
-simulator_threads = {}  # Store threads per simulator
-simulator_stop_flags = {} # Store stop flags per simulator
-simulator_configs = {}  # Store autoUpdate state per simulator
-simulator_responses = {}  # Store last responses for each simulator
+# Simulator state (for testing without real hardware)
+simulator_threads = {}      # Running background threads
+simulator_stop_flags = {}   # Flags to signal thread shutdown
+simulator_configs = {}      # Per-simulator configuration
+simulator_responses = {}    # Server responses shown in simulator console
 
-# Console log capture
+# Console log capture (shown in web UI)
 console_logs = []
 console_log_lock = threading.Lock()
-MAX_CONSOLE_LOGS = 150  # Keep only last 150 logs (frontend shows 100)
-MAX_SIMULATOR_RESPONSES = 50  # Keep only last 50 responses per simulator
+MAX_CONSOLE_LOGS = 150
+MAX_SIMULATOR_RESPONSES = 50
 
 
 def get_timestamp():
-    """Helper function to get consistent timestamp format"""
+    """Returns current time as HH:MM:SS string"""
     return datetime.now().strftime("%H:%M:%S")
 
 
 def add_simulator_log(sim_id, message):
-    """Helper function to add a log entry to simulator responses"""
+    """Add a timestamped log entry to a simulator's console output"""
     if sim_id not in simulator_responses:
         simulator_responses[sim_id] = []
     simulator_responses[sim_id].append(f"[{get_timestamp()}] {message}")
@@ -47,8 +52,8 @@ def add_simulator_log(sim_id, message):
         simulator_responses[sim_id] = simulator_responses[sim_id][-MAX_SIMULATOR_RESPONSES:]
 
 
+# Captures Flask's log output and makes it available via /api/console/logs
 class ConsoleLogHandler(logging.Handler):
-    """Custom logging handler to capture Flask console output"""
     def emit(self, record):
         try:
             msg = self.format(record)
@@ -70,11 +75,10 @@ console_handler.setFormatter(formatter)
 # Add handler to Flask's logger
 app.logger.addHandler(console_handler)
 
-# Add logger but filter out static file requests (304/200 responses)
 logger = logging.getLogger('logger')
-logger.setLevel(logging.DEBUG)  # Only show warnings and errors, not INFO (requests)
+logger.setLevel(logging.DEBUG)
 
-# Also capture stdout/stderr
+# Captures stdout/stderr (print statements, errors) and adds them to console_logs
 class StdoutCapture:
     def __init__(self, original):
         self.original = original
@@ -90,13 +94,12 @@ class StdoutCapture:
     def flush(self):
         self.original.flush()
 
-# Capture stdout and stderr
 sys.stdout = StdoutCapture(sys.stdout)
 sys.stderr = StdoutCapture(sys.stderr)
 
 
+# Load device data from disk (persists between server restarts)
 def load_devices():
-    # Load existing device data from JSON file
     if DEVICES_JSON.is_file():
         try:
             with DEVICES_JSON.open("r", encoding="utf-8") as f:
@@ -113,9 +116,8 @@ def load_devices():
             pass
     return {}
 
-
+# Save device data to disk
 def save_devices():
-    # Save current device status to JSON file
     with DEVICES_JSON.open("w", encoding="utf-8") as f:
         json.dump(devices, f, ensure_ascii=False, indent=2)
 
@@ -123,13 +125,18 @@ def save_devices():
 # Load device data from file once at startup
 devices.update(load_devices())
 
-# Homepage with device overview
+# ===== WEB ROUTES =====
+
+# Serve the main dashboard page
 @app.route("/")
 def index():
     return render_template("index.html", devices=devices)
 
 
-# API endpoint to receive device data (PineCone)
+# ===== DEVICE API ENDPOINTS =====
+
+# Main endpoint where BL602 devices POST their data
+# Devices send: { node_id, description, pins: { GPIO0: {...}, ... } }
 @app.route("/api/data", methods=["POST"])
 def receive_data():
     data = request.json or {}
@@ -138,19 +145,18 @@ def receive_data():
     incoming_desc = (data.get("description") or "").strip()
     incoming_pins = data.get("pins") or {}
 
-    # Case 1: new or unknown device
+    # New device: use provided node_id or generate one
     if not req_node_id or req_node_id not in devices:
         node_id = req_node_id or f"auto-{uuid.uuid4().hex[:8]}"
-        # On first contact, description is taken from device
-        description = incoming_desc
+        description = incoming_desc  # First contact: use device's description
         pins = incoming_pins
         blink = False  
     else:
-        # Case 2: known device -> server description is retained, pins are updated
+        # Existing device: keep server-side description, update pins
         node_id = req_node_id
         description = devices[node_id].get("description", "")
-        pins = incoming_pins  # Always update pins from device
-        blink = devices[node_id].get("blink", False)  # Keep blink state
+        pins = incoming_pins
+        blink = devices[node_id].get("blink", False)
 
     devices[node_id] = {
         "ip": request.remote_addr or "",
@@ -162,7 +168,7 @@ def receive_data():
 
     save_devices()
 
-    # Response includes blink only if blink = true
+    # Tell the device if it should blink (controlled from web UI)
     response = {
         "status": "ok",
         "node_id": node_id,
@@ -175,7 +181,7 @@ def receive_data():
     return jsonify(response)
 
 
-# API endpoint to update device description – Web interface
+# Update a device's description from the web UI
 @app.route("/api/update_description", methods=["POST"])
 def update_description():
     data = request.json or {}
@@ -190,7 +196,7 @@ def update_description():
     return jsonify({"status": "ok"})
 
 
-# API endpoint to toggle blink status via the node_id
+# Toggle the "blink" flag for a device (tells device to blink LED)
 @app.route("/api/toggle_blink", methods=["POST"])
 def toggle_blink():
     data = request.json or {}
@@ -199,7 +205,6 @@ def toggle_blink():
     if node_id not in devices:
         return jsonify({"error": "not found"}), 404
 
-    # Toggle blink state
     current_blink = devices[node_id].get("blink", False)
     devices[node_id]["blink"] = not current_blink
     save_devices()
@@ -210,7 +215,7 @@ def toggle_blink():
     })
 
 
-# API endpoint to delete a device
+# Remove a device from the dashboard
 @app.route("/api/delete_device", methods=["POST"])
 def delete_device():
     data = request.json or {}
@@ -225,14 +230,14 @@ def delete_device():
     return jsonify({"status": "ok"})
 
 
-# endpoint for polling data from the browser
+# Return all devices (polled by browser every second)
 @app.route("/api/devices", methods=["GET"])
 def get_devices():
     return jsonify({"devices": devices})
 
 
 # ===== SIMULATOR API =====
-# Worker thread that sends periodic POSTs
+# Background thread that simulates a BL602 device by POSTing to /api/data
 def simulator_worker(sim_id, interval_ms, payload_str, auto_update):
     stop_flag = simulator_stop_flags[sim_id]
     interval_sec = interval_ms / 1000.0

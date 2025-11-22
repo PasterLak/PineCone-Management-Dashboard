@@ -1,3 +1,6 @@
+<!-- Simulator Page -->
+<!-- Create virtual BL602 devices that send test data to the dashboard -->
+<!-- Useful for development and testing without physical hardware -->
 <section class="page simulator-page" data-page="simulator">
   <div class="page-header">
     <div class="page-title">
@@ -10,6 +13,7 @@
     </div>
   </div>
 
+  <!-- Collapsible help section with JSON structure examples -->
   <div class="sim-info-card">
     <div class="sim-info-header" id="togglePinInfo">
       <div class="sim-info-title">
@@ -83,34 +87,42 @@
     </div>
   </div>
 
+  <!-- Global simulator controls -->
   <div class="sim-controls">
+    <!-- Create new simulator -->
     <button id="addSimulator" class="btn-primary" type="button">
       <i data-feather="plus"></i>
       <span>New Simulator</span>
     </button>
+    <!-- Start all simulators at once -->
     <button id="startAll" class="btn-success" type="button">
       <i data-feather="play"></i>
       <span>Start All</span>
     </button>
+    <!-- Stop all running simulators -->
     <button id="stopAll" class="btn-tertiary" type="button">
       <i data-feather="stop-circle"></i>
       <span>Stop All</span>
     </button>
+    <!-- Send one POST from each simulator -->
     <button id="sendOnceAll" class="btn-secondary" type="button">
       <i data-feather="send"></i>
       <span>Send Once All</span>
     </button>
+    <!-- Clear response consoles -->
     <button id="clearAll" class="btn-warning" type="button">
       <i data-feather="x-circle"></i>
       <span>Clear All Responses</span>
     </button>
+    <!-- Delete all simulators -->
     <button id="removeAll" class="btn-danger" type="button">
       <i data-feather="trash-2"></i>
       <span>Remove All</span>
     </button>
   </div>
 
+  <!-- Container for simulator cards (populated by JavaScript) -->
   <div id="simulatorList" class="simulator-list">
-    <!-- Simulators are dynamically inserted here (simulator-manager.js) -->
+    <!-- Simulator cards are dynamically created here by simulator-renderer.js -->
   </div>
 </section>

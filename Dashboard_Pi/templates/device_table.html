@@ -1,15 +1,19 @@
+<!-- Device Table Page -->
+<!-- Shows all connected BL602 devices with their status, IP, pins, and actions -->
 <section class="page page--active" data-page="home">
   <div class="page-header">
     <div class="page-title">
       <h1>Devices</h1>
       <span class="page-subtitle">Manage your PineCone BL602 devices</span>
     </div>
+    <!-- Delete all devices button -->
     <button class="btn-danger" id="clearTableBtn" type="button">
       <i data-feather="trash-2"></i>
       <span>Clear All</span>
     </button>
   </div>
 
+  <!-- Device list table -->
   <table>
     <thead>
       <tr>
@@ -21,6 +25,7 @@
         <th class="col-actions">Actions</th>
       </tr>
     </thead>
+    <!-- tbody is populated by JavaScript (device-renderer.js) -->
     <tbody id="tbody">
       {% for id, d in devices.items() %}
       <tr data-id="{{ id }}">

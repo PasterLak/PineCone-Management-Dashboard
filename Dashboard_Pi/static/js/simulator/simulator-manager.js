@@ -1,18 +1,20 @@
+// Main orchestrator for the simulator feature
+// Simulators are virtual BL602 devices that POST to /api/data for testing
 class SimulatorManager {
   constructor(settingsManager) {
     this.settings = settingsManager;
     
-    // Initialize services
+    // Core services
     this.dom = new SimulatorDOM();
     this.dataService = new SimulatorDataService();
     this.apiService = new APIService();
     
-    // Initialize renderers and managers
+    // Rendering
     this.cardRenderer = new SimulatorCardRenderer();
     this.consoleManager = new SimulatorConsoleManager(this.dom);
     this.renderer = new SimulatorRenderer(this.dom, this.dataService, this.cardRenderer);
     
-    // Initialize polling
+    // Periodic updates for running simulators
     this.pollingService = new SimulatorPollingService(
       this.dataService,
       this.apiService,
@@ -20,7 +22,7 @@ class SimulatorManager {
       this.settings
     );
     
-    // Initialize actions (pass polling service and renderer)
+    // User actions (start, stop, send, remove)
     this.actions = new SimulatorActions(
       this.dataService,
       this.apiService,
@@ -29,7 +31,7 @@ class SimulatorManager {
       this.renderer
     );
     
-    // Initialize event handler
+    // Event handling
     this.eventHandler = new SimulatorEventHandler(
       this.dom,
       this.actions,
@@ -38,7 +40,7 @@ class SimulatorManager {
     );
   }
 
-  // Initialize the Simulator Manager
+  // Set up simulators on page load
   async init() {
     if (!this.dom.isAvailable()) {
       console.warn('Simulator UI not found in DOM');

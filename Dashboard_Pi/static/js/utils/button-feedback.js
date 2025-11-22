@@ -1,24 +1,16 @@
-/**
- * Button Feedback
- * Universal component for showing visual feedback on buttons
- */
+// Shows temporary visual feedback on buttons (like "Saved!" or "Error")
+// Automatically restores the original button text/icon after a few seconds
 class ButtonFeedback {
   static DURATION = 2000;
   static SUCCESS_COLOR = 'var(--color-success)';
   static ERROR_COLOR = 'var(--color-danger)';
 
   constructor() {
-    // Store active timeouts and original states per button
     this.activeTimeouts = new WeakMap();
     this.originalStates = new WeakMap();
   }
 
-  /**
-   * Show text feedback on a button
-   * @param {HTMLElement} button - The button element
-   * @param {string} text - Feedback text to display
-   * @param {Object} options - Configuration options
-   */
+  // Change button text temporarily (e.g., "Save" → "Saved!" → "Save")
   showTextFeedback(button, text, options = {}) {
     if (!button) return;
 
@@ -75,12 +67,7 @@ class ButtonFeedback {
     this.activeTimeouts.set(button, timeoutId);
   }
 
-  /**
-   * Show icon feedback on a button
-   * @param {HTMLElement} button - The button element
-   * @param {string} newIcon - New icon name (feather icon)
-   * @param {Object} options - Configuration options
-   */
+  // Change button icon temporarily (e.g., save icon → checkmark → save icon)
   showIconFeedback(button, newIcon, options = {}) {
     if (!button) return;
 
