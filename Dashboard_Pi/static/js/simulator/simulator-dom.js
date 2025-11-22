@@ -6,6 +6,11 @@ class SimulatorDOM {
   constructor() {
     this.simulatorList = document.getElementById('simulatorList');
     this.addSimulatorBtn = document.getElementById('addSimulator');
+    this.startAllBtn = document.getElementById('startAll');
+    this.stopAllBtn = document.getElementById('stopAll');
+    this.sendOnceAllBtn = document.getElementById('sendOnceAll');
+    this.clearAllBtn = document.getElementById('clearAll');
+    this.removeAllBtn = document.getElementById('removeAll');
   }
 
   // Check if DOM elements are available
@@ -21,6 +26,27 @@ class SimulatorDOM {
   // Get add button
   getAddButton() {
     return this.addSimulatorBtn;
+  }
+
+  // Get bulk action buttons
+  getStartAllButton() {
+    return this.startAllBtn;
+  }
+
+  getStopAllButton() {
+    return this.stopAllBtn;
+  }
+
+  getSendOnceAllButton() {
+    return this.sendOnceAllBtn;
+  }
+
+  getClearAllButton() {
+    return this.clearAllBtn;
+  }
+
+  getRemoveAllButton() {
+    return this.removeAllBtn;
   }
 
   // Replace list content

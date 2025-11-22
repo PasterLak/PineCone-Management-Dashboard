@@ -210,4 +210,96 @@ class SimulatorActions {
 
     return targetSim.id;
   }
+
+  // Bulk Actions
+  
+  // Start all simulators
+  async startAll(onSuccess) {
+    const simulators = this.dataService.getAll().filter(s => !s.running);
+    if (simulators.length === 0) {
+      console.log('No simulators to start');
+      return;
+    }
+
+    console.log(`Starting ${simulators.length} simulators...`);
+    for (const sim of simulators) {
+      await this.start(sim.id, null);
+    }
+    
+    if (onSuccess) onSuccess();
+  }
+
+  // Stop all simulators
+  async stopAll(onSuccess) {
+    const simulators = this.dataService.getAll().filter(s => s.running);
+    if (simulators.length === 0) {
+      console.log('No running simulators to stop');
+      return;
+    }
+
+    console.log(`Stopping ${simulators.length} simulators...`);
+    for (const sim of simulators) {
+      await this.stop(sim.id, null);
+    }
+    
+    if (onSuccess) onSuccess();
+  }
+
+  // Send once for all simulators
+  async sendOnceAll(onSuccess) {
+    const simulators = this.dataService.getAll();
+    if (simulators.length === 0) {
+      console.log('No simulators to send');
+      return;
+    }
+
+    console.log(`Sending once for ${simulators.length} simulators...`);
+    for (const sim of simulators) {
+      await this.sendOnce(sim.id, null);
+    }
+    
+    if (onSuccess) onSuccess();
+  }
+
+  // Clear all responses
+  async clearAll(onSuccess) {
+    const simulators = this.dataService.getAll();
+    if (simulators.length === 0) {
+      console.log('No simulators to clear');
+      return;
+    }
+
+    if (!confirm(`Clear responses for all ${simulators.length} simulators?`)) {
+      return;
+    }
+
+    console.log(`Clearing responses for ${simulators.length} simulators...`);
+    for (const sim of simulators) {
+      await this.clear(sim.id, null);
+    }
+    
+    if (onSuccess) onSuccess();
+  }
+
+  // Remove all simulators
+  async removeAll(onSuccess) {
+    const simulators = this.dataService.getAll();
+    if (simulators.length === 0) {
+      console.log('No simulators to remove');
+      return;
+    }
+
+    if (!confirm(`Remove all ${simulators.length} simulators? This cannot be undone.`)) {
+      return;
+    }
+
+    console.log(`Removing ${simulators.length} simulators...`);
+    // Create a copy of IDs to avoid mutation during iteration
+    const simIds = simulators.map(s => s.id);
+    for (const id of simIds) {
+      await this.remove(id, null);
+    }
+    
+    if (onSuccess) onSuccess();
+  }
 }

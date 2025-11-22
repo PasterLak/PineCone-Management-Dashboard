@@ -185,6 +185,9 @@
 
 .sim-controls {
     margin-bottom: 24px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .btn-primary {
@@ -210,6 +213,139 @@
 }
 
 .btn-primary svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-success {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--btn-ok);
+    color: var(--sidebar-text);
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-success:hover {
+    background: var(--btn-ok-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-success);
+}
+
+.btn-success svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-tertiary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--btn-cancel);
+    color: var(--sidebar-text);
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-tertiary:hover {
+    background: var(--btn-cancel-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-tertiary);
+}
+
+.btn-tertiary svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--flash);
+    color: var(--text);
+    border: 1px solid var(--flash);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: var(--flash-darken);
+    border-color: var(--flash-darken);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-secondary);
+}
+
+.btn-secondary svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-warning {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: #f59e0b;
+    color: var(--sidebar-text);
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-warning:hover {
+    background: #d97706;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-warning);
+}
+
+.btn-warning svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--btn-delete);
+    color: var(--sidebar-text);
+    border: 2px solid var(--btn-delete);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+    background: var(--btn-delete-hover);
+    border: 2px solid var(--btn-delete-hover);
+    color: var(--sidebar-text);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-danger);
+}
+
+.btn-danger svg {
     width: 18px;
     height: 18px;
 }
