@@ -1,7 +1,3 @@
-/**
- * Simulator Actions
- * Handles simulator operations (start, stop, send, remove)
- */
 class SimulatorActions {
   constructor(dataService, apiService, consoleManager, pollingService = null, renderer = null) {
     this.dataService = dataService;
@@ -25,11 +21,11 @@ class SimulatorActions {
 
     // Start on server first
     try {
-      const result = await this.api.start(id, sim.interval, sim.json, sim.autoUpdate);
+      const result = await this.api.startSimulator(id, sim.interval, sim.json, sim.autoUpdate);
       console.log('Simulator started:', result);
       
       // Fetch initial status 
-      const data = await this.api.getStatus(id);
+      const data = await this.api.getSimulatorStatus(id);
       if (data.responses && data.responses.length > 0) {
         const initialConsole = data.responses.join('\n');
         sim.console = initialConsole;
@@ -67,11 +63,11 @@ class SimulatorActions {
 
     // Stop on server first
     try {
-      const result = await this.api.stop(id);
+      const result = await this.api.stopSimulator(id);
       console.log('Simulator stopped:', result);
       
       // Fetch final status BEFORE updating UI
-      const data = await this.api.getStatus(id);
+      const data = await this.api.getSimulatorStatus(id);
       if (data.responses && data.responses.length > 0) {
         const finalConsole = data.responses.join('\n');
         sim.console = finalConsole;
@@ -100,11 +96,11 @@ class SimulatorActions {
     if (!sim) return;
 
     try {
-      const result = await this.api.sendOnce(id, sim.json);
+      const result = await this.api.sendSimulatorOnce(id, sim.json);
       console.log('Sent once:', result);
       
       // Backend will add to simulator_responses, just fetch updated status
-      const data = await this.api.getStatus(id);
+      const data = await this.api.getSimulatorStatus(id);
       if (data.responses && data.responses.length > 0) {
         const newConsole = data.responses.join('\n');
         sim.console = newConsole;
@@ -124,7 +120,7 @@ class SimulatorActions {
     if (!sim) return;
 
     try {
-      await this.api.clearResponses(id);
+      await this.api.clearSimulatorResponses(id);
       
       // Clear console locally
       sim.console = '';
@@ -153,7 +149,7 @@ class SimulatorActions {
 
     // Delete responses from backend
     try {
-      await this.api.deleteResponses(id);
+      await this.api.deleteSimulatorResponses(id);
     } catch (err) {
       console.error('Failed to delete simulator responses:', err);
     }
@@ -187,7 +183,7 @@ class SimulatorActions {
         }
         
         // Update server
-        this.api.updateConfig(id, value).catch(err => {
+        this.api.updateSimulatorConfig(id, value).catch(err => {
           console.error('Failed to update autoUpdate:', err);
         });
       }
@@ -219,7 +215,7 @@ class SimulatorActions {
 
     try {
       // Update payload on server
-      await this.api.updatePayload(id, sim.json);
+      await this.api.updateSimulatorPayload(id, sim.json);
       
       // Update original to new value and clear unsaved flag
       sim.originalJson = sim.json;

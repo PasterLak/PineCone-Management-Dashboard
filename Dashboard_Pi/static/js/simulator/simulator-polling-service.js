@@ -22,7 +22,7 @@ class SimulatorPollingService extends PollingService {
 
   async _pollSimulator(sim) {
     try {
-      const data = await this.api.getStatus(sim.id);
+      const data = await this.api.getSimulatorStatus(sim.id);
 
       if (data.responses && data.responses.length > 0) {
         const newConsole = data.responses.join('\n');
@@ -51,7 +51,7 @@ class SimulatorPollingService extends PollingService {
     
     for (const sim of simulators) {
       try {
-        const data = await this.api.getStatus(sim.id);
+        const data = await this.api.getSimulatorStatus(sim.id);
         sim.running = data.running || false;
         
         if (data.responses && data.responses.length > 0) {

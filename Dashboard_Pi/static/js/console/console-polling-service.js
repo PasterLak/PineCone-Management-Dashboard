@@ -7,7 +7,7 @@ class ConsolePollingService extends PollingService {
 
   async _pollOnce() {
     try {
-      const data = await this.api.fetchLogs();
+      const data = await this.api.fetchConsoleLogs();
       if (data && data.logs) {
         this.renderer.renderLogs(data.logs);
       }

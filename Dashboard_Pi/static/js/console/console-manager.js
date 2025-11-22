@@ -1,4 +1,3 @@
-// Console Manager - Manages Console Functionality
 const ConsoleManager = {
   isActive: false,
   pollingService: null,
@@ -9,7 +8,7 @@ const ConsoleManager = {
     ConsoleEventHandler.init();
     ConsoleRenderer._loadState();
     
-    this.apiService = new ConsoleApiService();
+    this.apiService = new APIService();
     this.pollingService = new ConsolePollingService(
       this.apiService,
       ConsoleRenderer,

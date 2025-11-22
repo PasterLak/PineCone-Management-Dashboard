@@ -1,7 +1,3 @@
-/**
- * Device Data Service
- * Manages device data in-memory
- */
 class DeviceDataService {
   constructor() {
     this.devices = window.initialDevices || {};
