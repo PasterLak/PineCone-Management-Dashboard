@@ -29,11 +29,9 @@ class SimulatorRenderer {
     
     simulators.forEach(sim => {
       const card = this.cardRenderer.createCard(sim);
-      // Remove animation class for full re-render
       card.style.animation = 'none';
       this.dom.appendCard(card);
       
-      // Restore scroll position
       if (this.savedScrollPositions[sim.id] !== undefined) {
         const consoleEl = card.querySelector('.sim-console-output');
         if (consoleEl) {
@@ -41,7 +39,6 @@ class SimulatorRenderer {
         }
       }
       
-      // Apply pending scroll after card is added to DOM
       if (this.pendingScrolls[sim.id]) {
         const consoleEl = card.querySelector('.sim-console-output');
         if (consoleEl) {
@@ -51,11 +48,11 @@ class SimulatorRenderer {
       }
     });
 
-    // Replace feather icons
+    // Replace feather icons to get svg
     if (window.feather) feather.replace();
   }
 
-  // Add a single new simulator card with animation
+  // Add a single new simulator card
   addCard(simId) {
     if (!this.dom.isAvailable()) return;
 
@@ -71,19 +68,16 @@ class SimulatorRenderer {
       setTimeout(() => {
         emptyMsg.remove();
         
-        // Create and append new card (will have animation from CSS)
         const card = this.cardRenderer.createCard(sim);
         this.dom.appendCard(card);
 
-        // Replace feather icons
         if (window.feather) feather.replace();
       }, 200);
     } else {
-      // No empty message, just add card normally
+      
       const card = this.cardRenderer.createCard(sim);
       this.dom.appendCard(card);
 
-      // Replace feather icons
       if (window.feather) feather.replace();
     }
   }
@@ -114,7 +108,6 @@ class SimulatorRenderer {
 
       let targetCard = null;
       
-      // Find the card that contains this simulator ID
       cards.forEach(card => {
         const cardIdElement = card.querySelector('[data-id]');
         if (cardIdElement && cardIdElement.dataset.id == simId) {
@@ -127,38 +120,29 @@ class SimulatorRenderer {
         return;
       }
 
-      // Get current height before animation
       const currentHeight = targetCard.offsetHeight;
 
-      // Phase 1: Fade out and slide up (200ms)
       targetCard.classList.add('simulator-card--removing');
 
-      // After fade out, set explicit height and collapse (200ms)
       setTimeout(() => {
-        // Set current height first
         targetCard.style.height = currentHeight + 'px';
         targetCard.style.minHeight = '0';
         
-        // Force reflow
         targetCard.offsetHeight;
         
-        // Now collapse
         targetCard.classList.remove('simulator-card--removing');
         targetCard.classList.add('simulator-card--collapsing');
         targetCard.style.height = '0';
         
-        // After collapse, remove from DOM and check if empty
         setTimeout(() => {
           if (targetCard.parentNode) {
             targetCard.remove();
           }
           
-          // Check if list is now empty and show empty message
           const remainingCards = this.dom.simulatorList?.querySelectorAll('.simulator-card');
           if (!remainingCards || remainingCards.length === 0) {
             const emptyMsg = this.cardRenderer.createEmptyMessage();
             this.dom.replaceListContent(emptyMsg);
-            // Animate in
             const msgEl = this.dom.simulatorList?.querySelector('p');
             if (msgEl) {
               msgEl.style.opacity = '0';

@@ -73,7 +73,6 @@
     opacity: 0.7;
 }
 
-/* Settings-specific button overrides */
 .settings-actions .btn-primary,
 .settings-actions .btn-secondary {
     padding: 12px 24px;
@@ -86,7 +85,6 @@
     height: 18px;
 }
 
-/* Custom secondary button style for settings */
 .settings-actions .btn-secondary {
     background: var(--row-alt);
     color: var(--text);

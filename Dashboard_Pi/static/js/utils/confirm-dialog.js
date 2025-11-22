@@ -191,6 +191,7 @@ class ConfirmDialogInstance {
     }, 300);
   }
 
+  // escapes HTML special characters to prevent XSS
   escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;

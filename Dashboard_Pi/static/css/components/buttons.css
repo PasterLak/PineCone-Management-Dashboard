@@ -1,21 +1,3 @@
-/**
- * Button Components
- * Reusable button styles for the entire dashboard
- * 
- * Usage:
- * - .btn-primary: Blue primary actions
- * - .btn-success: Green success/start actions
- * - .btn-danger: Red destructive/stop actions
- * - .btn-secondary: Gray secondary actions
- * - .btn-warning: Orange actions
- * - .btn-tertiary: Dark tertiary/alternative actions
- * 
- * Variants:
- * - .btn-large: Larger button size
- * - .btn-icon-only: Icon only, no text
- */
-
-/* Base Button Styles - Applied to all buttons */
 .btn-primary,
 .btn-success,
 .btn-danger,
@@ -57,18 +39,6 @@
   transform: none !important;
 }
 
-/* Large Button Variant */
-.btn-large {
-  padding: 12px 20px;
-  font-size: 1rem;
-}
-
-.btn-large svg {
-  width: 18px;
-  height: 18px;
-}
-
-/* Primary Button - Blue (Main Actions) */
 .btn-primary {
   background: var(--color-primary);
   color: var(--color-white);
@@ -81,7 +51,6 @@
   box-shadow: var(--shadow-primary);
 }
 
-/* Success Button - Green (Start, Confirm) */
 .btn-success {
   background: var(--color-success);
   color: var(--color-white);
@@ -93,7 +62,6 @@
   box-shadow: var(--shadow-success);
 }
 
-/* Danger Button - Red (Delete, Stop) */
 .btn-danger {
   background: var(--color-danger);
   color: var(--color-white);
@@ -105,7 +73,6 @@
   box-shadow: var(--shadow-danger);
 }
 
-/* Secondary Button - Gray (Send, Alternative Actions) */
 .btn-secondary {
   background: var(--color-secondary);
   color: var(--color-white);
@@ -117,7 +84,6 @@
   box-shadow: var(--shadow-secondary);
 }
 
-/* Warning Button - Orange (Clear, Caution) */
 .btn-warning {
   background: var(--color-warning);
   color: var(--color-dark);
@@ -129,7 +95,6 @@
   box-shadow: var(--shadow-warning);
 }
 
-/* Tertiary Button - Dark (Alternative/Stop Actions) */
 .btn-tertiary {
   background: var(--color-tertiary);
   color: var(--color-white);
@@ -141,7 +106,6 @@
   box-shadow: var(--shadow-tertiary);
 }
 
-/* Button Group - For multiple buttons in a row */
 .btn-group {
   display: flex;
   gap: 10px;
@@ -149,7 +113,6 @@
   align-items: center;
 }
 
-/* Icon-only Button Variant */
 .btn-icon-only {
   padding: 10px;
   min-width: 38px;

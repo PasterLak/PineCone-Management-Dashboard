@@ -67,7 +67,7 @@ class ButtonFeedback {
     this.activeTimeouts.set(button, timeoutId);
   }
 
-  // Change button icon temporarily (e.g., save icon → checkmark → save icon)
+  // Change button icon temporarily (e.g., save icon → checkmark icon → save icon)
   showIconFeedback(button, newIcon, options = {}) {
     if (!button) return;
 

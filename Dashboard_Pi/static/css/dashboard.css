@@ -1,4 +1,3 @@
-/* Page Header */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -57,7 +56,6 @@
   height: 16px;
 }
 
-/* Table */
 table {
   width: 100%;
   margin-bottom: 20px;
@@ -240,7 +238,6 @@ th.col-actions { width: 8%; text-align: center; }
   box-shadow: var(--shadow-success);
 }
 
-/* Status Badge Styles */
 .status-cell {
   padding: 8px 12px !important;
 }

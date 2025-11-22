@@ -78,12 +78,9 @@ class SimulatorDataService {
       if (saved) {
         const data = JSON.parse(saved);
         this.simulators = data.simulators || [];
-        // Reset running state after reload and ensure new fields exist
+        // Reset running state after reload
         this.simulators.forEach(sim => {
           sim.running = false;
-          // Initialize new fields if they don't exist (backward compatibility)
-          if (sim.originalJson === undefined) sim.originalJson = null;
-          if (sim.hasUnsavedChanges === undefined) sim.hasUnsavedChanges = false;
         });
         return true;
       }
