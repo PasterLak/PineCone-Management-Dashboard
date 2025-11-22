@@ -80,6 +80,18 @@
   flex-direction: column;
   gap: 6px;
   height: 100%;
+  position: relative;
+}
+
+.sidebar-active-indicator {
+  position: absolute;
+  left: 0px;
+  width: calc(100%);
+  background: var(--sidebar-active);
+  border-radius: 10px;
+  transition: transform 0.3s ease-in-out, height 0.3s ease-in-out;
+  pointer-events: none;
+  z-index: -1;
 }
 
 .sidebar-item {
@@ -97,6 +109,7 @@
   border: none;
   text-align: left;
   transition: background 0.25s ease, transform 0.15s ease, padding 0.3s ease, gap 0.3s ease;
+  position: relative;
 }
 
 .sidebar-item--bottom {
@@ -109,7 +122,19 @@
 }
 
 .sidebar-item--active {
-  background: var(--sidebar-active);
+  background: transparent;
+  transition: background 0.25s ease, transform 0.15s ease, padding 0.3s ease, gap 0.3s ease;
+}
+
+.sidebar-item--active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 0 3px 3px 0;
 }
 
 
