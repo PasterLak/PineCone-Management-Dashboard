@@ -52,14 +52,31 @@ class DeviceActions {
 
   // Clear all devices from table
   async clearTable(onSuccess) {
-    if (!confirm('Are you sure you want to clear the table data? This cannot be undone.')) {
+    const devices = this.dataService.getAll();
+    const deviceIds = Object.keys(devices);
+    
+    // Check if there are any devices
+    if (deviceIds.length === 0) {
+      await ConfirmDialog.show({
+        title: 'No Devices',
+        message: 'There are no devices to clear.',
+        type: 'info',
+        infoOnly: true
+      });
       return;
     }
+    
+    const confirmed = await ConfirmDialog.show({
+      title: 'Clear All Devices?',
+      message: 'This will remove all devices from the table. This action cannot be undone.',
+      confirmText: 'Clear All',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+    
+    if (!confirmed) return;
 
     try {
-      const devices = this.dataService.getAll();
-      const deviceIds = Object.keys(devices);
-      
       // Delete all devices
       const deletePromises = deviceIds.map(id => this.api.deleteDevice(id));
       await Promise.all(deletePromises);
