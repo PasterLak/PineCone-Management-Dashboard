@@ -18,7 +18,13 @@ class SettingsValidator {
 
       // Check minimum
       if (value < rule.min) {
-        alert(`${rule.name} must be at least ${rule.min}ms!`);
+        alert(`${rule.name} must be at least ${rule.min}!`);
+        return false;
+      }
+      
+      // Check maximum if exists
+      if (rule.max !== undefined && value > rule.max) {
+        alert(`${rule.name} must be at most ${rule.max}!`);
         return false;
       }
     }

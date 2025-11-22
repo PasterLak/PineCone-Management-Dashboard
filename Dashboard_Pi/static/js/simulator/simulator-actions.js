@@ -277,10 +277,26 @@ class SimulatorActions {
   // Start all simulators
   async startAll(onSuccess) {
     const simulators = this.dataService.getAll().filter(s => !s.running);
+    
     if (simulators.length === 0) {
-      console.log('No simulators to start');
+      await ConfirmDialog.show({
+        title: 'No Simulators to Start',
+        message: 'All simulators are already running or there are no simulators available.',
+        type: 'info',
+        infoOnly: true
+      });
       return;
     }
+
+    const confirmed = await ConfirmDialog.show({
+      title: 'Start All Simulators?',
+      message: `This will start ${simulators.length} simulator${simulators.length > 1 ? 's' : ''}.`,
+      confirmText: 'Start All',
+      cancelText: 'Cancel',
+      type: 'success'
+    });
+    
+    if (!confirmed) return;
 
     console.log(`Starting ${simulators.length} simulators...`);
     for (const sim of simulators) {
@@ -293,10 +309,26 @@ class SimulatorActions {
   // Stop all simulators
   async stopAll(onSuccess) {
     const simulators = this.dataService.getAll().filter(s => s.running);
+    
     if (simulators.length === 0) {
-      console.log('No running simulators to stop');
+      await ConfirmDialog.show({
+        title: 'No Running Simulators',
+        message: 'There are no running simulators to stop.',
+        type: 'info',
+        infoOnly: true
+      });
       return;
     }
+
+    const confirmed = await ConfirmDialog.show({
+      title: 'Stop All Simulators?',
+      message: `This will stop ${simulators.length} running simulator${simulators.length > 1 ? 's' : ''}.`,
+      confirmText: 'Stop All',
+      cancelText: 'Cancel',
+      type: 'tertiary'
+    });
+    
+    if (!confirmed) return;
 
     console.log(`Stopping ${simulators.length} simulators...`);
     for (const sim of simulators) {
@@ -309,10 +341,26 @@ class SimulatorActions {
   // Send once for all simulators
   async sendOnceAll(onSuccess) {
     const simulators = this.dataService.getAll();
+    
     if (simulators.length === 0) {
-      console.log('No simulators to send');
+      await ConfirmDialog.show({
+        title: 'No Simulators',
+        message: 'There are no simulators available to send.',
+        type: 'info',
+        infoOnly: true
+      });
       return;
     }
+
+    const confirmed = await ConfirmDialog.show({
+      title: 'Send Once for All?',
+      message: `This will send the payload once for all ${simulators.length} simulator${simulators.length > 1 ? 's' : ''}.`,
+      confirmText: 'Send All',
+      cancelText: 'Cancel',
+      type: 'secondary'
+    });
+    
+    if (!confirmed) return;
 
     console.log(`Sending once for ${simulators.length} simulators...`);
     for (const sim of simulators) {
