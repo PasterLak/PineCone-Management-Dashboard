@@ -56,13 +56,18 @@ class SimulatorAPIService {
 
   // Get simulator status
   async getStatus(id) {
-    const response = await fetch(`${SimulatorConfig.API.STATUS}/${id}`);
-    if (!response.ok) {
+    try {
+      const response = await fetch(`${SimulatorConfig.API.STATUS}/${id}`);
+      if (response.ok) {
+        return await response.json();
+      }
       const error = new Error('Status fetch failed');
       error.status = response.status;
       throw error;
+    } catch (err) {
+      console.error('Failed to get simulator status:', err);
+      throw err;
     }
-    return await response.json();
   }
 
   // Update simulator configuration

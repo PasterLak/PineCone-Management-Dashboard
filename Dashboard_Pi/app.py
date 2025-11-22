@@ -290,9 +290,16 @@ def stop_simulator():
 # API Endpoint to get current status, responses, and updated payload for a specific simulator
 @app.route("/api/simulator/status/<int:sim_id>", methods=["GET"])
 def get_simulator_status(sim_id):
-    # Allow fetching status even if simulator is stopped
+    # Return default state if simulator was never started (instead of 404)
     if sim_id not in simulator_configs and sim_id not in simulator_responses:
-        return jsonify({"error": "not found"}), 404
+        return jsonify({
+            "id": sim_id,
+            "running": False,
+            "autoUpdate": True,
+            "currentPayload": None,
+            "responses": [],
+            "never_started": True
+        }), 200
     
     config = simulator_configs.get(sim_id, {})
     responses = simulator_responses.get(sim_id, [])
