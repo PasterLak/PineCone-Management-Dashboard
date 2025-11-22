@@ -2,9 +2,23 @@
 // Classifies logs (error, warning, success, http) and handles auto-scrolling
 const ConsoleRenderer = {
   lastSeenLogs: [], // Store last seen logs to detect changes
-  maxVisibleLogs: 100, // Show only last 100 logs to keep it readable
+  maxVisibleLogs: 1000, // Default: show last 1000 logs (configurable via settings)
   clearTimestamp: null, // Track when clear was called
   serverLogCountAtClear: null, // Track server log count when clear was called
+
+  // Initialize with settings
+  init(settingsManager) {
+    if (settingsManager) {
+      this.maxVisibleLogs = settingsManager.get('maxConsoleLines') || 1000;
+    }
+  },
+
+  // Update settings
+  updateSettings(settings) {
+    if (settings.maxConsoleLines !== undefined) {
+      this.maxVisibleLogs = settings.maxConsoleLines;
+    }
+  },
 
   // Load state from localStorage
   _loadState() {

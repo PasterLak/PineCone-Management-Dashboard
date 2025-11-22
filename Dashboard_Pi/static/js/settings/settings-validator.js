@@ -4,34 +4,40 @@ class SettingsValidator {
   // Validates all values
   validate(values) {
     for (const [fieldName, value] of Object.entries(values)) {
-      const rule = SettingsConfig.getValidationRule(fieldName);
-      
-      if (!rule) continue;
-
-      // Check if number is valid
-      if (!this._isValidNumber(value)) {
-        alert(`${rule.name} must be a valid number!`);
-        return false;
-      }
-
-      // Check minimum
-      if (value < rule.min) {
-        alert(`${rule.name} must be at least ${rule.min}!`);
-        return false;
-      }
-      
-      // Check maximum if exists
-      if (rule.max !== undefined && value > rule.max) {
-        alert(`${rule.name} must be at most ${rule.max}!`);
+      const error = this.validateField(fieldName, value);
+      if (error) {
+        alert(error);
         return false;
       }
     }
-
     return true;
+  }
+
+  // Validates a single field
+  validateField(fieldName, value) {
+    const rule = SettingsConfig.getValidationRule(fieldName);
+    if (!rule) return null;
+
+    // Check if value is a valid number
+    if (!this._isValidNumber(value)) {
+      return `${rule.name} must be a valid number!`;
+    }
+
+    // Check minimum
+    if (value < rule.min) {
+      return `${rule.name} must be at least ${rule.min} ms!`;
+    }
+    
+    // Check maximum if defined
+    if (rule.max !== undefined && value > rule.max) {
+      return `${rule.name} cannot exceed ${rule.max}!`;
+    }
+
+    return null; // No error
   }
 
   // Checks if value is a valid number
   _isValidNumber(value) {
-    return !isNaN(value) && isFinite(value);
+    return typeof value === 'number' && !isNaN(value) && isFinite(value) && value >= 0;
   }
 }

@@ -1,12 +1,13 @@
 // Executes simulator operations (start, stop, send, delete)
 // Communicates with the backend and updates simulator state
 class SimulatorActions {
-  constructor(dataService, apiService, consoleManager, pollingService = null, renderer = null) {
+  constructor(dataService, apiService, consoleManager, pollingService = null, renderer = null, settingsManager = null) {
     this.dataService = dataService;
     this.api = apiService;
     this.consoleManager = consoleManager;
     this.pollingService = pollingService;
     this.renderer = renderer;
+    this.settings = settingsManager;
   }
 
   // Start simulator
@@ -23,7 +24,10 @@ class SimulatorActions {
 
     // Start on server first
     try {
-      const result = await this.api.startSimulator(id, sim.interval, sim.json, sim.autoUpdate);
+      // Get max responses setting
+      const maxResponses = this.settings ? this.settings.get('maxSimulatorResponses') : 100;
+      
+      const result = await this.api.startSimulator(id, sim.interval, sim.json, sim.autoUpdate, maxResponses);
       console.log('Simulator started:', result);
       
       // Fetch initial status 

@@ -36,8 +36,8 @@ class APIService {
   }
 
   // Simulator-related API calls
-  async startSimulator(id, interval, payload, autoUpdate) {
-    return await this.post('/api/simulator/start', { id, interval, payload, autoUpdate });
+  async startSimulator(id, interval, payload, autoUpdate, maxResponses = 100) {
+    return await this.post('/api/simulator/start', { id, interval, payload, autoUpdate, maxResponses });
   }
 
   async stopSimulator(id) {
