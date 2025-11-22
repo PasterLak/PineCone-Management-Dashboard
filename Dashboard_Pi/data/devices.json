@@ -1,22 +1,15 @@
 {
-  "auto-8377a468": {
+  "auto-9fa7d100": {
     "ip": "127.0.0.1",
     "description": "",
-    "last_seen": "2025-11-22T08:31:19",
+    "last_seen": "2025-11-22T08:53:48",
     "pins": {},
     "blink": false
   },
-  "test123": {
-    "ip": "127.0.0.1",
-    "description": "dcrfhgt",
-    "last_seen": "2025-11-22T08:42:53",
-    "pins": {},
-    "blink": false
-  },
-  "test123456": {
+  "auto-c9247fbd": {
     "ip": "127.0.0.1",
     "description": "",
-    "last_seen": "2025-11-22T08:41:15",
+    "last_seen": "2025-11-22T08:54:31",
     "pins": {},
     "blink": false
   }
