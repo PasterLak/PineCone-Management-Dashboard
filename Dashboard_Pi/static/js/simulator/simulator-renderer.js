@@ -8,6 +8,7 @@ class SimulatorRenderer {
     this.dataService = dataService;
     this.cardRenderer = cardRenderer;
     this.pendingScrolls = {}; // Track simulators that need scroll after render
+    this.savedScrollPositions = {}; // Save scroll positions before re-render
   }
 
   // Render all simulators
@@ -22,12 +23,23 @@ class SimulatorRenderer {
       return;
     }
 
+    // Save scroll positions before clearing
+    this._saveScrollPositions(simulators);
+
     // Clear and render cards
     this.dom.clearList();
     
     simulators.forEach(sim => {
       const card = this.cardRenderer.createCard(sim);
       this.dom.appendCard(card);
+      
+      // Restore scroll position
+      if (this.savedScrollPositions[sim.id] !== undefined) {
+        const consoleEl = card.querySelector('.sim-console-output');
+        if (consoleEl) {
+          consoleEl.scrollTop = this.savedScrollPositions[sim.id];
+        }
+      }
       
       // Apply pending scroll after card is added to DOM
       if (this.pendingScrolls[sim.id]) {
@@ -41,6 +53,16 @@ class SimulatorRenderer {
 
     // Replace feather icons
     if (window.feather) feather.replace();
+  }
+
+  // Save scroll positions of all console outputs
+  _saveScrollPositions(simulators) {
+    simulators.forEach(sim => {
+      const consoleEl = this.dom.findConsoleOutput(sim.id);
+      if (consoleEl) {
+        this.savedScrollPositions[sim.id] = consoleEl.scrollTop;
+      }
+    });
   }
 
   // Mark simulator for scroll on next render

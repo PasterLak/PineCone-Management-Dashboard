@@ -115,10 +115,25 @@ class SimulatorEventHandler {
         break;
       case SimulatorConfig.FIELDS.JSON:
         this.actions.updateField(id, field, target.value);
+        // Update button visibility without full re-render
+        const sim = this.actions.dataService.getById(id);
+        if (sim && sim.running && !sim.autoUpdate) {
+          this._toggleJsonActionButtons(id, sim.hasUnsavedChanges);
+        }
         break;
       case SimulatorConfig.FIELDS.AUTO_UPDATE:
         this.actions.updateField(id, field, target.checked);
+        // Re-render to update textarea disabled state
+        this.renderer.render();
         break;
+    }
+  }
+
+  // Toggle JSON action buttons visibility without re-rendering
+  _toggleJsonActionButtons(id, show) {
+    const container = document.querySelector(`[data-json-actions-id="${id}"]`);
+    if (container) {
+      container.style.display = show ? 'flex' : 'none';
     }
   }
 
@@ -260,6 +275,12 @@ class SimulatorEventHandler {
         break;
       case SimulatorConfig.ACTIONS.REMOVE:
         this.actions.remove(id, () => this.renderer.render());
+        break;
+      case 'approve-json':
+        this.actions.approveJsonChanges(id, () => this.renderer.render());
+        break;
+      case 'discard-json':
+        this.actions.discardJsonChanges(id, () => this.renderer.render());
         break;
     }
   }

@@ -67,7 +67,9 @@ class SimulatorDataService {
       json: JSON.stringify({ node_id: '', description: '' }, null, 2),
       running: false,
       autoUpdate: SimulatorConfig.DEFAULTS.AUTO_UPDATE,
-      console: ''
+      console: '',
+      originalJson: null, // Stores original JSON when autoUpdate is turned off
+      hasUnsavedChanges: false // Tracks if JSON was edited
     };
   }
 
@@ -78,8 +80,13 @@ class SimulatorDataService {
       if (saved) {
         const data = JSON.parse(saved);
         this.simulators = data.simulators || [];
-        // Reset running state after reload
-        this.simulators.forEach(sim => sim.running = false);
+        // Reset running state after reload and ensure new fields exist
+        this.simulators.forEach(sim => {
+          sim.running = false;
+          // Initialize new fields if they don't exist (backward compatibility)
+          if (sim.originalJson === undefined) sim.originalJson = null;
+          if (sim.hasUnsavedChanges === undefined) sim.hasUnsavedChanges = false;
+        });
         return true;
       }
     } catch (e) {
@@ -98,7 +105,9 @@ class SimulatorDataService {
           interval: s.interval,
           json: s.json,
           autoUpdate: s.autoUpdate,
-          console: s.console
+          console: s.console,
+          originalJson: s.originalJson,
+          hasUnsavedChanges: s.hasUnsavedChanges
         }))
       }));
       return true;

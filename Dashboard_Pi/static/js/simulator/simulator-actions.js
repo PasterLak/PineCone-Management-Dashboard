@@ -168,19 +168,85 @@ class SimulatorActions {
 
   // Update simulator field
   updateField(id, field, value) {
-    const updates = { [field]: value };
-    this.dataService.update(id, updates);
-    this.dataService.save();
+    const sim = this.dataService.getById(id);
+    if (!sim) return;
 
-    // If autoUpdate changed and sim is running, update server
+    const updates = { [field]: value };
+    
+    // Handle autoUpdate toggle
     if (field === SimulatorConfig.FIELDS.AUTO_UPDATE) {
-      const sim = this.dataService.getById(id);
-      if (sim && sim.running) {
+      if (sim.running) {
+        if (!value) {
+          // AutoUpdate turned OFF while running -> save current JSON as original
+          sim.originalJson = sim.json;
+          sim.hasUnsavedChanges = false;
+        } else {
+          // AutoUpdate turned ON while running -> clear original
+          sim.originalJson = null;
+          sim.hasUnsavedChanges = false;
+        }
+        
+        // Update server
         this.api.updateConfig(id, value).catch(err => {
           console.error('Failed to update autoUpdate:', err);
         });
       }
     }
+    
+    // Handle JSON field changes
+    if (field === SimulatorConfig.FIELDS.JSON) {
+      if (sim.running && !sim.autoUpdate && sim.originalJson !== null) {
+        // Mark as having unsaved changes if different from original
+        sim.hasUnsavedChanges = (value !== sim.originalJson);
+      }
+    }
+    
+    this.dataService.update(id, updates);
+    this.dataService.save();
+  }
+
+  // Approve JSON changes (send new payload to server)
+  async approveJsonChanges(id, onSuccess) {
+    const sim = this.dataService.getById(id);
+    if (!sim || !sim.running || sim.autoUpdate) return;
+
+    // Validate JSON
+    const validation = this.dataService.validateJSON(sim.json);
+    if (!validation.valid) {
+      alert(`Invalid JSON!\n\nError: ${validation.error}`);
+      return;
+    }
+
+    try {
+      // Update payload on server
+      await this.api.updatePayload(id, sim.json);
+      
+      // Update original to new value and clear unsaved flag
+      sim.originalJson = sim.json;
+      sim.hasUnsavedChanges = false;
+      this.dataService.save();
+      
+      if (onSuccess) onSuccess();
+      return true;
+    } catch (err) {
+      console.error('Failed to update payload:', err);
+      alert('Failed to update payload on server!');
+      return false;
+    }
+  }
+
+  // Discard JSON changes (revert to original)
+  discardJsonChanges(id, onSuccess) {
+    const sim = this.dataService.getById(id);
+    if (!sim || !sim.originalJson) return;
+
+    // Revert to original
+    sim.json = sim.originalJson;
+    sim.hasUnsavedChanges = false;
+    this.dataService.save();
+    
+    if (onSuccess) onSuccess();
+    return true;
   }
 
   // Apply example to simulator

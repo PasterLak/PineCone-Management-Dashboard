@@ -501,6 +501,62 @@ input:checked+.slider:before {
     margin-bottom: 8px;
 }
 
+.sim-json-wrapper {
+    position: relative;
+}
+
+.sim-json-actions {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.sim-json-approve,
+.sim-json-discard {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-md);
+}
+
+.sim-json-approve {
+    background: var(--color-success);
+    color: white;
+}
+
+.sim-json-approve:hover {
+    background: var(--color-success-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-success);
+}
+
+.sim-json-discard {
+    background: var(--color-error);
+    color: white;
+}
+
+.sim-json-discard:hover {
+    background: var(--color-error-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-danger);
+}
+
+.sim-json-approve svg,
+.sim-json-discard svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.5;
+}
+
 textarea:disabled {
     background: var(--row-alt-muted) !important;
     background-color: var(--row-alt-muted);

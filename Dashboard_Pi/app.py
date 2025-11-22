@@ -180,6 +180,10 @@ def simulator_worker(sim_id, interval_ms, payload_str, auto_update):
             config = simulator_configs.get(sim_id, {})
             should_auto_update = config.get("autoUpdate", auto_update)
             
+            # Check if payload was manually updated
+            if "currentPayload" in config:
+                current_payload = config["currentPayload"]
+            
             # Send payload
             with app.test_client() as client:
                 response = client.post("/api/data", json=current_payload)
@@ -313,6 +317,31 @@ def update_simulator():
     
     simulator_configs[sim_id]["autoUpdate"] = auto_update
     return jsonify({"status": "updated", "id": sim_id})
+
+# API Endpoint to update simulator payload (when approving changes)
+@app.route("/api/simulator/update_payload", methods=["POST"])
+def update_simulator_payload():
+    data = request.json or {}
+    sim_id = data.get("id")
+    payload_str = data.get("payload", "{}")
+    
+    if sim_id not in simulator_configs:
+        return jsonify({"error": "not found"}), 404
+    
+    try:
+        payload = json.loads(payload_str)
+        # Update the currentPayload that the worker thread uses
+        simulator_configs[sim_id]["currentPayload"] = payload
+        simulator_configs[sim_id]["payload"] = payload
+        
+        # Add log entry
+        if sim_id in simulator_responses:
+            timestamp = datetime.now().strftime("%H:%M:%S")
+            simulator_responses[sim_id].append(f"[{timestamp}] Payload updated manually")
+        
+        return jsonify({"status": "updated", "id": sim_id})
+    except json.JSONDecodeError as e:
+        return jsonify({"error": "Invalid JSON", "details": str(e)}), 400
 
 # API Endpoint to send a single payload ONCE
 @app.route("/api/simulator/send", methods=["POST"])

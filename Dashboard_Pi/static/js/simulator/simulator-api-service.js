@@ -82,6 +82,23 @@ class SimulatorAPIService {
     }
   }
 
+  // Update simulator payload (when approving changes)
+  async updatePayload(id, payload) {
+    try {
+      const response = await fetch('/api/simulator/update_payload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, payload })
+      });
+
+      if (!response.ok) throw new Error('Update payload failed');
+      return await response.json();
+    } catch (err) {
+      console.error('Failed to update payload:', err);
+      throw err;
+    }
+  }
+
   // Clear simulator responses (clear button)
   async clearResponses(id) {
     try {
