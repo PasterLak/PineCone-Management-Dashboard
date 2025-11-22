@@ -337,6 +337,7 @@ tr.pin-details-row td {
   padding: 24px;
   width: 100%;
   box-sizing: border-box;
+  cursor: default;
 }
 
 .pin-details-header {
