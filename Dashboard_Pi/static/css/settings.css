@@ -73,55 +73,27 @@
     opacity: 0.7;
 }
 
-.btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+/* Settings-specific button overrides */
+.settings-actions .btn-primary,
+.settings-actions .btn-secondary {
     padding: 12px 24px;
-    background: var(--brand);
-    color: var(--sidebar-text);
-    border: none;
-    border-radius: 8px;
     font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: var(--shadow-primary);
 }
 
-.btn-primary:hover {
-    background: var(--btn-edit-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
-
-.btn-primary svg {
+.settings-actions .btn-primary svg,
+.settings-actions .btn-secondary svg {
     width: 18px;
     height: 18px;
 }
 
-.btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
+/* Custom secondary button style for settings */
+.settings-actions .btn-secondary {
     background: var(--row-alt);
     color: var(--text);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
 }
 
-.btn-secondary:hover {
+.settings-actions .btn-secondary:hover {
     background: var(--bg);
     border-color: var(--text);
-    transform: translateY(-2px);
-}
-
-.btn-secondary svg {
-    width: 18px;
-    height: 18px;
 }

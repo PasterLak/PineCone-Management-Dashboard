@@ -10,7 +10,7 @@ class PinDetailsRenderer {
     tr.dataset.deviceId = deviceId;
 
     const td = document.createElement('td');
-    td.colSpan = 5;
+    td.colSpan = 6;
 
     const container = this._createContainer(pins);
     td.appendChild(container);

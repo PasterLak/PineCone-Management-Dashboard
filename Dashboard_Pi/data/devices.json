@@ -1,1 +1,27 @@
-{}
+{
+  "PineCone_003": {
+    "ip": "127.0.0.1",
+    "description": "Sensor Module",
+    "last_seen": "2025-11-22T07:05:29",
+    "pins": {
+      "GPIO4": {
+        "mode": "input",
+        "name": "temp_sensor",
+        "value": "23"
+      },
+      "GPIO5": {
+        "mode": "pulldown",
+        "name": "motion_detect",
+        "value": "0"
+      }
+    },
+    "blink": false
+  },
+  "auto-3f0f7773": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T07:05:29",
+    "pins": {},
+    "blink": false
+  }
+}
