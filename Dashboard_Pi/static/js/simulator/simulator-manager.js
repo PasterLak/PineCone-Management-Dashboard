@@ -28,7 +28,8 @@ class SimulatorManager {
       this.apiService,
       this.consoleManager,
       this.pollingService,
-      this.renderer
+      this.renderer,
+      this.settings
     );
     
     // Event handling

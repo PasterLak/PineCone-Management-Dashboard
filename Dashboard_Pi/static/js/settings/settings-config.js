@@ -48,10 +48,10 @@ class SettingsConfig {
     maxSimulatorResponses: {
       id: 'maxSimulatorResponsesInput',
       min: 10,
-      max: 1000,
+      max: 500,
       default: 100,
       name: 'Max Simulator Responses',
-      description: 'Maximum number of responses to display per simulator (rolling window)'
+      description: 'Maximum number of responses to display per simulator (server-side limit)'
     }
   };
 
@@ -72,6 +72,12 @@ class SettingsConfig {
   // Returns validation rule for a field
   static getValidationRule(fieldName) {
     const field = this.FIELDS[fieldName];
-    return field ? { min: field.min, name: field.name } : null;
+    if (!field) return null;
+    
+    return {
+      min: field.min,
+      max: field.max,
+      name: field.name
+    };
   }
 }

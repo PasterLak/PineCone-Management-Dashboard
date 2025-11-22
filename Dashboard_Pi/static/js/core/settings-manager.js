@@ -2,17 +2,10 @@
 // Controls polling intervals, offline thresholds, and display limits
 class SettingsManager {
   constructor() {
-    // Default values for all configurable settings
-    this.defaults = {
-      offlineThreshold: 5000,      // Mark device offline after 5 seconds
-      tickOffline: 1000,            // Check offline status every second
-      pollInterval: 1000,           // Fetch device updates every second
-      simulatorPoll: 500,           // Fetch simulator updates twice per second
-      consolePoll: 500,             // Fetch console logs twice per second
-      maxConsoleLines: 1000,        // Max console lines before truncation
-      maxSimulatorResponses: 100    // Max simulator responses to keep
-    };
+    // Load defaults from SettingsConfig to ensure consistency
+    this.defaults = SettingsConfig.getDefaults();
     this.settings = this.load();
+    this.updateCallbacks = [];
   }
 
   // Load settings from browser's localStorage
@@ -39,6 +32,8 @@ class SettingsManager {
     this.settings = { ...this.settings, ...newSettings };
     try {
       localStorage.setItem("dashboard_settings", JSON.stringify(this.settings));
+      // Notify all registered callbacks
+      this.updateCallbacks.forEach(callback => callback(this.settings));
     } catch (e) {
       console.error("Failed to save settings:", e);
     }
@@ -46,10 +41,11 @@ class SettingsManager {
 
   // Register callback to be notified when settings change
   onUpdate(callback) {
+    this.updateCallbacks.push(callback);
+    // Also listen to custom events (for backward compatibility)
     window.addEventListener('settingsUpdated', (e) => {
       if (e.detail) {
         this.settings = { ...this.settings, ...e.detail };
-        callback(e.detail);
       }
     });
   }

@@ -33,7 +33,13 @@ simulator_responses = {}    # Server responses shown in simulator console
 console_logs = []
 console_log_lock = threading.Lock()
 MAX_CONSOLE_LOGS = 150
-MAX_SIMULATOR_RESPONSES = 50
+
+
+def get_max_simulator_responses(sim_id):
+    """Get max responses limit for a simulator (from config or default)"""
+    if sim_id in simulator_configs:
+        return simulator_configs[sim_id].get("maxResponses", 100)
+    return 100
 
 
 def get_timestamp():
@@ -47,9 +53,10 @@ def add_simulator_log(sim_id, message):
         simulator_responses[sim_id] = []
     simulator_responses[sim_id].append(f"[{get_timestamp()}] {message}")
     
-    # Keep only last MAX_SIMULATOR_RESPONSES entries
-    if len(simulator_responses[sim_id]) > MAX_SIMULATOR_RESPONSES:
-        simulator_responses[sim_id] = simulator_responses[sim_id][-MAX_SIMULATOR_RESPONSES:]
+    # Keep only last N entries (configured per simulator)
+    max_responses = get_max_simulator_responses(sim_id)
+    if len(simulator_responses[sim_id]) > max_responses:
+        simulator_responses[sim_id] = simulator_responses[sim_id][-max_responses:]
 
 
 # Captures Flask's log output and makes it available via /api/console/logs
@@ -298,12 +305,16 @@ def start_simulator():
     interval = data.get("interval", 1000)
     payload = data.get("payload", "{}")
     auto_update = data.get("autoUpdate", True)
+    max_responses = data.get("maxResponses", 100)
     
     if sim_id in simulator_threads and simulator_threads[sim_id].is_alive():
         return jsonify({"error": "already running"}), 400
     
-    # Store config
-    simulator_configs[sim_id] = {"autoUpdate": auto_update}
+    # Store config (including max responses limit)
+    simulator_configs[sim_id] = {
+        "autoUpdate": auto_update,
+        "maxResponses": max_responses
+    }
     
     # Preserve existing responses and add start message
     add_simulator_log(sim_id, "Simulator started")

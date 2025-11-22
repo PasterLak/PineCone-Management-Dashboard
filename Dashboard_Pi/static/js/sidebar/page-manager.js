@@ -1,7 +1,8 @@
 // Switches between different pages in the dashboard
 // Saves the current page to localStorage
 class PageManager {
-  constructor() {
+  constructor(consoleManager = null) {
+    this.consoleManager = consoleManager;
     this.currentPage = this.loadCurrentPage();
     this.pages = document.querySelectorAll('.page');
     this.sidebarItems = document.querySelectorAll('.sidebar-item');
@@ -17,45 +18,66 @@ class PageManager {
   }
 
   show(pageName) {
-    this.currentPage = pageName;
+    // Don't do anything if already on this page
+    if (this.currentPage === pageName) return;
     
-    // Save to localStorage
-    try {
-      localStorage.setItem('dashboard_currentPage', pageName);
-    } catch (e) {
-      console.error('Failed to save current page:', e);
+    // Find current and target pages
+    const currentPageEl = document.querySelector(`.page[data-page="${this.currentPage}"]`);
+    const targetPageEl = document.querySelector(`.page[data-page="${pageName}"]`);
+    
+    if (!targetPageEl) return;
+    
+    // Fade out current page
+    if (currentPageEl) {
+      currentPageEl.classList.add('page--fading-out');
+      currentPageEl.classList.remove('page--active');
     }
-
-    // Update sidebar active state
-    this.sidebarItems.forEach(item => {
-      const isActive = item.dataset.target === pageName;
-      item.classList.toggle('sidebar-item--active', isActive);
-    });
-
-    // Show/hide pages
-    this.pages.forEach(page => {
-      const isActive = page.dataset.page === pageName;
-      page.classList.toggle('page--active', isActive);
-    });
-
-    // Activate/deactivate managers based on page
-    if (pageName === 'console') {
-      if (typeof ConsoleManager !== 'undefined') {
-        ConsoleManager.activate();
+    
+    // Wait for fade out, then show new page
+    setTimeout(() => {
+      // Remove fading state and hide old page
+      if (currentPageEl) {
+        currentPageEl.classList.remove('page--fading-out');
       }
-    } else {
-      if (typeof ConsoleManager !== 'undefined') {
-        ConsoleManager.deactivate();
+      
+      // Show and fade in new page
+      targetPageEl.classList.add('page--active');
+      
+      // Update current page
+      this.currentPage = pageName;
+      
+      // Save to localStorage
+      try {
+        localStorage.setItem('dashboard_currentPage', pageName);
+      } catch (e) {
+        console.error('Failed to save current page:', e);
       }
-    }
 
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Update sidebar active state
+      this.sidebarItems.forEach(item => {
+        const isActive = item.dataset.target === pageName;
+        item.classList.toggle('sidebar-item--active', isActive);
+      });
 
-    // Update icons
-    if (window.feather) {
-      feather.replace();
-    }
+      // Activate/deactivate managers based on page
+      if (pageName === 'console') {
+        if (this.consoleManager) {
+          this.consoleManager.activate();
+        }
+      } else {
+        if (this.consoleManager) {
+          this.consoleManager.deactivate();
+        }
+      }
+
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Update icons
+      if (window.feather) {
+        feather.replace();
+      }
+    }, 300); // must match CSS transition duration
   }
 
   init() {

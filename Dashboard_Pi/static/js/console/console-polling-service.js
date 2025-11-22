@@ -1,5 +1,5 @@
 // Periodically fetches console logs from the server
-// Polls /api/console/logs every 500ms and passes them to the renderer
+// Polls /api/console/logs every 500ms (default, configurable) and passes them to the renderer
 class ConsolePollingService extends PollingService {
   constructor(apiService, renderer, interval) {
     super(interval);
