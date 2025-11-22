@@ -1,15 +1,8 @@
 {
-  "auto-9fa7d100": {
+  "auto-bb2140aa": {
     "ip": "127.0.0.1",
     "description": "",
-    "last_seen": "2025-11-22T08:53:48",
-    "pins": {},
-    "blink": false
-  },
-  "auto-c9247fbd": {
-    "ip": "127.0.0.1",
-    "description": "",
-    "last_seen": "2025-11-22T08:54:31",
+    "last_seen": "2025-11-22T10:02:02",
     "pins": {},
     "blink": false
   }
