@@ -22,6 +22,8 @@
   /* Danger - Red (Delete, Stop, Error) */
   --color-danger: #d32f2f;
   --color-danger-hover: #a92323;
+  --color-error: #d32f2f;
+  --color-error-hover: #a92323;
   
   /* Secondary - Gray (Send, Alternative) */
   --color-secondary: #616161;

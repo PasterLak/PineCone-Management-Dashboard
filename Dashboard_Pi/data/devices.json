@@ -1,1 +1,23 @@
-{}
+{
+  "auto-8377a468": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T08:31:19",
+    "pins": {},
+    "blink": false
+  },
+  "test123": {
+    "ip": "127.0.0.1",
+    "description": "dcrfhgt",
+    "last_seen": "2025-11-22T08:42:53",
+    "pins": {},
+    "blink": false
+  },
+  "test123456": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T08:41:15",
+    "pins": {},
+    "blink": false
+  }
+}

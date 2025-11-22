@@ -66,11 +66,25 @@ class SimulatorCardRenderer {
 
   // Generate payload section (JSON + Console)
   _generatePayloadSection(sim) {
+    // Only disable textarea if running AND autoUpdate is enabled
+    const disableTextarea = sim.running && sim.autoUpdate;
+    const showApprovalButtons = sim.running && !sim.autoUpdate && sim.hasUnsavedChanges;
+    
     return `
       <div class="sim-payload-section">
         <div class="sim-json">
           <label>JSON Payload</label>
-          <textarea data-id="${sim.id}" data-field="${SimulatorConfig.FIELDS.JSON}" ${sim.running ? 'disabled' : ''}>${sim.json}</textarea>
+          <div class="sim-json-wrapper">
+            <textarea data-id="${sim.id}" data-field="${SimulatorConfig.FIELDS.JSON}" ${disableTextarea ? 'disabled' : ''}>${sim.json}</textarea>
+            <div class="sim-json-actions" data-json-actions-id="${sim.id}" style="display: ${showApprovalButtons ? 'flex' : 'none'};">
+              <button class="sim-json-approve" data-id="${sim.id}" data-action="approve-json" title="Apply changes">
+                <i data-feather="check"></i>
+              </button>
+              <button class="sim-json-discard" data-id="${sim.id}" data-action="discard-json" title="Discard changes">
+                <i data-feather="x"></i>
+              </button>
+            </div>
+          </div>
         </div>
         <div class="sim-console">
           <div class="sim-console-header">
