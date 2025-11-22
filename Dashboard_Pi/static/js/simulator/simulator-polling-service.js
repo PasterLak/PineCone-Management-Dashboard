@@ -112,8 +112,13 @@ class SimulatorPollingService {
           sim.json = JSON.stringify(data.currentPayload, null, 2);
         }
       } catch (err) {
-        console.error(`Failed to sync status for simulator ${sim.id}:`, err);
-        sim.running = false; // Assume stopped on error
+        // Silently ignore 404 errors (simulator doesn't exist on backend yet)
+        if (err.status === 404) {
+          sim.running = false;
+        } else {
+          console.error(`Failed to sync status for simulator ${sim.id}:`, err);
+          sim.running = false;
+        }
       }
     }
 

@@ -188,27 +188,22 @@ class SimulatorActions {
     const example = SimulatorConfig.getExample(exampleType);
     if (!example) return null;
 
-    // Find target simulator or create new one
-    let targetSim = null;
-    if (targetSimId) {
-      targetSim = this.dataService.getById(targetSimId);
-    } else {
-      // Find first non-running simulator
-      targetSim = this.dataService.getAll().find(s => !s.running);
+    // Find the "Example Simulator" by ID 0
+    let exampleSim = this.dataService.getById(0);
+
+    if (!exampleSim) {
+      // Create new "Example Simulator" with ID 0
+      exampleSim = this.dataService.createSimulatorData(0);
+      exampleSim.name = 'Example Simulator';
+      this.dataService.add(exampleSim);
     }
 
-    if (!targetSim) {
-      // Create new simulator
-      const id = this.dataService.getNextAvailableId();
-      targetSim = this.dataService.createSimulatorData(id);
-      this.dataService.add(targetSim);
-    }
-
-    // Apply example
-    targetSim.json = JSON.stringify(example, null, 2);
+    // Apply example and ensure name stays "Example Simulator"
+    exampleSim.name = 'Example Simulator';
+    exampleSim.json = JSON.stringify(example, null, 2);
     this.dataService.save();
 
-    return targetSim.id;
+    return exampleSim.id;
   }
 
   // Bulk Actions
