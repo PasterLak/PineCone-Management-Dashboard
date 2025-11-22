@@ -1,4 +1,5 @@
-// Console Configuration
+// Configuration settings for the console log viewer
+// Defines polling intervals, max lines, and log type classifications
 const ConsoleConfig = {
   pollInterval: 500, // Default: Poll every 500ms (overridden by settings)
   maxLines: 1000, // Default: Maximum number of lines to keep (overridden by settings)

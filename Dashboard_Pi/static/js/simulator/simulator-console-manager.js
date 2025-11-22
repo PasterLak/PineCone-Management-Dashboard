@@ -1,7 +1,5 @@
-/**
- * Simulator Console Manager
- * Manages console output and scrolling behavior
- */
+// Manages console output for each simulator card
+// Updates text content and handles auto-scrolling behavior
 class SimulatorConsoleManager {
   constructor(dom) {
     this.dom = dom;

@@ -1,7 +1,5 @@
-/**
- * Pin Details Renderer
- * Contains logic to create and update pin details rows
- */
+// Creates the expandable pin details view below device rows
+// Displays pin states with color-coded indicators
 class PinDetailsRenderer {
   // Creates Pin Details Row
   createPinDetailsRow(deviceId, pins) {

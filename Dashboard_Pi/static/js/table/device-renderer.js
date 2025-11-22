@@ -1,3 +1,5 @@
+// Renders the device table with current device data
+// Updates rows, offline status, and preserves expanded pin details
 class DeviceRenderer {
   constructor(dom, dataService, rowRenderer, pinManager, settingsManager) {
     this.dom = dom;

@@ -1,7 +1,5 @@
-/**
- * Device DOM Handler
- * Does all DOM interactions for device table
- */
+// Finds and caches DOM elements for the device table
+// Provides quick access to table body and individual rows
 class DeviceDOM {
   constructor() {
     this.tbody = document.getElementById('tbody');

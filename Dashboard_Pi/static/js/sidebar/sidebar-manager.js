@@ -1,6 +1,5 @@
-/**
- * Sidebar Manager - Handles sidebar open/close state
- */
+// Controls the sidebar's open and closed state
+// Manages CSS classes and toggle button interactions
 class SidebarManager {
   constructor() {
     this.sidebar = document.getElementById('sidebar');

@@ -1,7 +1,5 @@
-/**
- * Settings DOM Handler
- * Does all DOM interactions for settings page
- */
+// Finds and caches all DOM elements for the settings page
+// Provides getter/setter methods for form inputs and buttons
 class SettingsDOM {
   constructor() {
     this.inputs = {};

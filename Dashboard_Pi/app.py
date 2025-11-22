@@ -1,6 +1,6 @@
 """
 PineCone Management Dashboard - Flask Backend
-Receives POST requests from BL602 IoT devices and serves a web dashboard.
+Receives POST requests from PineCone BL602 IoT devices and serves a web dashboard.
 """
 
 from flask import Flask, request, jsonify, render_template

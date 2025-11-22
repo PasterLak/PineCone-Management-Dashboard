@@ -1,7 +1,5 @@
-/**
- * Device Actions
- * runs actions (Delete, Blink, Edit, Pins)
- */
+// Executes device operations (delete, blink, edit description)
+// Communicates with backend API and updates device state
 class DeviceActions {
   constructor(dataService, apiService, rowRenderer, editHandler, pinRenderer) {
     this.dataService = dataService;

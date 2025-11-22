@@ -1,7 +1,5 @@
-/**
- * Settings Form
- * Manages form data
- */
+// Manages form state for the settings page
+// Loads values from storage and extracts current form data
 class SettingsForm {
   constructor(dom, settingsManager) {
     this.dom = dom;

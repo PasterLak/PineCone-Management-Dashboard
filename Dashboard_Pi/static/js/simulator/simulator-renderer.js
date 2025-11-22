@@ -1,3 +1,5 @@
+// Renders the list of simulator cards on the page
+// Updates the UI when simulators are added, removed, or changed
 class SimulatorRenderer {
   constructor(dom, dataService, cardRenderer) {
     this.dom = dom;

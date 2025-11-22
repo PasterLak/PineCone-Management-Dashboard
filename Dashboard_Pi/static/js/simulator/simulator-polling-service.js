@@ -1,3 +1,5 @@
+// Periodically fetches status for all running simulators
+// Polls /api/simulator/{id} every 500ms and updates console output
 class SimulatorPollingService extends PollingService {
   constructor(dataService, apiService, consoleManager, settingsManager) {
     super(SimulatorConfig.DEFAULTS.POLL_INTERVAL);
