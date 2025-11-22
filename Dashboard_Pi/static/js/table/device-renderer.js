@@ -46,6 +46,8 @@ class DeviceRenderer {
 
   // In-Place Update (without full re-render)
   updateInPlace(newDevices, changedIds) {
+    const offlineThreshold = this.settings.get('offlineThreshold');
+    
     changedIds.forEach(deviceId => {
       const row = this.dom.getRow(deviceId);
       if (!row) return;
@@ -53,7 +55,7 @@ class DeviceRenderer {
       const deviceData = newDevices[deviceId];
       
       // Update row data
-      this.rowRenderer.updateRowInPlace(row, deviceData);
+      this.rowRenderer.updateRowInPlace(row, deviceData, offlineThreshold);
 
       // Update pin details if expanded
       this.pinManager.updateExpandedPins(deviceId, deviceData.pins || {});
@@ -66,7 +68,6 @@ class DeviceRenderer {
   updateOfflineStatus() {
     if (!this.dom.isAvailable()) return;
     
-    const now = Date.now();
     const threshold = this.settings.get('offlineThreshold');
     const rows = this.dom.getAllRows();
 
@@ -75,7 +76,12 @@ class DeviceRenderer {
       if (!device) return;
 
       const isOffline = this.dataService.isOffline(device, threshold);
-      this.rowRenderer.updateOfflineStatus(row, isOffline);
+      
+      // Update status badge
+      const statusCell = row.querySelector('.status-cell');
+      if (statusCell) {
+        this.rowRenderer.updateStatusBadge(statusCell, isOffline);
+      }
     });
   }
 }

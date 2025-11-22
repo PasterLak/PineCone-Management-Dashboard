@@ -4,6 +4,7 @@
   <table>
     <thead>
       <tr>
+        <th class="col-status">Status</th>
         <th class="col-id">ID</th>
         <th class="col-ip">IP</th>
         <th class="col-desc">Description</th>
@@ -14,6 +15,12 @@
     <tbody id="tbody">
       {% for id, d in devices.items() %}
       <tr data-id="{{ id }}">
+        <td class="status-cell">
+          <div class="device-status device-status--online">
+            <span class="device-status-dot"></span>
+            <span>Online </span>
+          </div>
+        </td>
         <td>{{ id }}</td>
         <td>{{ d.ip }}</td>
         <td data-id="{{ id }}">
