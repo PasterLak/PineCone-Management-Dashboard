@@ -3,10 +3,12 @@
  * Handles simulator operations (start, stop, send, remove)
  */
 class SimulatorActions {
-  constructor(dataService, apiService, consoleManager) {
+  constructor(dataService, apiService, consoleManager, pollingService = null, renderer = null) {
     this.dataService = dataService;
     this.api = apiService;
     this.consoleManager = consoleManager;
+    this.pollingService = pollingService;
+    this.renderer = renderer;
   }
 
   // Start simulator
@@ -21,14 +23,34 @@ class SimulatorActions {
       return;
     }
 
-    // Update state
-    this.dataService.update(id, { running: true });
-    if (onSuccess) onSuccess();
-
-    // Start on server
+    // Start on server first
     try {
       const result = await this.api.start(id, sim.interval, sim.json, sim.autoUpdate);
       console.log('Simulator started:', result);
+      
+      // Fetch initial status 
+      const data = await this.api.getStatus(id);
+      if (data.responses && data.responses.length > 0) {
+        const initialConsole = data.responses.join('\n');
+        sim.console = initialConsole;
+      }
+      
+      // Update state
+      this.dataService.update(id, { running: true });
+      this.dataService.save();
+      
+      // Schedule scroll for after render
+      if (this.renderer) {
+        this.renderer.scheduleScroll(id);
+      }
+      
+      if (onSuccess) onSuccess(); // This triggers render() with message from backend
+      
+      // Start polling service to fetch subsequent responses
+      if (this.pollingService) {
+        this.pollingService.start();
+      }
+      
       return true;
     } catch (err) {
       // Revert on failure
@@ -43,14 +65,29 @@ class SimulatorActions {
     const sim = this.dataService.getById(id);
     if (!sim || !sim.running) return;
 
-    // Update state
-    this.dataService.update(id, { running: false });
-    if (onSuccess) onSuccess();
-
-    // Stop on server
+    // Stop on server first
     try {
       const result = await this.api.stop(id);
       console.log('Simulator stopped:', result);
+      
+      // Fetch final status BEFORE updating UI
+      const data = await this.api.getStatus(id);
+      if (data.responses && data.responses.length > 0) {
+        const finalConsole = data.responses.join('\n');
+        sim.console = finalConsole;
+        this.dataService.save();
+      }
+      
+      // NOW update state and render
+      this.dataService.update(id, { running: false });
+      
+      // Schedule scroll for after render
+      if (this.renderer) {
+        this.renderer.scheduleScroll(id);
+      }
+      
+      if (onSuccess) onSuccess(); // This triggers render with updated console
+      
       return true;
     } catch (err) {
       return false;
@@ -63,12 +100,44 @@ class SimulatorActions {
     if (!sim) return;
 
     try {
-      const result = await this.api.sendOnce(sim.json);
+      const result = await this.api.sendOnce(id, sim.json);
       console.log('Sent once:', result);
-      alert('POST sent successfully!');
+      
+      // Backend will add to simulator_responses, just fetch updated status
+      const data = await this.api.getStatus(id);
+      if (data.responses && data.responses.length > 0) {
+        const newConsole = data.responses.join('\n');
+        sim.console = newConsole;
+        this.consoleManager.updateConsole(id, newConsole);
+      }
+      
       return true;
     } catch (err) {
       alert('POST failed!');
+      return false;
+    }
+  }
+
+  // Clear server responses
+  async clear(id, onSuccess) {
+    const sim = this.dataService.getById(id);
+    if (!sim) return;
+
+    try {
+      await this.api.clearResponses(id);
+      
+      // Clear console locally
+      sim.console = '';
+      
+      // Clear cache and update console
+      this.consoleManager.clearCache(id);
+      this.consoleManager.updateConsole(id, 'No responses...');
+      
+      this.dataService.save();
+      
+      return true;
+    } catch (err) {
+      alert('Failed to clear responses!');
       return false;
     }
   }
@@ -80,6 +149,13 @@ class SimulatorActions {
     // Stop if running
     if (sim && sim.running) {
       await this.stop(id);
+    }
+
+    // Delete responses from backend
+    try {
+      await this.api.deleteResponses(id);
+    } catch (err) {
+      console.error('Failed to delete simulator responses:', err);
     }
 
     // Remove from data

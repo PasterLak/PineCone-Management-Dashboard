@@ -65,11 +65,16 @@ class SimulatorPollingService {
     try {
       const data = await this.api.getStatus(sim.id);
 
-      // Update console output
+      // Update console output with all responses from backend
       if (data.responses && data.responses.length > 0) {
         const newConsole = data.responses.join('\n');
-        sim.console = newConsole;
-        this.consoleManager.updateConsole(sim.id, newConsole);
+        
+        // Only update if content has changed
+        if (newConsole !== sim.console) {
+          sim.console = newConsole;
+          this.consoleManager.updateConsole(sim.id, newConsole);
+          this.dataService.save(); // Save console to localStorage
+        }
       }
 
       // Update JSON payload if autoUpdate enabled
@@ -78,6 +83,7 @@ class SimulatorPollingService {
         if (newJson !== sim.json) {
           sim.json = newJson;
           this.consoleManager.updatePayload(sim.id, newJson);
+          this.dataService.save(); // Save updated payload to localStorage
         }
       }
     } catch (err) {

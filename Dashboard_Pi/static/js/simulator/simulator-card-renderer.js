@@ -99,6 +99,10 @@ class SimulatorCardRenderer {
           <i data-feather="send"></i>
           <span>Send Once</span>
         </button>
+        <button class="sim-btn sim-btn--clear" data-id="${sim.id}" data-action="${SimulatorConfig.ACTIONS.CLEAR}">
+          <i data-feather="x-circle"></i>
+          <span>Clear Responses</span>
+        </button>
         <button class="sim-btn sim-btn--remove" data-id="${sim.id}" data-action="${SimulatorConfig.ACTIONS.REMOVE}">
           <i data-feather="trash-2"></i>
           <span>Remove</span>

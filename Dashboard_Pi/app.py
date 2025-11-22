@@ -235,6 +235,12 @@ def start_simulator():
     # Store config
     simulator_configs[sim_id] = {"autoUpdate": auto_update}
     
+    # Preserve existing responses and add start message
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    if sim_id not in simulator_responses:
+        simulator_responses[sim_id] = []
+    simulator_responses[sim_id].append(f"[{timestamp}] Simulator started")
+    
     # Create stop flag
     simulator_stop_flags[sim_id] = {"stop": False}
     
@@ -258,6 +264,11 @@ def stop_simulator():
     if sim_id not in simulator_stop_flags:
         return jsonify({"error": "not found"}), 404
     
+    # Add stop message to responses before cleaning up
+    if sim_id in simulator_responses:
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        simulator_responses[sim_id].append(f"[{timestamp}] Simulator stopped")
+    
     # Signal stop
     simulator_stop_flags[sim_id]["stop"] = True
     
@@ -269,15 +280,14 @@ def stop_simulator():
     del simulator_stop_flags[sim_id]
     if sim_id in simulator_configs:
         del simulator_configs[sim_id]
-    if sim_id in simulator_responses:
-        del simulator_responses[sim_id]
     
     return jsonify({"status": "stopped", "id": sim_id})
 
 # API Endpoint to get current status, responses, and updated payload for a specific simulator
 @app.route("/api/simulator/status/<int:sim_id>", methods=["GET"])
 def get_simulator_status(sim_id):
-    if sim_id not in simulator_configs:
+    # Allow fetching status even if simulator is stopped
+    if sim_id not in simulator_configs and sim_id not in simulator_responses:
         return jsonify({"error": "not found"}), 404
     
     config = simulator_configs.get(sim_id, {})
@@ -308,15 +318,52 @@ def update_simulator():
 @app.route("/api/simulator/send", methods=["POST"])
 def send_simulator_once():
     data = request.json or {}
+    sim_id = data.get("id")
     payload_str = data.get("payload", "{}")
     
     try:
         payload = json.loads(payload_str)
         with app.test_client() as client:
             response = client.post("/api/data", json=payload)
-        return jsonify({"status": "sent", "response": response.get_json()})
+            result = response.get_json()
+        
+        # Add to simulator_responses if simulator exists
+        if sim_id is not None:
+            if sim_id not in simulator_responses:
+                simulator_responses[sim_id] = []
+            timestamp = datetime.now().strftime("%H:%M:%S")
+            simulator_responses[sim_id].append(f"[{timestamp}] Send once: {json.dumps(result)}")
+            
+            # Keep only last 50 responses
+            if len(simulator_responses[sim_id]) > 50:
+                simulator_responses[sim_id] = simulator_responses[sim_id][-50:]
+        
+        return jsonify({"status": "sent", "response": result})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+# API Endpoint to clear simulator responses (clear button)
+@app.route("/api/simulator/clear", methods=["POST"])
+def clear_simulator_responses():
+    data = request.json or {}
+    sim_id = data.get("id")
+    
+    if sim_id is not None:
+        
+        simulator_responses[sim_id] = []
+    
+    return jsonify({"status": "cleared", "id": sim_id})
+
+# API Endpoint to delete simulator responses (when simulator is removed)
+@app.route("/api/simulator/delete", methods=["POST"])
+def delete_simulator_responses():
+    data = request.json or {}
+    sim_id = data.get("id")
+    
+    if sim_id is not None and sim_id in simulator_responses:
+        del simulator_responses[sim_id]
+    
+    return jsonify({"status": "deleted", "id": sim_id})
 
 
 # MAIN

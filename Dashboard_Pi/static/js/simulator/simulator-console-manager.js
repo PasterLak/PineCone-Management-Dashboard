@@ -5,19 +5,33 @@
 class SimulatorConsoleManager {
   constructor(dom) {
     this.dom = dom;
+    this.lastContent = {}; // Cache last content per simulator
   }
 
   // Update console output
-  updateConsole(simId, text) {
+  updateConsole(simId, text, forceScroll = false) {
     const consoleEl = this.dom.findConsoleOutput(simId);
     if (!consoleEl) return;
 
-    const isAtBottom = this._isScrolledToBottom(consoleEl);
-    consoleEl.textContent = text;
+    // Skip update if content hasn't changed
+    if (this.lastContent[simId] === text && !forceScroll) {
+      return;
+    }
+    
+    this.lastContent[simId] = text;
 
-    // Auto-scroll if user was at bottom
-    if (isAtBottom) {
-      this.scrollToBottom(consoleEl);
+    const isAtBottom = this._isScrolledToBottom(consoleEl);
+    const shouldScrollToBottom = isAtBottom || forceScroll;
+    const savedScrollTop = consoleEl.scrollTop;
+    
+    // Update content
+    consoleEl.textContent = text;
+    
+    // Apply scroll immediately
+    if (shouldScrollToBottom) {
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+    } else {
+      consoleEl.scrollTop = savedScrollTop;
     }
 
     this.updateScrollButton(consoleEl);
@@ -47,6 +61,11 @@ class SimulatorConsoleManager {
 
     const isAtBottom = this._isScrolledToBottom(consoleEl);
     scrollBtn.classList.toggle(SimulatorConfig.CSS_CLASSES.VISIBLE, !isAtBottom);
+  }
+
+  // Clear cache for specific simulator
+  clearCache(simId) {
+    delete this.lastContent[simId];
   }
 
   // Handle scroll button click

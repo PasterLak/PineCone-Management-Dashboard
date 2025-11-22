@@ -1,1 +1,97 @@
-{}
+{
+  "auto-77b1e4a2": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T06:01:56",
+    "pins": {},
+    "blink": false
+  },
+  "PineCone_003": {
+    "ip": "127.0.0.1",
+    "description": "Sensor Module",
+    "last_seen": "2025-11-22T06:02:04",
+    "pins": {
+      "GPIO4": {
+        "mode": "input",
+        "name": "temp_sensor",
+        "value": "23"
+      },
+      "GPIO5": {
+        "mode": "pulldown",
+        "name": "motion_detect",
+        "value": "0"
+      }
+    },
+    "blink": false
+  },
+  "auto-0458feeb": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T06:03:16",
+    "pins": {},
+    "blink": false
+  },
+  "auto-f612f999": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T06:04:59",
+    "pins": {},
+    "blink": false
+  },
+  "auto-59c97001": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T06:05:07",
+    "pins": {},
+    "blink": false
+  },
+  "auto-ab408c05": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T06:06:17",
+    "pins": {},
+    "blink": false
+  },
+  "auto-4cbf9f8a": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T06:07:23",
+    "pins": {},
+    "blink": false
+  },
+  "auto-1669b560": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T06:08:33",
+    "pins": {},
+    "blink": false
+  },
+  "auto-252813c3": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T06:10:11",
+    "pins": {},
+    "blink": false
+  },
+  "auto-78680c15": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T06:12:29",
+    "pins": {},
+    "blink": false
+  },
+  "auto-0e6e75a6": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T06:20:01",
+    "pins": {},
+    "blink": false
+  },
+  "auto-b4c63897": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-11-22T06:25:34",
+    "pins": {},
+    "blink": false
+  }
+}

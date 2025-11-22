@@ -150,6 +150,9 @@ class SimulatorEventHandler {
       case SimulatorConfig.ACTIONS.SEND:
         this.actions.sendOnce(id);
         break;
+      case SimulatorConfig.ACTIONS.CLEAR:
+        this.actions.clear(id);
+        break;
       case SimulatorConfig.ACTIONS.REMOVE:
         this.actions.remove(id, () => this.renderer.render());
         break;
