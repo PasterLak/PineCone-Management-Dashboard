@@ -89,14 +89,14 @@
   align-items: center;
   gap: 10px;
   height: 48px;
-  padding: 0 14px 0 10px;
+  padding: 0 14px 0 11px;
   border-radius: 10px;
   background: transparent;
   color: var(--sidebar-text);
   cursor: pointer;
   border: none;
   text-align: left;
-  transition: background 0.25s ease, transform 0.15s ease;
+  transition: background 0.25s ease, transform 0.15s ease, padding 0.3s ease, gap 0.3s ease;
 }
 
 .sidebar-item--bottom {
@@ -106,7 +106,6 @@
 
 .sidebar-item:hover {
   background: var(--sidebar-hover);
-  transform: translateX(1px);
 }
 
 .sidebar-item--active {
@@ -115,9 +114,8 @@
 
 
 .sidebar--closed .sidebar-item {
-  justify-content: flex-start; 
-  gap: 10px;
-  padding: 0 14px 0 10px; 
+  gap: 0;
+  padding: 0 0 0 11px; 
 }
 
 
