@@ -38,12 +38,12 @@ class SimulatorAPIService {
   }
 
   // Send payload once
-  async sendOnce(payload) {
+  async sendOnce(id, payload) {
     try {
       const response = await fetch(SimulatorConfig.API.SEND, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ payload })
+        body: JSON.stringify({ id, payload })
       });
 
       if (!response.ok) throw new Error('Send failed');
@@ -79,6 +79,40 @@ class SimulatorAPIService {
       return await response.json();
     } catch (err) {
       console.error('Failed to update simulator config:', err);
+      throw err;
+    }
+  }
+
+  // Clear simulator responses (clear button)
+  async clearResponses(id) {
+    try {
+      const response = await fetch('/api/simulator/clear', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+
+      if (!response.ok) throw new Error('Clear failed');
+      return await response.json();
+    } catch (err) {
+      console.error('Failed to clear simulator responses:', err);
+      throw err;
+    }
+  }
+
+  // Delete simulator responses (remove simulator)
+  async deleteResponses(id) {
+    try {
+      const response = await fetch('/api/simulator/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+
+      if (!response.ok) throw new Error('Delete failed');
+      return await response.json();
+    } catch (err) {
+      console.error('Failed to delete simulator responses:', err);
       throw err;
     }
   }

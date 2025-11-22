@@ -33,6 +33,7 @@ class SimulatorConfig {
     START: 'start',
     STOP: 'stop',
     SEND: 'send',
+    CLEAR: 'clear',
     REMOVE: 'remove'
   };
 

@@ -17,19 +17,21 @@ class SimulatorManager {
     this.consoleManager = new SimulatorConsoleManager(this.dom);
     this.renderer = new SimulatorRenderer(this.dom, this.dataService, this.cardRenderer);
     
-    // Initialize actions
-    this.actions = new SimulatorActions(
-      this.dataService,
-      this.apiService,
-      this.consoleManager
-    );
-    
     // Initialize polling
     this.pollingService = new SimulatorPollingService(
       this.dataService,
       this.apiService,
       this.consoleManager,
       this.settings
+    );
+    
+    // Initialize actions (pass polling service and renderer)
+    this.actions = new SimulatorActions(
+      this.dataService,
+      this.apiService,
+      this.consoleManager,
+      this.pollingService,
+      this.renderer
     );
     
     // Initialize event handler
@@ -66,11 +68,25 @@ class SimulatorManager {
     // Initial render
     this.renderer.render();
     
+    // Scroll all consoles to bottom after initial render
+    this._scrollAllConsolesToBottom();
+    
     // Setup event handlers
     this.eventHandler.setup();
     
     // Listen for settings changes
     this._setupSettingsListener();
+  }
+
+  // Scroll all consoles to bottom
+  _scrollAllConsolesToBottom() {
+    const simulators = this.dataService.getAll();
+    simulators.forEach(sim => {
+      const consoleEl = this.dom.findConsoleOutput(sim.id);
+      if (consoleEl) {
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+      }
+    });
   }
 
   // Setup settings listener
