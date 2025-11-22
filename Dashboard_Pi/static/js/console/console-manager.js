@@ -10,11 +10,13 @@ class ConsoleManager {
   // Set up console on page load
   init() {
     ConsoleDOM.init();
-    ConsoleEventHandler.init();
     ConsoleRenderer._loadState();
     ConsoleRenderer.init(this.settings);
     
     this.apiService = new APIService();
+    
+    ConsoleEventHandler.init(this.apiService);
+    
     this.pollingService = new ConsolePollingService(
       this.apiService,
       ConsoleRenderer,
