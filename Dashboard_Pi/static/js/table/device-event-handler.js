@@ -22,6 +22,7 @@ class DeviceEventHandler {
     const deleteBtn = e.target.closest(DeviceConfig.BUTTONS.DELETE);
     const pinsBtn = e.target.closest(DeviceConfig.BUTTONS.PINS);
     const blinkBtn = e.target.closest(DeviceConfig.BUTTONS.BLINK);
+    const row = e.target.closest('tbody tr:not(.pin-details-row)');
 
     if (okBtn) {
       this._handleOkButton(okBtn);
@@ -35,6 +36,11 @@ class DeviceEventHandler {
       this._handlePinsButton(pinsBtn);
     } else if (blinkBtn) {
       this._handleBlinkButton(blinkBtn);
+    } else if (row) {
+      // Click on row (but not on buttons or inputs)
+      if (!e.target.closest('button') && !e.target.closest('input')) {
+        this._handleRowClick(row);
+      }
     }
   }
 
@@ -94,6 +100,15 @@ class DeviceEventHandler {
           newBlinkState
         );
       });
+    }
+  }
+
+  // Row Click - Toggle pin details
+  _handleRowClick(row) {
+    const deviceId = row.dataset.id;
+    if (deviceId) {
+      const device = this.actions.dataService.getDevice(deviceId);
+      this.pinManager.togglePinDetails(deviceId, device);
     }
   }
 }

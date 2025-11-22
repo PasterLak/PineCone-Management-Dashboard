@@ -39,6 +39,7 @@ tbody tr:last-child td {
 
 tbody tr {
   transition: background 0.2s ease;
+  cursor: pointer;
 }
 
 tbody tr:nth-child(even) {
