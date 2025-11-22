@@ -1,16 +1,20 @@
 {
-  "auto-7e55a93e": {
+  "PineCone_003": {
     "ip": "127.0.0.1",
-    "description": "",
-    "last_seen": "2025-11-22T14:43:17",
-    "pins": {},
-    "blink": false
-  },
-  "auto-1ffb6616": {
-    "ip": "127.0.0.1",
-    "description": "",
-    "last_seen": "2025-11-22T13:58:10",
-    "pins": {},
+    "description": "1",
+    "last_seen": "2025-11-22T14:49:17",
+    "pins": {
+      "GPIO4": {
+        "mode": "input",
+        "name": "temp_sensor",
+        "value": "23"
+      },
+      "GPIO5": {
+        "mode": "pulldown",
+        "name": "motion_detect",
+        "value": "0"
+      }
+    },
     "blink": false
   }
 }
