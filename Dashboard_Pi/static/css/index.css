@@ -1,34 +1,57 @@
 
 :root {
+  /* ===== Background & Base Colors ===== */
   --bg: #1a1919;
+  --color-dark: #1a1a1a;
+  --color-white: #ffffff;
+  
+  /* ===== Text Colors ===== */
   --text: #e0e0e0;
   --text-muted: #a0a0a0;
+  
+  /* ===== Brand & Primary Colors ===== */
   --brand: #1e88e5;
+  --color-primary: #1e88e5;
+  --color-primary-hover: #1565c0;
+  
+  /* ===== Button Colors ===== */
+  /* Success - Green (Start, Confirm, OK) */
+  --color-success: #4caf50;
+  --color-success-hover: #45a049;
+  
+  /* Danger - Red (Delete, Stop, Error) */
+  --color-danger: #d32f2f;
+  --color-danger-hover: #a92323;
+  
+  /* Secondary - Gray (Send, Alternative) */
+  --color-secondary: #616161;
+  --color-secondary-hover: #424242;
+  
+  /* Warning - Orange (Clear, Caution) */
+  --color-warning: #ffc107;
+  --color-warning-hover: #ffa000;
+  
+  /* Tertiary - Dark (Alternative/Stop) */
+  --color-tertiary: #292828;
+  --color-tertiary-hover: #3d3c3c;
+  
+  /* ===== Border Colors ===== */
   --border: #2a2a2a;
   --border-secondary: #3a3a3a;
   
+  /* ===== Card & Table Colors ===== */
   --card: var(--bg);
   --row-alt: #1a1a1a;
   --row-alt-muted: #2a2a2a;
   --row-alt-hover: rgba(30, 136, 229, 0.1);
   --th: var(--brand);
   
-  --btn-edit: #1976d2;
-  --btn-edit-hover: #1565c0;
-  
-  --btn-ok: #4caf50;
-  --btn-ok-hover: #45a049;
-  
-  --btn-cancel: #292828;
-  --btn-cancel-hover: rgb(40, 39, 39);
-  
-  --btn-delete: #d32f2f;
-  --btn-delete-hover: #a92323;
-  
+  /* ===== Flash & Status Colors ===== */
   --flash: #4b4a4a;
   --flash-darken: #3d3c3c;
   --offline: #590101;
   
+  /* ===== Sidebar Colors ===== */
   --sidebar-bg: var(--brand);
   --sidebar-text: #ffffff;
   --sidebar-border: #1565c0;
@@ -37,24 +60,29 @@
   --sidebar-icon-bg: rgba(0, 0, 0, 0.15);
   --sidebar-toggle-hover: rgba(0, 0, 0, 0.2);
   
+  /* ===== Shadows ===== */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
   --shadow-lg: 0 4px 12px rgba(30, 136, 229, 0.4);
   --shadow-primary: 0 4px 12px rgba(30, 136, 229, 0.3);
-  --shadow-secondary: 0 4px 12px rgba(158, 158, 158, 0.3);
+  --shadow-secondary: 0 4px 12px rgba(97, 97, 97, 0.3);
   --shadow-tertiary: 0 4px 12px rgba(59, 58, 58, 0.3);
   --shadow-warning: 0 4px 12px rgba(255, 193, 7, 0.3);
   --shadow-success: 0 4px 12px rgba(76, 175, 80, 0.3);
   --shadow-danger: 0 4px 12px rgba(211, 47, 47, 0.4);
   
+  /* ===== Focus & Interaction ===== */
   --focus-ring: 0 0 0 3px rgba(30, 136, 229, 0.1);
   
+  /* ===== Console Colors ===== */
   --console-text: #4caf50;
   
+  /* ===== Switch Colors ===== */
   --switch-off: #666;
-  --switch-on: var(--btn-ok);
+  --switch-on: var(--color-success);
   --switch-thumb: #ffffff;
 
+  /* ===== Pin Mode Colors ===== */
   --pullup: #9c27b0;
   --pulldown: #607d8b;
   --output: #1976d2;

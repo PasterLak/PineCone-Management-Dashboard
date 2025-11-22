@@ -103,79 +103,79 @@ th.col-actions { width: 8%; text-align: center; }
 }
 
 .edit-btn {
-  background: var(--btn-edit);
-  border-color: var(--btn-edit);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   color: var(--text);
 }
 
 .edit-btn:hover {
-  background: var(--btn-edit-hover);
-  border-color: var(--btn-edit-hover);
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
   color: var(--text);
   transform: translateY(-1px);
   box-shadow: var(--shadow-primary);
 }
 
 .ok-btn {
-  background: var(--btn-ok);
-  border-color: var(--btn-ok);
+  background: var(--color-success);
+  border-color: var(--color-success);
   color: var(--text);
 }
 
 .ok-btn:hover {
-  background: var(--btn-ok-hover);
-  border-color: var(--btn-ok-hover);
+  background: var(--color-success-hover);
+  border-color: var(--color-success-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-success);
 }
 
 .cancel-btn {
-  background: var(--btn-cancel);
-  border-color: var(--btn-cancel);
-  color: var(--sidebar-text);
+  background: var(--color-tertiary);
+  border-color: var(--color-tertiary);
+  color: var(--color-white);
 }
 
 .cancel-btn:hover {
-  background: var(--btn-cancel-hover);
-  border-color: var(--btn-cancel-hover);
+  background: var(--color-tertiary-hover);
+  border-color: var(--color-tertiary-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
 .delete-btn {
-  background: var(--btn-delete);
-  border-color: var(--btn-delete);
-  color: var(--sidebar-text);
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: var(--color-white);
 }
 
 .delete-btn:hover {
-  background: var(--btn-delete-hover);
-  border-color: var(--btn-delete-hover);
+  background: var(--color-danger-hover);
+  border-color: var(--color-danger-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-danger);
 }
 
 .blink-btn {
-  background: var(--btn-cancel);
-  border-color: var(--btn-cancel);
-  color: var(--sidebar-text);
+  background: var(--color-tertiary);
+  border-color: var(--color-tertiary);
+  color: var(--color-white);
 }
 
 .blink-btn:hover {
-  background: var(--btn-cancel-hover);
-  border-color: var(--btn-cancel-hover);
+  background: var(--color-tertiary-hover);
+  border-color: var(--color-tertiary-hover);
   transform: translateY(-1px);
 }
 
 .blink-btn.blink-active {
-  background: var(--btn-ok);
-  border-color: var(--btn-ok);
-  color: var(--sidebar-text);
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: var(--color-white);
 }
 
 .blink-btn.blink-active:hover {
-  background: var(--btn-ok-hover);
-  border-color: var(--btn-ok-hover);
+  background: var(--color-success-hover);
+  border-color: var(--color-success-hover);
   box-shadow: var(--shadow-success);
 }
 
@@ -195,12 +195,12 @@ th.col-actions { width: 8%; text-align: center; }
 }
 
 .device-status--online {
-  background: var(--btn-ok);
-  color: var(--sidebar-text);
+  background: var(--color-success);
+  color: var(--color-white);
 }
 
 .device-status--offline {
-  background: var(--btn-cancel);
+  background: var(--color-tertiary);
   color: var(--text);
 }
 
@@ -238,7 +238,7 @@ th.col-actions { width: 8%; text-align: center; }
   border-radius: 8px;
   border: 1px solid var(--brand);
   padding: 6px 10px;
-  color: var(--sidebar-text);
+  color: var(--color-white);
   transition: all 0.2s ease;
 }
 
@@ -249,15 +249,15 @@ th.col-actions { width: 8%; text-align: center; }
 }
 
 .pins-btn:hover {
-  background: var(--btn-edit-hover);
-  border-color: var(--btn-edit-hover);
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-primary);
 }
 
 .pins-btn.active {
-  background: var(--btn-ok);
-  border-color: var(--btn-ok);
+  background: var(--color-success);
+  border-color: var(--color-success);
 }
 
 tr.pin-details-row {
@@ -268,10 +268,14 @@ tr.pin-details-row {
 tr.pin-details-row td {
   padding: 0;
   border-bottom: 1px solid var(--border);
+  width: 100%;
+  max-width: 100%;
 }
 
 .pin-details-container {
   padding: 24px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .pin-details-header {
@@ -297,7 +301,7 @@ tr.pin-details-row td {
   align-items: center;
   justify-content: center;
   background: var(--brand);
-  color: var(--sidebar-text);
+  color: var(--color-white);
   font-size: 0.75rem;
   font-weight: 600;
   padding: 2px 8px;
@@ -352,22 +356,22 @@ tr.pin-details-row td {
 
 .pin-mode--input {
   background: var(--input);
-  color: var(--sidebar-text);
+  color: var(--color-white);
 }
 
 .pin-mode--output {
   background: var(--output);
-  color: var(--sidebar-text);
+  color: var(--color-white);
 }
 
 .pin-mode--pullup {
   background: var(--pullup);
-  color: var(--sidebar-text);
+  color: var(--color-white);
 }
 
 .pin-mode--pulldown {
   background: var(--pulldown);
-  color: var(--sidebar-text);
+  color: var(--color-white);
 }
 
 .pin-card-body {
@@ -402,7 +406,7 @@ tr.pin-details-row td {
   font-family: "Courier New", monospace;
   font-weight: 700;
   font-size: 1.1rem;
-  color: var(--btn-ok);
+  color: var(--color-success);
   background: var(--bg);
   padding: 4px 12px;
   border-radius: 4px;
