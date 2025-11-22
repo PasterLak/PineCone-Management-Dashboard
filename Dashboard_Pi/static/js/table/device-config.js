@@ -1,7 +1,5 @@
-/**
- * Device Configuration
- * config for Device Table
- */
+// Configuration constants for the device table
+// Contains column indices, CSS classes, button selectors, and API endpoints
 class DeviceConfig {
   // Column Definitions
   static COLUMNS = {

@@ -1,3 +1,5 @@
+// Periodically fetches device list from the server
+// Polls /api/devices and updates offline status indicators
 class DevicePollingService extends PollingService {
   constructor(apiService, dataService, renderer, actions, settingsManager) {
     super(settingsManager.get('pollInterval'));

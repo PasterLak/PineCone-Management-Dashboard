@@ -1,7 +1,5 @@
-/**
- * Simulator Event Handler
- * Manages all event listeners for simulator UI
- */
+// Wires up all user interactions on simulator cards
+// Handles button clicks, input changes, and scroll events
 class SimulatorEventHandler {
   constructor(dom, actions, consoleManager, renderer) {
     this.dom = dom;

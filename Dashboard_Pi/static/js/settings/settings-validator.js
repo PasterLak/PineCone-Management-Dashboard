@@ -1,7 +1,5 @@
-/**
- * Settings Validator
- * Validates input values
- */
+// Validates user input on the settings form
+// Checks if values are numbers and within allowed min/max ranges
 class SettingsValidator {
   // Validates all values
   validate(values) {

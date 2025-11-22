@@ -1,7 +1,5 @@
-/**
- * Device Event Handler
- * Handles all click events for device table
- */
+// Wires up all user interactions on the device table
+// Handles clicks on delete, blink, edit, pin buttons, and table clear
 class DeviceEventHandler {
   constructor(actions, pinManager, renderer) {
     this.actions = actions;

@@ -1,7 +1,5 @@
-/**
- * Device Row Renderer
- * Contains logic to create and update individual device table rows
- */
+// Creates the HTML for individual device table rows
+// Generates cells for status, ID, IP, description, last seen, and actions
 class DeviceRowRenderer {
   constructor(dataService) {
     this.dataService = dataService;

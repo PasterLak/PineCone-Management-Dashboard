@@ -1,4 +1,5 @@
-// Console Renderer
+// Renders console logs with colored categories
+// Classifies logs (error, warning, success, http) and handles auto-scrolling
 const ConsoleRenderer = {
   lastSeenLogs: [], // Store last seen logs to detect changes
   maxVisibleLogs: 100, // Show only last 100 logs to keep it readable

@@ -1,6 +1,5 @@
-/**
- * Page Manager - Handles page navigation and persistence with the sidebar
- */
+// Switches between different pages in the dashboard
+// Saves the current page to localStorage
 class PageManager {
   constructor() {
     this.currentPage = this.loadCurrentPage();

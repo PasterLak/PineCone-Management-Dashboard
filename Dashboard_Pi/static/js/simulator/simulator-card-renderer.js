@@ -1,7 +1,5 @@
-/**
- * Simulator Card Renderer
- * Creates and manages simulator card HTML
- */
+// Creates the HTML for individual simulator cards
+// Generates the card structure with controls, JSON editor, and console
 class SimulatorCardRenderer {
   // Create simulator card element
   createCard(sim) {

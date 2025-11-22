@@ -1,7 +1,5 @@
-/**
- * Settings Actions
- * Does Save- and Reset actions
- */
+// Executes save and reset operations for settings
+// Validates input, saves to storage, and broadcasts changes
 class SettingsActions {
   constructor(form, validator, settingsManager, buttonFeedback) {
     this.form = form;

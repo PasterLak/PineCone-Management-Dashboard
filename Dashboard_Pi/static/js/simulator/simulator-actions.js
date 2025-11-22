@@ -1,3 +1,5 @@
+// Executes simulator operations (start, stop, send, delete)
+// Communicates with the backend and updates simulator state
 class SimulatorActions {
   constructor(dataService, apiService, consoleManager, pollingService = null, renderer = null) {
     this.dataService = dataService;

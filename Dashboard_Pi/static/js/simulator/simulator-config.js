@@ -1,7 +1,5 @@
-/**
- * Simulator Configuration
- * Central configuration for simulator constants and examples for pin modes
- */
+// Configuration constants for simulators
+// Contains defaults, CSS classes, and example JSON payloads
 class SimulatorConfig {
   // Default values
   static DEFAULTS = {

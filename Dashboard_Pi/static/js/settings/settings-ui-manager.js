@@ -1,7 +1,5 @@
-/**
- * Settings UI Manager
- * Handles the settings page UI interactions and input validation
- */
+// Coordinates the settings page components
+// Connects form, validation, actions, and DOM elements together
 class SettingsUIManager {
   constructor(settingsManager) {
     // Initialize DOM handler

@@ -1,7 +1,5 @@
-/**
- * Simulator DOM Handler
- * Manages DOM access for simulator UI
- */
+// Finds and caches DOM elements for the simulator page
+// Provides quick access to simulator list, buttons, and consoles
 class SimulatorDOM {
   constructor() {
     this.simulatorList = document.getElementById('simulatorList');

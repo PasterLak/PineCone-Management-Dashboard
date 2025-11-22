@@ -1,7 +1,5 @@
-/**
- * Device Edit Handler
- * Manages editing of device descriptions in the table
- */
+// Enables inline editing of device descriptions
+// Converts table cells to input fields and saves changes
 class DeviceEditHandler {
   constructor(dom) {
     this.dom = dom;

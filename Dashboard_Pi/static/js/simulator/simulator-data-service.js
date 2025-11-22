@@ -1,3 +1,5 @@
+// Manages the simulator data in memory and localStorage
+// Handles CRUD operations and JSON validation for simulator configs
 class SimulatorDataService {
   constructor() {
     this.simulators = [];

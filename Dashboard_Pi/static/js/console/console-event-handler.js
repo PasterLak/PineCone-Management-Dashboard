@@ -1,4 +1,5 @@
-// Console Event Handler
+// Handles user interactions on the console page
+// Wires up clear button, scroll button, and auto-scroll detection
 const ConsoleEventHandler = {
   init() {
     this.attachClearButton();

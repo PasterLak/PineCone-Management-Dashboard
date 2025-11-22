@@ -1,7 +1,5 @@
-/**
- * Device Pin Manager
- * Manages the display of device pin details
- */
+// Controls the expand/collapse of pin details rows
+// Manages which device/row has its pins config currently visible
 class DevicePinManager {
   constructor(dom, pinRenderer) {
     this.dom = dom;

@@ -1,3 +1,5 @@
+// Manages device data in memory
+// Handles sorting, offline detection, and last-seen timestamps
 class DeviceDataService {
   constructor() {
     this.devices = window.initialDevices || {};

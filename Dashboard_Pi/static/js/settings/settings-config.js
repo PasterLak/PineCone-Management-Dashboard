@@ -1,7 +1,5 @@
-/**
- * Settings Configuration
- * Configuration for all settings fields
- */
+// Defines all available settings and their constraints
+// Contains field IDs, min/max values, defaults, and descriptions
 class SettingsConfig {
   static FIELDS = {
     pollInterval: {
