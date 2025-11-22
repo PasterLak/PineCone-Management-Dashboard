@@ -325,14 +325,26 @@ class SimulatorActions {
   // Clear all responses
   async clearAll(onSuccess) {
     const simulators = this.dataService.getAll();
+    
     if (simulators.length === 0) {
-      console.log('No simulators to clear');
+      await ConfirmDialog.show({
+        title: 'No Simulators',
+        message: 'There are no simulators to clear.',
+        type: 'info',
+        infoOnly: true
+      });
       return;
     }
 
-    if (!confirm(`Clear responses for all ${simulators.length} simulators?`)) {
-      return;
-    }
+    const confirmed = await ConfirmDialog.show({
+      title: 'Clear All Responses?',
+      message: `This will clear the server responses for all ${simulators.length} simulator${simulators.length > 1 ? 's' : ''}.`,
+      confirmText: 'Clear All',
+      cancelText: 'Cancel',
+      type: 'warning'
+    });
+    
+    if (!confirmed) return;
 
     console.log(`Clearing responses for ${simulators.length} simulators...`);
     for (const sim of simulators) {
@@ -345,14 +357,26 @@ class SimulatorActions {
   // Remove all simulators
   async removeAll(onSuccess) {
     const simulators = this.dataService.getAll();
+    
     if (simulators.length === 0) {
-      console.log('No simulators to remove');
+      await ConfirmDialog.show({
+        title: 'No Simulators',
+        message: 'There are no simulators to remove.',
+        type: 'info',
+        infoOnly: true
+      });
       return;
     }
 
-    if (!confirm(`Remove all ${simulators.length} simulators? This cannot be undone.`)) {
-      return;
-    }
+    const confirmed = await ConfirmDialog.show({
+      title: 'Remove All Simulators?',
+      message: `This will permanently remove all ${simulators.length} simulator${simulators.length > 1 ? 's' : ''}. This action cannot be undone.`,
+      confirmText: 'Remove All',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+    
+    if (!confirmed) return;
 
     console.log(`Removing ${simulators.length} simulators...`);
     // Create a copy of IDs to avoid mutation during iteration
