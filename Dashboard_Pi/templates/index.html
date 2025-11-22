@@ -12,6 +12,9 @@
         <!-- Page: PineCone Device Simulator Settings -->
         {% include 'pinecone_simulator.html' %}
 
+        <!-- Page: Console -->
+        {% include 'console.html' %}
+
         <!-- Page: Settings -->
         {% include 'settings.html' %}
       </div>
@@ -28,6 +31,15 @@
 
 <!-- Settings Manager -->
 <script src="{{ url_for('static', filename='js/core/settings-manager.js') }}"></script>
+
+<!-- Console Manager -->
+<script src="{{ url_for('static', filename='js/console/console-config.js') }}"></script>
+<script src="{{ url_for('static', filename='js/console/console-dom.js') }}"></script>
+<script src="{{ url_for('static', filename='js/console/console-api-service.js') }}"></script>
+<script src="{{ url_for('static', filename='js/console/console-renderer.js') }}"></script>
+<script src="{{ url_for('static', filename='js/console/console-polling-service.js') }}"></script>
+<script src="{{ url_for('static', filename='js/console/console-event-handler.js') }}"></script>
+<script src="{{ url_for('static', filename='js/console/console-manager.js') }}"></script>
 
 <!-- Settings UI Components -->
 <script src="{{ url_for('static', filename='js/settings/settings-config.js') }}"></script>

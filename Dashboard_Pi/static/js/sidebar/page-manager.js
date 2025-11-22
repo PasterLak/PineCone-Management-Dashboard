@@ -39,6 +39,17 @@ class PageManager {
       page.classList.toggle('page--active', isActive);
     });
 
+    // Activate/deactivate managers based on page
+    if (pageName === 'console') {
+      if (typeof ConsoleManager !== 'undefined') {
+        ConsoleManager.activate();
+      }
+    } else {
+      if (typeof ConsoleManager !== 'undefined') {
+        ConsoleManager.deactivate();
+      }
+    }
+
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 

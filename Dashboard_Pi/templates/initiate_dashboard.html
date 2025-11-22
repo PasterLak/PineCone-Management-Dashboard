@@ -10,6 +10,7 @@
     const settingsUIManager = new SettingsUIManager(settingsManager);
     const deviceManager = new DeviceManager(settingsManager);
     const simulatorManager = new SimulatorManager(settingsManager);
+    ConsoleManager.init(); // Console Manager uses singleton pattern
 
     // Initialize all components
     sidebarManager.init();

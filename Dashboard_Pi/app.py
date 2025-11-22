@@ -5,6 +5,9 @@ import uuid
 import json
 import threading
 import time
+import sys
+import logging
+from io import StringIO
 
 # Storage location for device data
 DATA_DIR = Path("data")
@@ -20,6 +23,59 @@ simulator_threads = {}  # Store threads per simulator
 simulator_stop_flags = {} # Store stop flags per simulator
 simulator_configs = {}  # Store autoUpdate state per simulator
 simulator_responses = {}  # Store last responses for each simulator
+
+# Console log capture
+console_logs = []
+console_log_lock = threading.Lock()
+MAX_CONSOLE_LOGS = 150  # Keep only last 150 logs (frontend shows 100)
+
+
+class ConsoleLogHandler(logging.Handler):
+    """Custom logging handler to capture Flask console output"""
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            with console_log_lock:
+                console_logs.append(msg)
+                # Keep only last MAX_CONSOLE_LOGS entries
+                if len(console_logs) > MAX_CONSOLE_LOGS:
+                    console_logs[:] = console_logs[-MAX_CONSOLE_LOGS:]
+        except Exception:
+            self.handleError(record)
+
+
+# Setup console logging
+console_handler = ConsoleLogHandler()
+console_handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+
+# Add handler to Flask's logger
+app.logger.addHandler(console_handler)
+
+# Add logger but filter out static file requests (304/200 responses)
+logger = logging.getLogger('logger')
+logger.setLevel(logging.DEBUG)  # Only show warnings and errors, not INFO (requests)
+
+# Also capture stdout/stderr
+class StdoutCapture:
+    def __init__(self, original):
+        self.original = original
+    
+    def write(self, text):
+        if text and text.strip():
+            with console_log_lock:
+                console_logs.append(text.rstrip())
+                if len(console_logs) > MAX_CONSOLE_LOGS:
+                    console_logs[:] = console_logs[-MAX_CONSOLE_LOGS:]
+        self.original.write(text)
+    
+    def flush(self):
+        self.original.flush()
+
+# Capture stdout and stderr
+sys.stdout = StdoutCapture(sys.stdout)
+sys.stderr = StdoutCapture(sys.stderr)
 
 
 def load_devices():
@@ -402,6 +458,28 @@ def delete_simulator_responses():
     return jsonify({"status": "deleted", "id": sim_id})
 
 
+# ===== CONSOLE API =====
+@app.route("/api/console/logs", methods=["GET"])
+def get_console_logs():
+    """Return all captured console logs"""
+    with console_log_lock:
+        return jsonify({"logs": list(console_logs)})
+
+
+@app.route("/api/console/clear", methods=["POST"])
+def clear_console_logs():
+    """Clear all console logs"""
+    with console_log_lock:
+        console_logs.clear()
+    return jsonify({"status": "cleared"})
+
+
 # MAIN
 if __name__ == "__main__":
+    # Add startup message to console
+    with console_log_lock:
+        console_logs.append("=" * 60)
+        console_logs.append("PineCone Management Dashboard - Flask Server Starting")
+        console_logs.append("=" * 60)
+    
     app.run(host="0.0.0.0", port=5000, debug=True)
