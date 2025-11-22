@@ -178,11 +178,17 @@ class SimulatorEventHandler {
     if (!exampleBtn) return false;
 
     const exampleType = exampleBtn.dataset.example;
-    const simId = this.actions.applyExample(exampleType);
+    const result = this.actions.applyExample(exampleType);
     
-    if (simId !== null && simId !== undefined) {
-      this.renderer.render();
-      this.renderer.scrollToSimulator(simId);
+    if (result && result.id !== null && result.id !== undefined) {
+      if (result.isNew) {
+        // New simulator - use addCard for animation
+        this.renderer.addCard(result.id);
+      } else {
+        // Existing simulator - just update it
+        this.renderer.render();
+      }
+      this.renderer.scrollToSimulator(result.id);
     }
     
     return true;
@@ -272,12 +278,12 @@ class SimulatorEventHandler {
         this.actions.clear(id);
         break;
       case SimulatorConfig.ACTIONS.REMOVE:
-        this.actions.remove(id, () => this.renderer.render());
+        this.actions.remove(id); 
         break;
-      case 'approve-json':
+      case  SimulatorConfig.ACTIONS.APPROVE_JSON:
         this.actions.approveJsonChanges(id, () => this.renderer.render());
         break;
-      case 'discard-json':
+      case SimulatorConfig.ACTIONS.DISCARD_JSON:
         this.actions.discardJsonChanges(id, () => this.renderer.render());
         break;
     }
@@ -296,6 +302,6 @@ class SimulatorEventHandler {
     const newSim = this.actions.dataService.createSimulatorData(id);
     this.actions.dataService.add(newSim);
     this.actions.dataService.save();
-    this.renderer.render();
+    this.renderer.addCard(id);
   }
 }

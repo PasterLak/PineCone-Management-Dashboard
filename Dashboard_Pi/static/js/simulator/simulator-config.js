@@ -32,7 +32,9 @@ class SimulatorConfig {
     STOP: 'stop',
     SEND: 'send',
     CLEAR: 'clear',
-    REMOVE: 'remove'
+    REMOVE: 'remove',
+    APPROVE_JSON: 'approve-json',
+    DISCARD_JSON: 'discard-json'
   };
 
   // API endpoints

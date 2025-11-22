@@ -153,18 +153,22 @@ class SimulatorActions {
       await this.stop(id);
     }
 
+    // Animate removal (this removes from DOM)
+    if (this.renderer) {
+      await this.renderer.removeCardWithAnimation(id);
+    }
+
+    // Now remove from data (no re-render needed, already gone from DOM)
+    this.dataService.remove(id);
+    this.dataService.save();
+
     // Delete responses from backend
     try {
       await this.api.deleteSimulatorResponses(id);
     } catch (err) {
       console.error('Failed to delete simulator responses:', err);
     }
-
-    // Remove from data
-    this.dataService.remove(id);
-    this.dataService.save();
     
-    if (onSuccess) onSuccess();
     return true;
   }
 
@@ -258,12 +262,14 @@ class SimulatorActions {
 
     // Find the "Example Simulator" by ID 0
     let exampleSim = this.dataService.getById(0);
+    let isNewSim = false;
 
     if (!exampleSim) {
       // Create new "Example Simulator" with ID 0
       exampleSim = this.dataService.createSimulatorData(0);
       exampleSim.name = 'Example Simulator';
       this.dataService.add(exampleSim);
+      isNewSim = true;
     }
 
     // Apply example and ensure name stays "Example Simulator"
@@ -271,7 +277,7 @@ class SimulatorActions {
     exampleSim.json = JSON.stringify(example, null, 2);
     this.dataService.save();
 
-    return exampleSim.id;
+    return { id: exampleSim.id, isNew: isNewSim };
   }
 
   // Bulk Actions
