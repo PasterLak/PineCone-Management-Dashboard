@@ -63,3 +63,5 @@ dkms.conf
 /.vscode
 install.sh
 Dashboard_Pi/data/devices.json
+Dashboard_Pi/todo.md
+Dashboard_Pi/data/devices.json
