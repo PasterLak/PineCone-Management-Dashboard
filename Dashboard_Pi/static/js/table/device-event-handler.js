@@ -12,6 +12,17 @@ class DeviceEventHandler {
   // Setup event listener
   setup() {
     document.addEventListener('click', (e) => this._handleClick(e));
+    this._setupClearTableButton();
+  }
+
+  // Setup clear table button
+  _setupClearTableButton() {
+    const clearBtn = document.getElementById('clearTableBtn');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        this._handleClearTable();
+      });
+    }
   }
 
   // Central click handler
@@ -110,5 +121,14 @@ class DeviceEventHandler {
       const device = this.actions.dataService.getDevice(deviceId);
       this.pinManager.togglePinDetails(deviceId, device);
     }
+  }
+
+  // Clear Table
+  _handleClearTable() {
+    this.actions.clearTable(() => {
+      // Re-render table after clearing
+      const devices = this.actions.dataService.getAll();
+      this.renderer.render(devices);
+    });
   }
 }

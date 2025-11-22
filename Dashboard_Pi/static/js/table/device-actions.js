@@ -49,4 +49,27 @@ class DeviceActions {
   isEditing() {
     return this.editHandler.isCurrentlyEditing();
   }
+
+  // Clear all devices from table
+  async clearTable(onSuccess) {
+    if (!confirm('Are you sure you want to clear the table data? This cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const devices = this.dataService.getAll();
+      const deviceIds = Object.keys(devices);
+      
+      // Delete all devices
+      const deletePromises = deviceIds.map(id => this.api.deleteDevice(id));
+      await Promise.all(deletePromises);
+      
+      // Clear local data
+      deviceIds.forEach(id => this.dataService.deleteDevice(id));
+      
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      alert('Clearing table failed.');
+    }
+  }
 }

@@ -2,20 +2,6 @@
     margin-bottom: 20px;
 }
 
-.sim-intro {
-    margin-bottom: 24px;
-    color: var(--text);
-    line-height: 1.6;
-}
-
-.sim-intro code {
-    background: var(--border);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: "Courier New", monospace;
-    color: var(--brand);
-}
-
 .sim-info-card {
     background: var(--row-alt);
     border: 1px solid var(--border);

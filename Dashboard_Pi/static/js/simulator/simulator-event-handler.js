@@ -167,7 +167,7 @@ class SimulatorEventHandler {
     const exampleType = exampleBtn.dataset.example;
     const simId = this.actions.applyExample(exampleType);
     
-    if (simId) {
+    if (simId !== null && simId !== undefined) {
       this.renderer.render();
       this.renderer.scrollToSimulator(simId);
     }
