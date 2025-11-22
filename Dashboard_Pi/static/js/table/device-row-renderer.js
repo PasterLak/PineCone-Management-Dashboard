@@ -11,7 +11,18 @@ class DeviceRowRenderer {
   createRow(rowData, offlineThreshold) {
     const tr = document.createElement('tr');
     tr.dataset.id = rowData.id;
+    
+    const isOffline = this.dataService.isOffline(rowData, offlineThreshold);
+    const statusClass = isOffline ? 'device-status--offline' : 'device-status--online';
+    const statusText = isOffline ? 'Offline' : 'Online ';
+    
     tr.innerHTML = `
+      <td class="status-cell">
+        <div class="device-status ${statusClass}">
+          <span class="device-status-dot"></span>
+          <span>${statusText}</span>
+        </div>
+      </td>
       <td>${rowData.id}</td>
       <td>${rowData.ip}</td>
       <td class="desc-cell" data-id="${rowData.id}">
@@ -33,21 +44,7 @@ class DeviceRowRenderer {
         </button>
       </td>
     `;
-
-    // Flash animation for new/updated devices
-    const prevDevice = this.dataService.getDevice(rowData.id);
-    if (!prevDevice || prevDevice.last_seen !== rowData.last_seen) {
-      tr.classList.add(DeviceConfig.CSS_CLASSES.FLASH);
-      tr.addEventListener('animationend', () => {
-        tr.classList.remove(DeviceConfig.CSS_CLASSES.FLASH);
-      }, { once: true });
-    }
-
-    // Mark offline
-    if (this.dataService.isOffline(rowData, offlineThreshold)) {
-      tr.classList.add(DeviceConfig.CSS_CLASSES.OFFLINE);
-    }
-
+    
     return tr;
   }
 
@@ -55,7 +52,7 @@ class DeviceRowRenderer {
   createEmptyRow() {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
-    td.colSpan = 5;
+    td.colSpan = 6;
     td.style.textAlign = 'center';
     td.style.padding = '40px';
     td.style.color = 'var(--text)';
@@ -65,8 +62,14 @@ class DeviceRowRenderer {
   }
 
   // Updates row data in-place
-  updateRowInPlace(row, deviceData) {
+  updateRowInPlace(row, deviceData, offlineThreshold) {
     const cells = row.querySelectorAll('td');
+
+    // Update Status Badge (column 0)
+    if (cells[DeviceConfig.COLUMNS.STATUS]) {
+      const isOffline = this.dataService.isOffline(deviceData, offlineThreshold);
+      this.updateStatusBadge(cells[DeviceConfig.COLUMNS.STATUS], isOffline);
+    }
 
     // Update IP
     if (cells[DeviceConfig.COLUMNS.IP]) {
@@ -81,21 +84,30 @@ class DeviceRowRenderer {
       }
     }
 
-    // Update Last Seen with Flash Animation
+    // Update Last Seen
     if (cells[DeviceConfig.COLUMNS.LAST_SEEN] && 
         cells[DeviceConfig.COLUMNS.LAST_SEEN].textContent !== deviceData.last_seen) {
       cells[DeviceConfig.COLUMNS.LAST_SEEN].textContent = deviceData.last_seen;
-      
-      row.classList.remove(DeviceConfig.CSS_CLASSES.FLASH);
-      void row.offsetWidth; // Force reflow to restart animation
-      row.classList.add(DeviceConfig.CSS_CLASSES.FLASH);
-      row.addEventListener('animationend', () => {
-        row.classList.remove(DeviceConfig.CSS_CLASSES.FLASH);
-      }, { once: true });
     }
 
     // Update Blink Button
     this.updateBlinkButton(row, deviceData.blink);
+  }
+
+  // Updates status badge
+  updateStatusBadge(statusCell, isOffline) {
+    const statusDiv = statusCell.querySelector('.device-status');
+    if (!statusDiv) return;
+
+    const statusText = statusDiv.querySelector('span:last-child');
+    
+    if (isOffline) {
+      statusDiv.className = 'device-status device-status--offline';
+      if (statusText) statusText.textContent = 'Offline';
+    } else {
+      statusDiv.className = 'device-status device-status--online';
+      if (statusText) statusText.textContent = 'Online ';
+    }
   }
 
   // Updates Blink Button status
@@ -104,10 +116,5 @@ class DeviceRowRenderer {
     if (blinkBtn) {
       blinkBtn.classList.toggle(DeviceConfig.CSS_CLASSES.BLINK_ACTIVE, isBlinking);
     }
-  }
-
-  // Updates offline status
-  updateOfflineStatus(row, isOffline) {
-    row.classList.toggle(DeviceConfig.CSS_CLASSES.OFFLINE, isOffline);
   }
 }

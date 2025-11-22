@@ -49,10 +49,11 @@ tbody tr:hover {
   background: var(--row-alt-hover);
 }
 
-th.col-id      { width: 22%; }
-th.col-ip      { width: 16%; }
-th.col-desc    { width: 36%; }
-th.col-seen    { width: 18%; }
+th.col-status  { width: 10%; }
+th.col-id      { width: 18%; }
+th.col-ip      { width: 14%; }
+th.col-desc    { width: 34%; }
+th.col-seen    { width: 16%; }
 th.col-actions { width: 8%; text-align: center; }
 
 .actions-cell {
@@ -178,6 +179,37 @@ th.col-actions { width: 8%; text-align: center; }
   box-shadow: var(--shadow-success);
 }
 
+/* Status Badge Styles */
+.status-cell {
+  padding: 8px 12px !important;
+}
+
+.device-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.device-status--online {
+  background: var(--btn-ok);
+  color: var(--sidebar-text);
+}
+
+.device-status--offline {
+  background: var(--btn-cancel);
+  color: var(--text);
+}
+
+.device-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
 
 .desc-input {
   flex: 1;
@@ -195,25 +227,6 @@ th.col-actions { width: 8%; text-align: center; }
 .desc-input:focus {
   border-color: var(--brand);
   box-shadow: var(--focus-ring);
-}
-
-@keyframes rowFlash {
-  0%   { background: var(--flash); }
-  100% { background: transparent; }
-}
-
-tr.flash {
-  animation: rowFlash 1.6s ease-out;
-}
-
-tr.flash + tr.pin-details-row {
-  animation: rowFlash 1.6s ease-out;
-}
-
-
-tr.offline {
-  background-color: var(--offline) !important;
-  color: var(--sidebar-text);
 }
 
 .pins-btn {

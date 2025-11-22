@@ -5,20 +5,21 @@
 class DeviceConfig {
   // Column Definitions
   static COLUMNS = {
-    ID: 0,
-    IP: 1,
-    DESCRIPTION: 2,
-    LAST_SEEN: 3,
-    ACTIONS: 4
+    STATUS: 0,
+    ID: 1,
+    IP: 2,
+    DESCRIPTION: 3,
+    LAST_SEEN: 4,
+    ACTIONS: 5
   };
 
   // CSS Classes
   static CSS_CLASSES = {
-    FLASH: 'flash',
-    OFFLINE: 'offline',
     BLINK_ACTIVE: 'blink-active',
     PIN_DETAILS_ROW: 'pin-details-row',
-    ACTIVE: 'active'
+    ACTIVE: 'active',
+    STATUS_ONLINE: 'device-status--online',
+    STATUS_OFFLINE: 'device-status--offline'
   };
 
   // Button Selectors
