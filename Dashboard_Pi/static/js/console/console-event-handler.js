@@ -9,9 +9,7 @@ const ConsoleEventHandler = {
   attachClearButton() {
     if (ConsoleDOM.clearBtn) {
       ConsoleDOM.clearBtn.addEventListener('click', async () => {
-        // Clear backend logs first
-        await ConsoleApiService.clearLogs();
-        // Clear frontend
+        await ConsoleManager.apiService.clearLogs();
         ConsoleRenderer.clear();
       });
     }

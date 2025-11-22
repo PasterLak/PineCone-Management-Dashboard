@@ -1,140 +1,34 @@
-/**
- * Simulator API Service
- * Handles backend communication for simulators
- */
-class SimulatorAPIService {
-  // Start simulator on server
+// Simulator API Service - Backend Communication for Simulators
+class SimulatorAPIService extends APIService {
   async start(id, interval, payload, autoUpdate) {
-    try {
-      const response = await fetch(SimulatorConfig.API.START, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, interval, payload, autoUpdate })
-      });
-
-      if (!response.ok) throw new Error('Start failed');
-      return await response.json();
-    } catch (err) {
-      console.error('Failed to start simulator:', err);
-      throw err;
-    }
+    return await this.post(SimulatorConfig.API.START, { id, interval, payload, autoUpdate });
   }
 
-  // Stop simulator on server
   async stop(id) {
-    try {
-      const response = await fetch(SimulatorConfig.API.STOP, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
-
-      if (!response.ok) throw new Error('Stop failed');
-      return await response.json();
-    } catch (err) {
-      console.error('Failed to stop simulator:', err);
-      throw err;
-    }
+    return await this.post(SimulatorConfig.API.STOP, { id });
   }
 
-  // Send payload once
   async sendOnce(id, payload) {
-    try {
-      const response = await fetch(SimulatorConfig.API.SEND, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, payload })
-      });
-
-      if (!response.ok) throw new Error('Send failed');
-      return await response.json();
-    } catch (err) {
-      console.error('Failed to send:', err);
-      throw err;
-    }
+    return await this.post(SimulatorConfig.API.SEND, { id, payload });
   }
 
-  // Get simulator status
   async getStatus(id) {
-    try {
-      const response = await fetch(`${SimulatorConfig.API.STATUS}/${id}`);
-      if (response.ok) {
-        return await response.json();
-      }
-      const error = new Error('Status fetch failed');
-      error.status = response.status;
-      throw error;
-    } catch (err) {
-      console.error('Failed to get simulator status:', err);
-      throw err;
-    }
+    return await this.get(`${SimulatorConfig.API.STATUS}/${id}`);
   }
 
-  // Update simulator configuration
   async updateConfig(id, autoUpdate) {
-    try {
-      const response = await fetch(SimulatorConfig.API.UPDATE, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, autoUpdate })
-      });
-
-      if (!response.ok) throw new Error('Update failed');
-      return await response.json();
-    } catch (err) {
-      console.error('Failed to update simulator config:', err);
-      throw err;
-    }
+    return await this.post(SimulatorConfig.API.UPDATE, { id, autoUpdate });
   }
 
-  // Update simulator payload (when approving changes)
   async updatePayload(id, payload) {
-    try {
-      const response = await fetch('/api/simulator/update_payload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, payload })
-      });
-
-      if (!response.ok) throw new Error('Update payload failed');
-      return await response.json();
-    } catch (err) {
-      console.error('Failed to update payload:', err);
-      throw err;
-    }
+    return await this.post('/api/simulator/update_payload', { id, payload });
   }
 
-  // Clear simulator responses (clear button)
   async clearResponses(id) {
-    try {
-      const response = await fetch('/api/simulator/clear', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
-
-      if (!response.ok) throw new Error('Clear failed');
-      return await response.json();
-    } catch (err) {
-      console.error('Failed to clear simulator responses:', err);
-      throw err;
-    }
+    return await this.post('/api/simulator/clear', { id });
   }
 
-  // Delete simulator responses (remove simulator)
   async deleteResponses(id) {
-    try {
-      const response = await fetch('/api/simulator/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
-
-      if (!response.ok) throw new Error('Delete failed');
-      return await response.json();
-    } catch (err) {
-      console.error('Failed to delete simulator responses:', err);
-      throw err;
-    }
+    return await this.post('/api/simulator/delete', { id });
   }
 }

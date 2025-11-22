@@ -75,15 +75,11 @@
   white-space: pre-wrap;
   word-break: break-word;
   line-height: 1.6;
+  color: #d4d4d4;
 }
 
 .console-line:hover {
   background: rgba(255, 255, 255, 0.05);
-}
-
-/* Default text color */
-.console-line {
-  color: #d4d4d4;
 }
 
 /* Info - Blue */
