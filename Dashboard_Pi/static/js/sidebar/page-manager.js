@@ -89,7 +89,26 @@ class PageManager {
       });
     });
 
-    // Show initial page
-    this.show(this.currentPage);
+    // Hide all pages first
+    this.pages.forEach(page => {
+      page.classList.remove('page--active');
+    });
+
+    // Show initial page without animation
+    const initialPage = document.querySelector(`.page[data-page="${this.currentPage}"]`);
+    if (initialPage) {
+      initialPage.classList.add('page--active');
+    }
+
+    // Set initial sidebar active state
+    this.sidebarItems.forEach(item => {
+      const isActive = item.dataset.target === this.currentPage;
+      item.classList.toggle('sidebar-item--active', isActive);
+    });
+
+    // Activate console if needed
+    if (this.currentPage === 'console' && this.consoleManager) {
+      this.consoleManager.activate();
+    }
   }
 }

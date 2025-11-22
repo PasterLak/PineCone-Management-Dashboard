@@ -51,6 +51,8 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  position: relative;
+  z-index: 10;
 }
 
 .sidebar-toggle:hover {
@@ -91,7 +93,7 @@
   border-radius: 10px;
   transition: transform 0.3s ease-in-out, height 0.3s ease-in-out;
   pointer-events: none;
-  z-index: -1;
+  z-index: 0;
 }
 
 .sidebar-item {
@@ -110,6 +112,7 @@
   text-align: left;
   transition: background 0.25s ease, transform 0.15s ease, padding 0.3s ease, gap 0.3s ease;
   position: relative;
+  z-index: 10;
 }
 
 .sidebar-item--bottom {
@@ -135,6 +138,7 @@
   height: 100%;
   background: var(--primary-color);
   border-radius: 0 3px 3px 0;
+  pointer-events: none;
 }
 
 
@@ -222,17 +226,24 @@
 .page {
   display: none;
   opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
 }
 
 .page--active {
   display: block;
   opacity: 1;
+  position: relative;
   animation: fadeIn 0.3s ease-in-out;
 }
 
 .page--fading-out {
   display: block;
   opacity: 1;
+  position: absolute;
   animation: fadeOut 0.3s ease-in-out forwards;
 }
 
