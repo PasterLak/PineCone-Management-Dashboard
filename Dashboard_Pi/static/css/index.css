@@ -5,6 +5,7 @@
   --text-muted: #a0a0a0;
   --brand: #1e88e5;
   --border: #2a2a2a;
+  --border-secondary: #3a3a3a;
   
   --card: var(--bg);
   --row-alt: #1a1a1a;
@@ -19,12 +20,13 @@
   --btn-ok-hover: #45a049;
   
   --btn-cancel: #292828;
-  --btn-cancel-hover: #212121;
+  --btn-cancel-hover: rgb(40, 39, 39);
   
   --btn-delete: #d32f2f;
-  --btn-delete-hover: #c62828;
+  --btn-delete-hover: #a92323;
   
   --flash: #4b4a4a;
+  --flash-darken: #3d3c3c;
   --offline: #590101;
   
   --sidebar-bg: var(--brand);
@@ -38,9 +40,12 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
   --shadow-lg: 0 4px 12px rgba(30, 136, 229, 0.4);
-  --shadow-primary: 0 2px 8px rgba(30, 136, 229, 0.3);
-  --shadow-success: 0 2px 8px rgba(76, 175, 80, 0.3);
-  --shadow-danger: 0 2px 8px rgba(211, 47, 47, 0.4);
+  --shadow-primary: 0 4px 12px rgba(30, 136, 229, 0.3);
+  --shadow-secondary: 0 4px 12px rgba(158, 158, 158, 0.3);
+  --shadow-tertiary: 0 4px 12px rgba(59, 58, 58, 0.3);
+  --shadow-warning: 0 4px 12px rgba(255, 193, 7, 0.3);
+  --shadow-success: 0 4px 12px rgba(76, 175, 80, 0.3);
+  --shadow-danger: 0 4px 12px rgba(211, 47, 47, 0.4);
   
   --focus-ring: 0 0 0 3px rgba(30, 136, 229, 0.1);
   

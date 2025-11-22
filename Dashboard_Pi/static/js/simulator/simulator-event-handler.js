@@ -16,6 +16,7 @@ class SimulatorEventHandler {
     this._setupClickHandlers();
     this._setupScrollHandlers();
     this._setupAddButtonHandler();
+    this._setupBulkActionHandlers();
   }
 
   // Setup input change handlers
@@ -45,6 +46,54 @@ class SimulatorEventHandler {
     if (addBtn) {
       addBtn.addEventListener('click', () => {
         this._handleAddSimulator();
+      });
+    }
+  }
+
+  // Setup bulk action buttons
+  _setupBulkActionHandlers() {
+    const startAllBtn = this.dom.getStartAllButton();
+    if (startAllBtn) {
+      startAllBtn.addEventListener('click', async () => {
+        await this.actions.startAll(() => {
+          this.renderer.render();
+        });
+      });
+    }
+
+    const stopAllBtn = this.dom.getStopAllButton();
+    if (stopAllBtn) {
+      stopAllBtn.addEventListener('click', async () => {
+        await this.actions.stopAll(() => {
+          this.renderer.render();
+        });
+      });
+    }
+
+    const sendOnceAllBtn = this.dom.getSendOnceAllButton();
+    if (sendOnceAllBtn) {
+      sendOnceAllBtn.addEventListener('click', async () => {
+        await this.actions.sendOnceAll(() => {
+          this.renderer.render();
+        });
+      });
+    }
+
+    const clearAllBtn = this.dom.getClearAllButton();
+    if (clearAllBtn) {
+      clearAllBtn.addEventListener('click', async () => {
+        await this.actions.clearAll(() => {
+          this.renderer.render();
+        });
+      });
+    }
+
+    const removeAllBtn = this.dom.getRemoveAllButton();
+    if (removeAllBtn) {
+      removeAllBtn.addEventListener('click', async () => {
+        await this.actions.removeAll(() => {
+          this.renderer.render();
+        });
       });
     }
   }
