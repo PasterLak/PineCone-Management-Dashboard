@@ -6,7 +6,7 @@ obj/
 Debug/
 Release/
 build_out/
-
+bl_venv/
 
 # VS Code - keep ALL config files, ignore only cache
 .vscode/*
