@@ -11,6 +11,9 @@ extern "C" {
 #include "components/button.hpp"
 //#include <etl/string.h>
 
+//extentions
+#include "extentions/Print.hpp"
+
 #define BUILD_VERSION 7
 
 
@@ -26,6 +29,8 @@ static char deltaStr[64];
 
 Button button1(BUTTON_PIN);
 int pressedCount = 0;
+
+Printer printer;
 
 void start() {
     printf("====== PINECONE BL602 STARTED! ======\r\n");
@@ -55,12 +60,14 @@ void loop() {
         
         deltaTime.getAsString(deltaStr, sizeof(deltaStr));
         
-        printf("Counter: %ld\r\n", counter);
-        printf("Pin button: %d\r\n", digitalRead(BUTTON_PIN));
-        printf("%s\r\n", deltaStr);
-        printf("Current: %luus (%.3fms) FPS: %.1f\r\n", 
-               deltaTime.getUs(), deltaTime.getMs(), deltaTime.getFps());
-        printf("Stats - Avg: %.1fus Min: %luus Max: %luus\r\n",
-               deltaTime.getAverageUs(), deltaTime.getMinUs(), deltaTime.getMaxUs());
+        printer.printl("Counter:", counter);
+        printer.printl("Pin button:", digitalRead(BUTTON_PIN));
+        printer.printl(deltaStr);
+        printer.printl("Current:", deltaTime.getUs(), "us (", 
+                       deltaTime.getMs(), "ms) FPS:", 
+                       deltaTime.getFps());
+        printer.printl("Stats - Avg:", deltaTime.getAverageUs(), "us Min:", 
+                       deltaTime.getMinUs(), "us Max:", 
+                       deltaTime.getMaxUs());
     }
 }
