@@ -20,6 +20,7 @@ extern "C" {
     #include <hal_uart.h>
     #include <hal_wifi.h>
     #include <event_device.h>
+    #include <http_client.h>
 }
 
 #include <etl/array.h>
@@ -35,95 +36,104 @@ char* WLANHandler::get_password(){
 }
 
 void WLANHandler::start() {
-     if (!wifi_initialized) {
+    if (!wifi_initialized) {
 
-        static wifi_conf_t conf{
+        static wifi_conf_t conf = {
             .country_code = "EU",
-            .channel_nums = {}
+            .channel_nums = {},
         };
 
         easyflash_init();
-
         vfs_init();
         vfs_device_init();
 
         hal_wifi_start_firmware_task();
-
-        vTaskDelay(pdMS_TO_TICKS(500));
+        vTaskDelay(pdMS_TO_TICKS(300));
 
         wifi_mgmr_start_background(&conf);
+        vTaskDelay(pdMS_TO_TICKS(300));
 
         wifi_initialized = true;
-        
     }
-    
+
     auto wifi_interface = wifi_mgmr_sta_enable();
 
-    wifi_mgmr_sta_connect(&wifi_interface, 
-                            (char*)this->ssid,
-                            (char*)this->password, 
-                            nullptr, 0, 0, 0);
-    printf("[WIFI] Connected to a network\r\n");
+    vTaskDelay(pdMS_TO_TICKS(200));
 
-    wifi_mgmr_sta_autoconnect_enable();
+    wifi_mgmr_sta_connect(
+        &wifi_interface,
+        (char*)ssid,
+        (char*)password,
+        NULL, 0, 0, 0
+    );
+
+    printf("[WIFI] Connecting...\r\n");
 }
 
 bool WLANHandler::isConnected() {
     int state;
     wifi_mgmr_state_get(&state);
-    
-    printf("Code number %u with Code: %s",state,wifi_mgmr_status_code_str(state));
-    return true;
+    return state == WIFI_STATE_CONNECTED_IP_GOT;
+}
+
+char* WLANHandler::getStatusCode(){
+    int status;
+    wifi_mgmr_status_code_get(&status);
+    return (char*)wifi_mgmr_status_code_str(status);
 }
 
 char* WLANHandler::get_ip_address() {
     uint32_t ip;
     uint32_t mask;
-    wifi_mgmr_ap_ip_get(&ip,nullptr,&mask);
+    uint32_t gw;
 
-    struct in_addr ip_addr;
-    ip_addr.s_addr = ip;
+    wifi_mgmr_sta_ip_get(&ip, &gw, &mask);
 
+    struct in_addr ip_addr; 
+    ip_addr.s_addr = ip; 
+    
     return inet_ntoa(ip_addr);
 }
 
-// Sendet Daten
-void WLANHandler::sendData(const char* ip_address) {
-    int sock;
-    struct sockaddr_in server_addr;
-    const char* payload = "{\"device\":\"PineCone\",\"status\":\"ok\"}";
-    char request[256];
 
-    // Socket erstellen
-    sock = socket(AF_INET, SOCK_STREAM, 0);
+void WLANHandler::sendData(const char* ip_address, const int port, const char* json) {
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
-        printf("[NET] Error: Socket creation failed.\r\n");
+        printf("[HTTP] Socket creation failed!\r\n");
         return;
     }
 
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(80);
-    server_addr.sin_addr.s_addr = inet_addr(ip_address);
+    struct sockaddr_in server;
+    server.sin_family = AF_INET;
+    server.sin_port = htons(port);
+    server.sin_addr.s_addr = inet_addr(ip_address);
 
-    printf("[NET] Connecting to Server %s...\r\n", ip_address);
-    if (connect(sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        printf("[NET] Error: Server connection failed.\r\n");
+    if (connect(sock, (struct sockaddr*)&server, sizeof(server)) < 0) {
+        printf("[HTTP] Connection failed!\r\n");
         close(sock);
         return;
     }
 
+    printf("[HTTP] Connected!\r\n");
+
+    char request[512];
     snprintf(request, sizeof(request),
-        "POST /api/data HTTP/1.1\r\n"
+        "POST /data HTTP/1.1\r\n"
         "Host: %s\r\n"
         "Content-Type: application/json\r\n"
-        "Content-Length: %d\r\n\r\n"
+        "Content-Length: %d\r\n"
+        "Connection: close\r\n\r\n"
         "%s",
-        ip_address, strlen(payload), payload);
+        ip_address, strlen(json), json
+    );
 
-    if (write(sock, request, strlen(request)) < 0) {
-        printf("[NET] Error: Sending failed.\r\n");
-    } else {
-        printf("[NET] Data sent successfully!\r\n");
+    write(sock, request, strlen(request));
+
+    char buffer[512];
+    int len = read(sock, buffer, sizeof(buffer)-1);
+    if (len > 0) {
+        buffer[len] = 0;
+        printf("[HTTP] Server Response:\r\n%s\r\n", buffer);
     }
 
     close(sock);

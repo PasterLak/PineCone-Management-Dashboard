@@ -25,9 +25,11 @@ public:
     // KORRIGIERT: Nur ein "bool"
     bool isConnected();
 
-    void sendData(const char* ip_address);
+    void sendData(const char* ip_address, const int port, const char* custom_endpoint);
 
     char* get_password();
 
     char* get_ip_address();
+
+    char* getStatusCode();
 };
