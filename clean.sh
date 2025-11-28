@@ -13,16 +13,7 @@ else
     echo "build_out directory not found - nothing to clean."
 fi
 
-# Also remove any other common build artifacts
-if [ -f "dashboard.elf" ]; then
-    echo "Removing dashboard.elf..."
-    rm -f dashboard.elf
-fi
 
-if [ -f "dashboard.bin" ]; then
-    echo "Removing dashboard.bin..."
-    rm -f dashboard.bin
-fi
 echo "================================================"
 echo "Cleanup completed!"
 echo "================================================"

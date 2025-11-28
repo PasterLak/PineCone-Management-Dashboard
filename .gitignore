@@ -6,7 +6,17 @@ obj/
 Debug/
 Release/
 build_out/
-Dashboard_Pi/data/devices.json
+bl_venv/
+
+# VS Code - keep ALL config files, ignore only cache
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/settings.json
+
+.vscode/ipch/
+.vscode/settings.json.backup*
 
 # Prerequisites
 *.d
@@ -60,8 +70,5 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-/.vscode
+
 install.sh
-Dashboard_Pi/data/devices.json
-Dashboard_Pi/todo.md
-Dashboard_Pi/data/devices.json

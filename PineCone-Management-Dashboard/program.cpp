@@ -1,54 +1,73 @@
 #include "program.hpp"
 
-
 extern "C" {
 #include <stdio.h>
 #include <bl_timer.h>
+#include "pins.h"
 
 }
 
-#define BUILD_VERSION 2
+#include "components/delta_time.hpp"
+#include "components/button.hpp"
+//#include <etl/string.h>
+
+//extentions
+#include "extentions/Print.hpp"
+
+#define BUILD_VERSION 7
+
 
 static long counter = 0;
-static long counter2 = 0;
-
-//#include "components/Blink.hpp"
 #define LED_PIN 11
-//Blink ledBlink(LED_PIN);
+#define BUTTON_PIN 4
 
-int deltaTime = 0; 
-unsigned long oldTime = 0;
+static float time = 0.0f;
+const float timeIntervalSec = 2.0f; 
+
+DeltaTime deltaTime;
+static char deltaStr[64];
+
+Button button1(BUTTON_PIN);
+int pressedCount = 0;
+
+Printer printer;
 
 void start() {
     printf("====== PINECONE BL602 STARTED! ======\r\n");
     printf("====== BUILD: %d ======\r\n", BUILD_VERSION);
 
-   
-
-   // ledBlink.blink(200, 5);
+   button1.setDebounceDelayMS(20); 
 }
 
-static void updateDelta()
-{
-
-    //deltaTime = static_cast<uint8_t>(Arduino_h::millis() - oldTime);
-   // oldTime = Arduino_h::millis();
-
-    //deltaTime = static_cast<int>((long)bl_timer_now_us64() - oldTime); 
-    //oldTime = (long)bl_timer_now_us64();
-}
 void loop() {
+    
+    deltaTime.update();
+    button1.update();
+    time += deltaTime.getSec();
 
-    counter++;
+    if(button1.isDown()) {
+         pressedCount++;
+        printf("Button was Pressed! Presses: %d\r\n", pressedCount);
 
-    updateDelta();
-
-    if(counter > 10000000) {
-        counter = 0;
-        counter2++;
-        printf("Counter: %ld\r\n", counter2);
-        
-       // printf("System delta time0: %d ms\r\n", deltaTime);
     }
 
+
+    if(time > timeIntervalSec) {
+        time = 0.0f;
+       
+        counter++;
+        
+        
+        deltaTime.getAsString(deltaStr, sizeof(deltaStr));
+        
+        printer.printl("Counter:", counter);
+        printer.printl("Pin button:", digitalRead(BUTTON_PIN));
+        printer.printl(deltaStr);
+        printer.printl("Current:", deltaTime.getUs(), "us (", 
+                       deltaTime.getMs(), "ms) FPS:", 
+                       deltaTime.getFps());
+        printer.printl("Stats - Avg:", deltaTime.getAverageUs(), "us Min:", 
+                       deltaTime.getMinUs(), "us Max:", 
+                       deltaTime.getMaxUs());
+    }
 }
