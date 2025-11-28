@@ -1,6 +1,9 @@
 #pragma once
 
-#include <cstdint>
+extern "C" {
+    #include <stdint.h>
+  
+}
 
 class Blink {
 public:
@@ -12,5 +15,6 @@ public:
 
 private:
     uint8_t _pin;
+    
 };
 

@@ -1,6 +1,10 @@
 #include "pins.h"
+
 #include <FreeRTOS.h>
 #include <task.h>
+#include <bl_gpio.h>
+
+
 
 void pinMode(uint8_t pin, uint8_t mode)
 {
@@ -15,7 +19,7 @@ void pinMode(uint8_t pin, uint8_t mode)
             bl_gpio_enable_input(pin, 1, 0);
             break;
         case INPUT_PULLDOWN:
-            bl_gpio_enable_input(pin, 0, 1);
+            bl_gpio_enable_input(pin, 0, 1);    
             break;
     }
 }

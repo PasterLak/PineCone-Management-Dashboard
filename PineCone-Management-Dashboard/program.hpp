@@ -1,7 +1,6 @@
-#ifndef PROGRAM_HPP
-#define PROGRAM_HPP
+#pragma once
 
 void start();
 void loop();
 
-#endif
+

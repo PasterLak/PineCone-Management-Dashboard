@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Pinecone BL602: Compile",
+      "type": "shell",
+      "command": "./compile.sh",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Pinecone BL602: Flash",
+      "type": "shell",
+      "command": "./flash.sh",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Pinecone BL602: Clean",
+      "type": "shell",
+      "command": "./clean.sh",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always"
+      }
+    }
+  ]
+}
