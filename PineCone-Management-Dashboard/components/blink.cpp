@@ -1,26 +1,32 @@
 #include "blink.hpp"
 
-extern "C" { 
-    #include "../pins.h"
+extern "C" {
+#include "../pins.h"
 }
 
 Blink::Blink(uint8_t pin) : _pin(pin) {
-    pinMode(_pin, OUTPUT);
-    off();
+  pinMode(_pin, OUTPUT);
+  off();
 }
 
 void Blink::on() {
-    digitalWrite(_pin, HIGH);
+  digitalWrite(_pin, LOW);  // LED is inverted: LOW = ON
+  _state = true;
 }
 
 void Blink::off() {
-    digitalWrite(_pin, LOW);
+  digitalWrite(_pin, HIGH);  // LED is inverted: HIGH = OFF
+  _state = false;
 }
 
 void Blink::toggle() {
-    togglePin(_pin);
+  if (_state) {
+    off();
+  } else {
+    on();
+  }
 }
 
 void Blink::blink(uint32_t interval_ms, uint8_t times) {
-    blinkPin(_pin, interval_ms, times);
+  blinkPin(_pin, interval_ms, times);
 }
