@@ -36,7 +36,7 @@ Button button1(BUTTON_PIN);
 int pressedCount = 0;
 
 Printer printer;
-WLANHandler wlan("WLAN_Name", "WLAN_Password");
+WLANHandler wlan("Felix", "5825472266844300");
 
 void task_app_wrapper(void* pvParameters) {
     (void)pvParameters;
@@ -79,7 +79,11 @@ void loop() {
 
         deltaTime.getAsString(deltaStr, sizeof(deltaStr));
 
-        printer.printl(wlan.isConnected());
+        if (wlan.isConnected()) {
+            printer.printl(wlan.getStatusCode());
+            printer.printl(wlan.get_ip_address());
+            wlan.sendData("192.168.2.227", 8080, "{\"status\":\"ok\"}");
+        }
 
         //printer.printl(wlan.get_ip_address());
         //printer.printl("=================",wlan.get_password(),"===============");
