@@ -95,6 +95,17 @@ char* WLANHandler::get_ip_address() {
     return inet_ntoa(ip_addr);
 }
 
+char* WLANHandler::get_mac_address(){
+    uint8_t mac[6];
+    static char macStr[18];
+    wifi_mgmr_ap_mac_get(mac);
+
+    snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
+             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+    return macStr;
+}
+
 
 void WLANHandler::sendData(const char* ip_address, const int port, const char* json) {
     int sock = socket(AF_INET, SOCK_STREAM, 0);

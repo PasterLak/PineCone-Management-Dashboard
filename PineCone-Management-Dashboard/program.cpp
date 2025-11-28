@@ -83,6 +83,7 @@ void loop() {
             printer.printl(wlan.getStatusCode());
             printer.printl(wlan.get_ip_address());
             wlan.sendData("192.168.2.227", 8080, "{\"status\":\"ok\"}");
+            printer.printl("Mac: ", wlan.get_mac_address());
         }
 
         //printer.printl(wlan.get_ip_address());
