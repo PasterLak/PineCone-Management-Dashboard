@@ -5,6 +5,8 @@ extern "C" {
 #include <event_device.h>
 #include <hal_wifi.h>
 #include <vfs.h>
+
+#include "pins.h"
 }
 
 // ============================================================================
@@ -91,12 +93,50 @@ char* WLANHandler::get_ip_address() {
 bool WLANHandler::sendData(const char* server_ip, uint16_t port) {
   printf("[NET] sendData() called for %s:%d\r\n", server_ip, port);
 
-  // TODO: Hier später die Pin-Werte hinzufügen
-  char payload[512];
-  snprintf(payload, sizeof(payload),
-           "{\"node_id\":\"%s\",\"description\":\"%s\",\"pins\":{}}", node_id,
-           description);
+  // Build JSON payload with only configured pins
+  // Using larger buffer but building efficiently
+  char payload[1024];
+  int pos = 0;
 
+  // Start JSON
+  pos += snprintf(payload + pos, sizeof(payload) - pos,
+                  "{\"node_id\":\"%s\",\"description\":\"%s\",\"pins\":{",
+                  node_id, description);
+
+  // Add only configured pins
+  bool first_pin = true;
+  for (uint8_t pin = 0; pin < MAX_PINS; pin++) {
+    if (isPinConfigured(pin)) {
+      int value = getPinValue(pin);  // Use getPinValue instead of digitalRead
+      const char* mode = getPinModeString(pin);
+      const char* name = getPinName(pin);
+
+      // Add comma if not first pin
+      if (!first_pin) {
+        pos += snprintf(payload + pos, sizeof(payload) - pos, ",");
+      }
+      first_pin = false;
+
+      // Add pin entry: "GPIO5":{"name":"LED","mode":"output","value":"1"}
+      pos += snprintf(
+          payload + pos, sizeof(payload) - pos,
+          "\"GPIO%d\":{\"name\":\"%s\",\"mode\":\"%s\",\"value\":\"%d\"}", pin,
+          name, mode, value);
+
+      // Safety check: stop if buffer nearly full
+      if (pos >= (int)sizeof(payload) - 100) {
+        printf(
+            "[NET] WARNING: Payload buffer nearly full, stopping at pin %d\r\n",
+            pin);
+        break;
+      }
+    }
+  }
+
+  // Close JSON
+  pos += snprintf(payload + pos, sizeof(payload) - pos, "}}");
+
+  printf("[NET] Payload size: %d bytes\r\n", pos);
   printf("[NET] Payload prepared, calling http_client.post()...\r\n");
 
   if (!http_client.post(server_ip, port, "/api/data", payload)) {

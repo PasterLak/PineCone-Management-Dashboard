@@ -2,8 +2,19 @@
   "mac-acd829537a79": {
     "ip": "192.168.178.95",
     "description": "edf",
-    "last_seen": "2025-11-29T00:06:31",
-    "pins": {},
+    "last_seen": "2025-11-29T00:22:27",
+    "pins": {
+      "GPIO4": {
+        "name": "Button",
+        "mode": "pullup",
+        "value": "1"
+      },
+      "GPIO11": {
+        "name": "LED",
+        "mode": "output",
+        "value": "0"
+      }
+    },
     "blink": false
   }
 }

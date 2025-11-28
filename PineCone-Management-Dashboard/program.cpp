@@ -35,7 +35,7 @@ static float time = 0.0f;
 const float timeIntervalSec = 2.0f;
 
 static float blinkTime = 0.0f;
-const float blinkIntervalSec = 0.5f;  // Blink every 500ms
+const float blinkIntervalSec = 2.5f;  // Blink every 2500ms
 
 static bool dashboardConnected = false;
 
@@ -48,7 +48,7 @@ int pressedCount = 0;
 Blink statusLED(LED_PIN);
 
 Printer printer;
-WLANHandler wlan("Marmor",
+WLANHandler wlan("ssid",
                  "password");  // Replace with your SSID and Password
 
 void task_app_wrapper(void* pvParameters) {
@@ -69,6 +69,10 @@ void start() {
   statusLED.off();  // Start with LED off
 
   button1.setDebounceDelayMS(20);
+
+  // Set custom pin names for dashboard
+  setPinName(LED_PIN, "LED");
+  setPinName(BUTTON_PIN, "Button");
 
   wlan.start();
 }
@@ -92,7 +96,7 @@ void loop() {
     statusLED.off();
     blinkTime = 0.0f;
   } else if (wlan.is_blinking()) {
-    // Blink mode: toggle LED every 500ms
+    // Blink mode: toggle LED every 2500ms
     if (blinkTime >= blinkIntervalSec) {
       blinkTime = 0.0f;
       statusLED.toggle();
