@@ -7,6 +7,7 @@ Debug/
 Release/
 build_out/
 bl_venv/
+suas_app_http/
 
 # VS Code - keep ALL config files, ignore only cache
 .vscode/*
