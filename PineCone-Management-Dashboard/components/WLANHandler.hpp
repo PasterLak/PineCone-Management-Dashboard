@@ -32,4 +32,6 @@ public:
     char* get_ip_address();
 
     char* getStatusCode();
+
+    char* get_mac_address();
 };
