@@ -15,41 +15,34 @@ void* __dso_handle = nullptr;
 
 #include <etl/string.h>
 
-#include "components/blink.hpp"
-#include "components/button.hpp"
-#include "components/delta_time.hpp"
-
-// extentions
-#include "extentions/Print.hpp"
-
-// Wifi
+#include "components/DashboardManager.hpp"
+#include "components/LEDController.hpp"
+#include "components/PinsManager.hpp"
 #include "components/WLANHandler.hpp"
+#include "components/delta_time.hpp"
+#include "extentions/Print.hpp"
+#include "include/Config.hpp"
 
-#define BUILD_VERSION 7
-
-static long counter = 0;
-#define LED_PIN 11
-#define BUTTON_PIN 4
-
-static float time = 0.0f;
-const float timeIntervalSec = 2.0f;
-
-static float blinkTime = 0.0f;
-const float blinkIntervalSec = 2.5f;  // Blink every 2500ms
-
-static bool dashboardConnected = false;
+// ============================================================================
+// Application Components
+// ============================================================================
 
 DeltaTime deltaTime;
-static char deltaStr[64];
+PinsManager pinsManager;  // Global pin state manager
+WLANHandler wlan(Config::WIFI_SSID, Config::WIFI_PASSWORD);
+LEDController ledController(Config::LED_PIN, Config::LED_BLINK_INTERVAL_SEC);
+DashboardManager dashboardManager(wlan, Config::DASHBOARD_SERVER_IP,
+                                  Config::DASHBOARD_SERVER_PORT,
+                                  Config::DASHBOARD_UPDATE_INTERVAL_SEC);
 
-Button button1(BUTTON_PIN);
-int pressedCount = 0;
+// Expose PinsManager to C code
+extern "C" {
+PinsManager* getPinsManager() { return &pinsManager; }
+}
 
-Blink statusLED(LED_PIN);
-
-Printer printer;
-WLANHandler wlan("ssid",
-                 "password");  // Replace with your SSID and Password
+// ============================================================================
+// Application Lifecycle
+// ============================================================================
 
 void task_app_wrapper(void* pvParameters) {
   (void)pvParameters;
@@ -63,98 +56,22 @@ void task_app_wrapper(void* pvParameters) {
 }
 
 void start() {
+  Printer printer;
   printer.printl("====== PINECONE BL602 STARTED! ======");
-  printer.printl("====== BUILD:", BUILD_VERSION, "======");
+  printer.printl("====== BUILD:", Config::BUILD_VERSION, "======");
 
-  statusLED.off();  // Start with LED off
-
-  button1.setDebounceDelayMS(20);
-
-  // Set custom pin names for dashboard
-  setPinName(LED_PIN, "LED");
-  setPinName(BUTTON_PIN, "Button");
-
+  ledController.initialize();
   wlan.start();
 }
 
 void loop() {
   deltaTime.update();
-  button1.update();
-  time += deltaTime.getSec();
-  blinkTime += deltaTime.getSec();
+  float delta_sec = deltaTime.getSec();
 
-  if (button1.isDown()) {
-    pressedCount++;
-    printf("Button was Pressed! Presses: %d\r\n", pressedCount);
-  }
+  // Update dashboard communication
+  bool is_connected = dashboardManager.update(delta_sec);
+  bool should_blink = dashboardManager.shouldBlink();
 
-  // LED Logic based on Dashboard connection:
-  // - Not connected to dashboard: LED OFF
-  // - Connected + blink mode: LED BLINKING (toggle every 500ms)
-  // - Connected + no blink: LED ON (steady)
-  if (!dashboardConnected) {
-    statusLED.off();
-    blinkTime = 0.0f;
-  } else if (wlan.is_blinking()) {
-    // Blink mode: toggle LED every 2500ms
-    if (blinkTime >= blinkIntervalSec) {
-      blinkTime = 0.0f;
-      statusLED.toggle();
-      printf("[LED] Toggle\r\n");
-    }
-  } else {
-    // Connected but not blinking: LED steady ON
-    statusLED.on();
-    blinkTime = 0.0f;
-  }
-
-  if (time > timeIntervalSec) {
-    time = 0.0f;
-
-    counter++;
-
-    deltaTime.getAsString(deltaStr, sizeof(deltaStr));
-
-    // Check connection state
-    bool wifiConnected = wlan.isConnected();
-    printer.printl("WiFi Connected:", wifiConnected);
-
-    // Send data to dashboard when connected
-    if (wifiConnected) {
-      printer.printl("Sending data to dashboard...");
-      wlan.sendData("192.168.178.75", 5000);  // Flask server IP and port
-
-      // Update dashboard connection state
-      dashboardConnected = wlan.is_dashboard_connected();
-      printer.printl("Dashboard Connected:", dashboardConnected);
-
-      // Show device info
-      if (wlan.get_node_id()[0] != '\0') {
-        printer.printl("Node ID:", wlan.get_node_id());
-        printer.printl("Description:", wlan.get_description());
-        if (wlan.is_blinking()) {
-          printer.printl("Blink Mode: ACTIVE");
-        }
-      }
-    } else {
-      dashboardConnected = false;
-    }
-
-    // printer.printl(wlan.get_ip_address());
-    // printer.printl("=================",wlan.get_password(),"===============");
-
-    // printer.printl(wlan.get_ip_address());
-
-    /*
-    printer.printl("Counter:", counter);
-    printer.printl("Pin button:", digitalRead(BUTTON_PIN));
-    printer.printl(deltaStr);
-    printer.printl("Current:", deltaTime.getUs(), "us (",
-                   deltaTime.getMs(), "ms) FPS:",
-                   deltaTime.getFps());
-    printer.printl("Stats - Avg:", deltaTime.getAverageUs(), "us Min:",
-                   deltaTime.getMinUs(), "us Max:",
-                   deltaTime.getMaxUs());
-    */
-  }
+  // Update LED based on connection state
+  ledController.update(is_connected, should_blink, delta_sec);
 }

@@ -6,28 +6,30 @@
 #include <string.h>
 #include <task.h>
 
-// Track pin modes (initialized to unconfigured)
-static uint8_t pin_modes[MAX_PINS];
-static uint8_t pin_values[MAX_PINS];  // Track OUTPUT pin values
-static char pin_names[MAX_PINS][16];  // 16 chars max per name
-static bool pin_tracking_initialized = false;
+// Forward declaration - PinsManager is created in program.cpp
+typedef struct PinsManager PinsManager;
+extern PinsManager* getPinsManager(void);
 
-static void initPinTracking() {
-  if (!pin_tracking_initialized) {
-    memset(pin_modes, PIN_MODE_UNCONFIGURED, sizeof(pin_modes));
-    memset(pin_values, 0, sizeof(pin_values));
-    memset(pin_names, 0, sizeof(pin_names));
-    pin_tracking_initialized = true;
-  }
-}
+// C wrapper functions to call C++ PinsManager
+extern void pinsManager_setMode(PinsManager* mgr, uint8_t pin, uint8_t mode);
+extern uint8_t pinsManager_getMode(PinsManager* mgr, uint8_t pin);
+extern void pinsManager_setValue(PinsManager* mgr, uint8_t pin, uint8_t value);
+extern uint8_t pinsManager_getValue(PinsManager* mgr, uint8_t pin);
+extern void pinsManager_setName(PinsManager* mgr, uint8_t pin,
+                                const char* name);
+extern const char* pinsManager_getName(PinsManager* mgr, uint8_t pin);
+extern void pinsManager_setValueString(PinsManager* mgr, uint8_t pin,
+                                       const char* value);
+extern const char* pinsManager_getValueString(PinsManager* mgr, uint8_t pin);
+extern bool pinsManager_isConfigured(PinsManager* mgr, uint8_t pin);
+extern const char* pinsManager_getModeString(PinsManager* mgr, uint8_t pin);
 
 void pinMode(uint8_t pin, uint8_t mode) {
-  initPinTracking();
-
   if (pin >= MAX_PINS)
     return;
 
-  pin_modes[pin] = mode;
+  PinsManager* mgr = getPinsManager();
+  pinsManager_setMode(mgr, pin, mode);
 
   switch (mode) {
     case OUTPUT:
@@ -46,9 +48,9 @@ void pinMode(uint8_t pin, uint8_t mode) {
 }
 
 void digitalWrite(uint8_t pin, uint8_t value) {
-  initPinTracking();
   if (pin < MAX_PINS) {
-    pin_values[pin] = value;  // Remember the value we wrote
+    PinsManager* mgr = getPinsManager();
+    pinsManager_setValue(mgr, pin, value);
   }
   bl_gpio_output_set(pin, value);
 }
@@ -58,42 +60,32 @@ int digitalRead(uint8_t pin) { return bl_gpio_input_get_value(pin); }
 void delay(unsigned long ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
 
 uint8_t getPinMode(uint8_t pin) {
-  initPinTracking();
   if (pin >= MAX_PINS)
     return PIN_MODE_UNCONFIGURED;
-  return pin_modes[pin];
+  PinsManager* mgr = getPinsManager();
+  return pinsManager_getMode(mgr, pin);
 }
 
 bool isPinConfigured(uint8_t pin) {
-  return getPinMode(pin) != PIN_MODE_UNCONFIGURED;
+  PinsManager* mgr = getPinsManager();
+  return pinsManager_isConfigured(mgr, pin);
 }
 
 const char* getPinModeString(uint8_t pin) {
-  uint8_t mode = getPinMode(pin);
-  switch (mode) {
-    case INPUT:
-      return "input";
-    case OUTPUT:
-      return "output";
-    case INPUT_PULLUP:
-      return "pullup";
-    case INPUT_PULLDOWN:
-      return "pulldown";
-    default:
-      return "unconfigured";
-  }
+  PinsManager* mgr = getPinsManager();
+  return pinsManager_getModeString(mgr, pin);
 }
 
 int getPinValue(uint8_t pin) {
-  initPinTracking();
   if (pin >= MAX_PINS)
     return 0;
 
   uint8_t mode = getPinMode(pin);
 
-  // For OUTPUT pins, return the value we wrote (not the physical pin state)
+  // For OUTPUT pins, return the value we wrote
   if (mode == OUTPUT) {
-    return pin_values[pin];
+    PinsManager* mgr = getPinsManager();
+    return pinsManager_getValue(mgr, pin);
   }
 
   // For INPUT pins, read the actual pin state
@@ -117,27 +109,21 @@ void blinkPin(uint8_t pin, unsigned long delay_ms, uint8_t times) {
 }
 
 void setPinName(uint8_t pin, const char* name) {
-  initPinTracking();
-  if (pin >= MAX_PINS || !name)
-    return;
-
-  strncpy(pin_names[pin], name, sizeof(pin_names[pin]) - 1);
-  pin_names[pin][sizeof(pin_names[pin]) - 1] = '\0';
+  PinsManager* mgr = getPinsManager();
+  pinsManager_setName(mgr, pin, name);
 }
 
 const char* getPinName(uint8_t pin) {
-  initPinTracking();
-  if (pin >= MAX_PINS)
-    return "";
+  PinsManager* mgr = getPinsManager();
+  return pinsManager_getName(mgr, pin);
+}
 
-  // Return custom name if set, otherwise default "gpioN"
-  if (pin_names[pin][0] != '\0') {
-    return pin_names[pin];
-  }
+void setPinValueString(uint8_t pin, const char* value) {
+  PinsManager* mgr = getPinsManager();
+  pinsManager_setValueString(mgr, pin, value);
+}
 
-  // Fallback: return default name (static buffer, not thread-safe but OK for
-  // our use)
-  static char default_name[16];
-  snprintf(default_name, sizeof(default_name), "gpio%d", pin);
-  return default_name;
+const char* getPinValueString(uint8_t pin) {
+  PinsManager* mgr = getPinsManager();
+  return pinsManager_getValueString(mgr, pin);
 }
