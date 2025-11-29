@@ -32,6 +32,10 @@ int getPinValue(uint8_t pin);  // Get pin value (considers OUTPUT vs INPUT)
 void setPinName(uint8_t pin, const char* name);
 const char* getPinName(uint8_t pin);
 
+// Custom pin values (for sensors, analog values, etc.)
+void setPinValueString(uint8_t pin, const char* value);
+const char* getPinValueString(uint8_t pin);  // Returns custom value or "0"/"1"
+
 // Extra utility functions
 void togglePin(uint8_t pin);
 void blinkPin(uint8_t pin, unsigned long delay_ms, uint8_t times);

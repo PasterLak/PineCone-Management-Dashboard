@@ -94,7 +94,6 @@ bool WLANHandler::sendData(const char* server_ip, uint16_t port) {
   printf("[NET] sendData() called for %s:%d\r\n", server_ip, port);
 
   // Build JSON payload with only configured pins
-  // Using larger buffer but building efficiently
   char payload[1024];
   int pos = 0;
 
@@ -103,11 +102,11 @@ bool WLANHandler::sendData(const char* server_ip, uint16_t port) {
                   "{\"node_id\":\"%s\",\"description\":\"%s\",\"pins\":{",
                   node_id, description);
 
-  // Add only configured pins
   bool first_pin = true;
   for (uint8_t pin = 0; pin < MAX_PINS; pin++) {
     if (isPinConfigured(pin)) {
-      int value = getPinValue(pin);  // Use getPinValue instead of digitalRead
+      const char* value_str =
+          getPinValueString(pin);  // Get value as string (custom or "0"/"1")
       const char* mode = getPinModeString(pin);
       const char* name = getPinName(pin);
 
@@ -118,10 +117,11 @@ bool WLANHandler::sendData(const char* server_ip, uint16_t port) {
       first_pin = false;
 
       // Add pin entry: "GPIO5":{"name":"LED","mode":"output","value":"1"}
+      // or: "GPIO2":{"name":"temp","mode":"input","value":"23.5°C"}
       pos += snprintf(
           payload + pos, sizeof(payload) - pos,
-          "\"GPIO%d\":{\"name\":\"%s\",\"mode\":\"%s\",\"value\":\"%d\"}", pin,
-          name, mode, value);
+          "\"GPIO%d\":{\"name\":\"%s\",\"mode\":\"%s\",\"value\":\"%s\"}", pin,
+          name, mode, value_str);
 
       // Safety check: stop if buffer nearly full
       if (pos >= (int)sizeof(payload) - 100) {
