@@ -11,7 +11,7 @@ void vInitializeBL602(void);
 
 #include "program.hpp"
 
-constexpr uint16_t APP_STACK_SIZE = 2048;  // 4096;
+constexpr uint16_t APP_STACK_SIZE = 4096;
 constinit static StackType_t app_stack[APP_STACK_SIZE]{};
 constinit static StaticTask_t app_task_handle{};
 
