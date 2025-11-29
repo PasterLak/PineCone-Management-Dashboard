@@ -13,10 +13,7 @@ PinsManager::PinsManager() {
   }
 }
 
-// ============================================================================
 // Pin Mode Management
-// ============================================================================
-
 void PinsManager::setMode(uint8_t pin, uint8_t mode) {
   if (!isValidPin(pin))
     return;
@@ -48,10 +45,7 @@ const char* PinsManager::getModeString(uint8_t pin) const {
   }
 }
 
-// ============================================================================
 // Pin Value Management
-// ============================================================================
-
 void PinsManager::setValue(uint8_t pin, uint8_t value) {
   if (!isValidPin(pin))
     return;
@@ -64,10 +58,7 @@ uint8_t PinsManager::getValue(uint8_t pin) const {
   return pins_[pin].value;
 }
 
-// ============================================================================
 // Pin Naming
-// ============================================================================
-
 void PinsManager::setName(uint8_t pin, const char* name) {
   if (!isValidPin(pin) || !name)
     return;
@@ -92,9 +83,7 @@ const char* PinsManager::getName(uint8_t pin) const {
   return buffer;
 }
 
-// ============================================================================
 // Custom Value Strings
-// ============================================================================
 
 void PinsManager::setValueString(uint8_t pin, const char* value) {
   if (!isValidPin(pin) || !value)

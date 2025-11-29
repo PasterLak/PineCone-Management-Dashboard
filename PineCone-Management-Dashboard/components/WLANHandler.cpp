@@ -9,17 +9,10 @@ extern "C" {
 #include "pins.h"
 }
 
-// ============================================================================
-// Constructor
-// ============================================================================
-
 WLANHandler::WLANHandler(const char* mySsid, const char* myPassword)
     : ssid(mySsid), password(myPassword) {}
 
-// ============================================================================
 // WiFi Management
-// ============================================================================
-
 void WLANHandler::initNodeIdFromMac() {
   uint8_t mac[6];
   wifi_mgmr_sta_mac_get(mac);
@@ -86,9 +79,7 @@ char* WLANHandler::get_ip_address() {
   return inet_ntoa(ip_addr);
 }
 
-// ============================================================================
 // HTTP Communication
-// ============================================================================
 
 bool WLANHandler::sendData(const char* server_ip, uint16_t port) {
   printf("[NET] sendData() called for %s:%d\r\n", server_ip, port);
@@ -160,9 +151,7 @@ bool WLANHandler::sendData(const char* server_ip, uint16_t port) {
   return true;
 }
 
-// ============================================================================
-// Private Helper Methods
-// ============================================================================
+// helper
 
 void WLANHandler::parseServerResponse(const char* json) {
   // Parse status
