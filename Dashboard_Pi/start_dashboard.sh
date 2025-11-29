@@ -1,6 +1,5 @@
 #!/bin/bash
-# setup_linux_pc.sh
-
+# start_dashboard.sh
 set -e
 APP_DIR="$(pwd)"
 
