@@ -32,14 +32,9 @@ class SettingsActions {
   }
 
   // Resets settings to defaults
-  reset(resetButton) {
-    // Apply defaults
+  async reset(resetButton) {
     const defaults = this.form.applyDefaults();
-    
-    // Save
     this.settings.update(defaults);
-    
-    // Show feedback
     this.buttonFeedback.showTextFeedback(resetButton, 'Reset successful!', {
       resetBorder: true
     });

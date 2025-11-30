@@ -4,6 +4,7 @@ Receives POST requests from PineCone BL602 IoT devices and serves a web dashboar
 """
 
 from flask import Flask, render_template
+from datetime import datetime
 
 # Import configuration
 from config import HOST, PORT, DEBUG
@@ -33,7 +34,11 @@ register_console_routes(app)
 @app.route("/")
 def index():
     """Serve the main dashboard page"""
-    return render_template("index.html", devices=device_manager.get_all_devices())
+    return render_template(
+        "index.html",
+        devices=device_manager.get_all_devices(),
+        server_now_ms=int(datetime.now().timestamp() * 1000)
+    )
 
 
 # Run the app

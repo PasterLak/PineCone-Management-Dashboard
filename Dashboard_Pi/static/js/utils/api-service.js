@@ -22,7 +22,10 @@ class APIService {
   // Device-related API calls
   async fetchDevices() {
     const data = await this.get('/api/devices');
-    return data.devices || {};
+    return {
+      devices: data.devices || {},
+      serverNowMs: data.server_now_ms
+    };
   }
 
   async deleteDevice(deviceId) {
@@ -86,4 +89,3 @@ class APIService {
     }
   }
 }
-

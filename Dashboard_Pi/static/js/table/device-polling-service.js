@@ -35,7 +35,12 @@ class DevicePollingService extends PollingService {
 
   async _pollOnce() {
     try {
-      const newDevices = await this.api.fetchDevices();
+      const result = await this.api.fetchDevices();
+      const newDevices = result.devices || {};
+      const serverNowMs = result.serverNowMs;
+      if (typeof serverNowMs === 'number' && !Number.isNaN(serverNowMs)) {
+        this.dataService.setServerNow(serverNowMs);
+      }
 
       if (this.actions.isEditing()) {
         this.dataService.setAll(newDevices);

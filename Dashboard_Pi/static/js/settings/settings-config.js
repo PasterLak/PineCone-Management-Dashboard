@@ -16,6 +16,13 @@ class SettingsConfig {
       name: 'Offline Check Interval',
       description: 'How often the dashboard checks if devices have exceeded the offline threshold'
     },
+    offlineThreshold: {
+      id: 'offlineThresholdInput',
+      min: 100,
+      default: 5000,
+      name: 'Offline Threshold',
+      description: 'Time of inactivity before a device is marked as offline (no heartbeat received)'
+    },
     simulatorPoll: {
       id: 'simulatorPollInput',
       min: 100,

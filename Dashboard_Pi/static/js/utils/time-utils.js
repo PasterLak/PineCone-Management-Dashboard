@@ -1,6 +1,6 @@
 // Utility for formatting timestamps into human friendly relative strings
 class TimeUtils {
-  static formatRelativeTime(input) {
+  static formatRelativeTime(input, nowMs = Date.now()) {
     let ms;
     if (typeof input === 'number') ms = input;
     else if (input instanceof Date) ms = input.getTime();
@@ -9,9 +9,9 @@ class TimeUtils {
 
     if (!ms || Number.isNaN(ms)) return 'unknown';
 
-    const s = Math.floor((Date.now() - ms) / 1000);
+    const s = Math.floor((nowMs - ms) / 1000);
     if (s < 0) return 'in the future';
-    if (s < DeviceDataService.DEFAULT_OFFLINE_THRESHOLD) return 'now';
+    if (s < DeviceDataService.DEFAULT_OFFLINE_THRESHOLD/1000) return 'now';
     if (s < 60) return `${s} seconds ago`;
     const m = Math.floor(s / 60);
     if (m === 1) return 'one minute ago';

@@ -28,6 +28,7 @@
 <!-- Pass initial device data from Flask to JavaScript -->
 <script>
   window.initialDevices = {{ devices | tojson }};
+  window.serverNowMs = {{ server_now_ms }};
 </script>
 
 <!-- Load JavaScript modules in dependency order -->
