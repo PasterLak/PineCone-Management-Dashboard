@@ -10,9 +10,15 @@ class DeviceRowRenderer {
     const tr = document.createElement('tr');
     tr.dataset.id = rowData.id;
     
-    const isOffline = this.dataService.isOffline(rowData, offlineThreshold);
+    const lastSeenSource = (typeof rowData.timestamp === 'number') ? rowData.timestamp : rowData.last_seen;
+    const isOffline = (typeof rowData.offline === 'boolean')
+      ? rowData.offline
+      : this.dataService.isOffline({ last_seen: lastSeenSource, online: rowData.online }, offlineThreshold);
     const statusClass = isOffline ? 'device-status--offline' : 'device-status--online';
     const statusText = isOffline ? 'Offline' : 'Online ';
+    const lastSeenDisplay = (window.TimeUtils && typeof window.TimeUtils.formatRelativeTime === 'function')
+      ? window.TimeUtils.formatRelativeTime(lastSeenSource)
+      : (rowData.last_seen || 'unknown');
     
     tr.innerHTML = `
       <td class="status-cell">
@@ -26,7 +32,7 @@ class DeviceRowRenderer {
       <td class="desc-cell" data-id="${rowData.id}">
         <span class="desc-text">${rowData.description}</span>
       </td>
-      <td>${rowData.last_seen}</td>
+      <td>${lastSeenDisplay}</td>
       <td class="actions-cell">
         <button class="edit-btn" type="button" data-id="${rowData.id}" aria-label="Edit description">
           <i data-feather="edit-3"></i>
@@ -83,9 +89,14 @@ class DeviceRowRenderer {
     }
 
     // Update Last Seen
-    if (cells[DeviceConfig.COLUMNS.LAST_SEEN] && 
-        cells[DeviceConfig.COLUMNS.LAST_SEEN].textContent !== deviceData.last_seen) {
-      cells[DeviceConfig.COLUMNS.LAST_SEEN].textContent = deviceData.last_seen;
+    if (cells[DeviceConfig.COLUMNS.LAST_SEEN]) {
+      const display = (window.TimeUtils && typeof window.TimeUtils.formatRelativeTime === 'function')
+        ? window.TimeUtils.formatRelativeTime(deviceData.last_seen)
+        : (deviceData.last_seen || 'unknown');
+
+      if (cells[DeviceConfig.COLUMNS.LAST_SEEN].textContent !== display) {
+        cells[DeviceConfig.COLUMNS.LAST_SEEN].textContent = display;
+      }
     }
 
     // Update Blink Button

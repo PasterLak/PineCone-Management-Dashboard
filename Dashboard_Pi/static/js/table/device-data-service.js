@@ -34,22 +34,33 @@ class DeviceDataService {
 
   // Converts devices to sorted rows
   toSortedRows(devices = this.devices) {
-    return Object.entries(devices).map(([id, d]) => ({
-      id,
-      ip: d.ip,
-      description: d.description || '',
-      last_seen: d.last_seen,
-      timestamp: new Date(d.last_seen).getTime(),
-      blink: d.blink || false,
-      pins: d.pins || {}
-    })).sort((a, b) => b.timestamp - a.timestamp);
+    return Object.entries(devices).map(([id, d]) => {
+      const timestamp = new Date(d.last_seen).getTime();
+      const offline = (typeof d.online === 'boolean') ? !d.online : this.isOffline(d, 5 * 60 * 1000);
+
+      return {
+        id,
+        ip: d.ip,
+        description: d.description || '',
+          last_seen: (window.TimeUtils && typeof window.TimeUtils.formatRelativeTime === 'function')
+            ? window.TimeUtils.formatRelativeTime(timestamp)
+            : new Date(timestamp).toISOString(),
+        timestamp,
+        blink: d.blink || false,
+        pins: d.pins || {},
+        offline
+      };
+    }).sort((a, b) => b.timestamp - a.timestamp);
   }
 
   // Checks if device is offline
   isOffline(device, offlineThreshold) {
+    if (typeof device.online === 'boolean') return !device.online;
+
     const now = Date.now();
-    const timestamp = new Date(device.last_seen).getTime();
-    return (now - timestamp) > offlineThreshold;
+    const ts = new Date(device.last_seen).getTime();
+    if (Number.isNaN(ts)) return true;
+    return (now - ts) > offlineThreshold;
   }
 
   // Detects changes between old and new devices

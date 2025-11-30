@@ -73,6 +73,19 @@ class DeviceRenderer {
       const device = this.dataService.getDevice(row.dataset.id);
       if (!device) return;
 
+      // Update relative "last seen" string so it keeps advancing even without data changes
+      const cells = row.querySelectorAll('td');
+      const lastSeenCell = cells[DeviceConfig.COLUMNS.LAST_SEEN];
+      if (lastSeenCell && window.TimeUtils && typeof window.TimeUtils.formatRelativeTime === 'function') {
+        const ts = typeof device.last_seen === 'number'
+          ? device.last_seen
+          : new Date(device.last_seen).getTime();
+        const display = Number.isNaN(ts) ? 'unknown' : window.TimeUtils.formatRelativeTime(ts);
+        if (lastSeenCell.textContent !== display) {
+          lastSeenCell.textContent = display;
+        }
+      }
+
       const isOffline = this.dataService.isOffline(device, threshold);
       
       // Update status badge

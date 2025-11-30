@@ -1,1 +1,15 @@
-{}
+{
+  "mac-acd82951cfb1": {
+    "ip": "192.168.178.96",
+    "description": "jo",
+    "last_seen": "2025-11-30T22:31:58",
+    "pins": {
+      "GPIO11": {
+        "name": "LED",
+        "mode": "output",
+        "value": "On"
+      }
+    },
+    "blink": false
+  }
+}
