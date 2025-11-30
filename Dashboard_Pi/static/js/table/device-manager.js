@@ -72,18 +72,12 @@ class DeviceManager {
 
   _setupSettingsListener() {
     this.settings.onUpdate((changes) => {
-      if (changes.pollInterval || changes.offlineThreshold || changes.tickOffline) {
-        if (changes.offlineThreshold) {
-          this.renderer.updateOfflineStatus();
-        }
-        
-        if (changes.pollInterval) {
-          this.pollingService.setInterval(changes.pollInterval);
-        }
-        
-        if (changes.tickOffline) {
-          this.pollingService.restart();
-        }
+      if (changes.pollInterval) {
+        this.pollingService.setInterval(changes.pollInterval);
+      }
+      
+      if (changes.tickOffline) {
+        this.pollingService.restart();
       }
     });
   }

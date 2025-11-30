@@ -11,8 +11,7 @@ class TimeUtils {
 
     const s = Math.floor((Date.now() - ms) / 1000);
     if (s < 0) return 'in the future';
-    if (s < 1) return 'now';
-    if (s === 1) return 'one second ago';
+    if (s < DeviceDataService.DEFAULT_OFFLINE_THRESHOLD) return 'now';
     if (s < 60) return `${s} seconds ago`;
     const m = Math.floor(s / 60);
     if (m === 1) return 'one minute ago';
