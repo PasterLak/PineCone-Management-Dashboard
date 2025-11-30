@@ -106,4 +106,7 @@ def register_device_routes(app):
     @app.route("/api/devices", methods=["GET"])
     def get_devices():
         """Return all devices (polled by browser)"""
-        return jsonify({"devices": device_manager.get_all_devices()})
+        return jsonify({
+            "devices": device_manager.get_all_devices(),
+            "server_now_ms": int(datetime.now().timestamp() * 1000)
+        })

@@ -17,8 +17,9 @@ class DeviceRowRenderer {
       : this.dataService.isOffline({ last_seen: lastSeenSource, online: rowData.online }, threshold);
     const statusClass = isOffline ? 'device-status--offline' : 'device-status--online';
     const statusText = isOffline ? 'Offline' : 'Online ';
+    const nowMs = this.dataService.getServerNow();
     const lastSeenDisplay = (window.TimeUtils && typeof window.TimeUtils.formatRelativeTime === 'function')
-      ? window.TimeUtils.formatRelativeTime(lastSeenSource)
+      ? window.TimeUtils.formatRelativeTime(lastSeenSource, nowMs)
       : (rowData.last_seen || 'unknown');
     
     tr.innerHTML = `
@@ -92,8 +93,9 @@ class DeviceRowRenderer {
 
     // Update Last Seen
     if (cells[DeviceConfig.COLUMNS.LAST_SEEN]) {
+      const nowMs = this.dataService.getServerNow();
       const display = (window.TimeUtils && typeof window.TimeUtils.formatRelativeTime === 'function')
-        ? window.TimeUtils.formatRelativeTime(deviceData.last_seen)
+        ? window.TimeUtils.formatRelativeTime(deviceData.last_seen, nowMs)
         : (deviceData.last_seen || 'unknown');
 
       if (cells[DeviceConfig.COLUMNS.LAST_SEEN].textContent !== display) {

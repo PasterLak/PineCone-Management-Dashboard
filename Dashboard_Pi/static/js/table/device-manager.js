@@ -7,6 +7,7 @@ class DeviceManager {
     // Core services
     this.dom = new DeviceDOM();
     this.dataService = new DeviceDataService();
+    DeviceDataService.DEFAULT_OFFLINE_THRESHOLD = this.settings.get('offlineThreshold') || DeviceDataService.DEFAULT_OFFLINE_THRESHOLD;
     this.apiService = new APIService();
     
     // Rendering
@@ -78,6 +79,11 @@ class DeviceManager {
       
       if (changes.tickOffline) {
         this.pollingService.restart();
+      }
+
+      if (typeof changes.offlineThreshold === 'number') {
+        DeviceDataService.DEFAULT_OFFLINE_THRESHOLD = changes.offlineThreshold;
+        this.renderer.updateOfflineStatus();
       }
     });
   }

@@ -80,7 +80,8 @@ class DeviceRenderer {
         const ts = typeof device.last_seen === 'number'
           ? device.last_seen
           : new Date(device.last_seen).getTime();
-        const display = Number.isNaN(ts) ? 'unknown' : window.TimeUtils.formatRelativeTime(ts);
+        const nowMs = this.dataService.getServerNow();
+        const display = Number.isNaN(ts) ? 'unknown' : window.TimeUtils.formatRelativeTime(ts, nowMs);
         if (lastSeenCell.textContent !== display) {
           lastSeenCell.textContent = display;
         }

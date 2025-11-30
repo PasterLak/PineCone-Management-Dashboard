@@ -1,25 +1,8 @@
 import json
-from datetime import datetime
 from config import DEVICES_JSON
 
 # In-memory device storage
 devices = {}
-OFFLINE_THRESHOLD_SECONDS = 5
-
-
-def _parse_iso(ts):
-    try:
-        return datetime.fromisoformat(ts)
-    except Exception:
-        return None
-
-
-def _is_online(device):
-    ts = _parse_iso(device.get("last_seen", ""))
-    if not ts:
-        return False
-    delta = datetime.now() - ts
-    return delta.total_seconds() <= OFFLINE_THRESHOLD_SECONDS
 
 
 def load_devices():
@@ -72,10 +55,7 @@ def delete_device(node_id):
 
 
 def get_all_devices():
-    enriched = {}
-    for node_id, device in devices.items():
-        enriched[node_id] = {**device, "online": _is_online(device)}
-    return enriched
+    return devices
 
 
 devices.update(load_devices())

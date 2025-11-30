@@ -15,7 +15,7 @@
   "mac-acd829537a79": {
     "ip": "192.168.178.95",
     "description": "",
-    "last_seen": "2025-11-30T23:01:10",
+    "last_seen": "2025-11-30T23:12:46",
     "pins": {
       "GPIO11": {
         "name": "LED",

@@ -5,6 +5,8 @@ class DeviceDataService {
 
   constructor() {
     this.devices = window.initialDevices || {};
+    const initialServerNow = (typeof window !== 'undefined' && typeof window.serverNowMs === 'number') ? window.serverNowMs : Date.now();
+    this.serverOffsetMs = initialServerNow - Date.now();
   }
 
   // Returns all devices
@@ -20,6 +22,16 @@ class DeviceDataService {
   // Sets all devices
   setAll(devices) {
     this.devices = devices;
+  }
+
+  setServerNow(ms) {
+    if (typeof ms === 'number' && !Number.isNaN(ms)) {
+      this.serverOffsetMs = ms - Date.now();
+    }
+  }
+
+  getServerNow() {
+    return Date.now() + (this.serverOffsetMs || 0);
   }
 
   // Updates a device
@@ -39,13 +51,14 @@ class DeviceDataService {
     return Object.entries(devices).map(([id, d]) => {
       const timestamp = new Date(d.last_seen).getTime();
       const offline = (typeof d.online === 'boolean') ? !d.online : this.isOffline(d);
+      const nowMs = this.getServerNow();
 
       return {
         id,
         ip: d.ip,
         description: d.description || '',
           last_seen: (window.TimeUtils && typeof window.TimeUtils.formatRelativeTime === 'function')
-            ? window.TimeUtils.formatRelativeTime(timestamp)
+            ? window.TimeUtils.formatRelativeTime(timestamp, nowMs)
             : new Date(timestamp).toISOString(),
         timestamp,
         blink: d.blink || false,
@@ -59,7 +72,7 @@ class DeviceDataService {
   isOffline(device, offlineThreshold = DeviceDataService.DEFAULT_OFFLINE_THRESHOLD) {
     if (typeof device.online === 'boolean') return !device.online;
 
-    const now = Date.now();
+    const now = this.getServerNow();
     const ts = new Date(device.last_seen).getTime();
     if (Number.isNaN(ts)) return true;
     return (now - ts) > offlineThreshold;
