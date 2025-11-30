@@ -11,9 +11,10 @@ class DeviceRowRenderer {
     tr.dataset.id = rowData.id;
     
     const lastSeenSource = (typeof rowData.timestamp === 'number') ? rowData.timestamp : rowData.last_seen;
+    const threshold = offlineThreshold || DeviceDataService.DEFAULT_OFFLINE_THRESHOLD;
     const isOffline = (typeof rowData.offline === 'boolean')
       ? rowData.offline
-      : this.dataService.isOffline({ last_seen: lastSeenSource, online: rowData.online }, offlineThreshold);
+      : this.dataService.isOffline({ last_seen: lastSeenSource, online: rowData.online }, threshold);
     const statusClass = isOffline ? 'device-status--offline' : 'device-status--online';
     const statusText = isOffline ? 'Offline' : 'Online ';
     const lastSeenDisplay = (window.TimeUtils && typeof window.TimeUtils.formatRelativeTime === 'function')
@@ -68,10 +69,11 @@ class DeviceRowRenderer {
   // Updates row data in-place
   updateRowInPlace(row, deviceData, offlineThreshold) {
     const cells = row.querySelectorAll('td');
+    const threshold = offlineThreshold || DeviceDataService.DEFAULT_OFFLINE_THRESHOLD;
 
     // Update Status Badge (column 0)
     if (cells[DeviceConfig.COLUMNS.STATUS]) {
-      const isOffline = this.dataService.isOffline(deviceData, offlineThreshold);
+      const isOffline = this.dataService.isOffline(deviceData, threshold);
       this.updateStatusBadge(cells[DeviceConfig.COLUMNS.STATUS], isOffline);
     }
 

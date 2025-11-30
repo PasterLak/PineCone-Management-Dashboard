@@ -25,7 +25,7 @@ class DeviceRenderer {
 
     // Create rows
     const fragment = document.createDocumentFragment();
-    const offlineThreshold = this.settings.get('offlineThreshold');
+    const offlineThreshold = DeviceDataService.DEFAULT_OFFLINE_THRESHOLD;
 
     rows.forEach(row => {
       fragment.appendChild(this.rowRenderer.createRow(row, offlineThreshold));
@@ -44,7 +44,7 @@ class DeviceRenderer {
 
   // In-Place Update (without full re-render)
   updateInPlace(newDevices, changedIds) {
-    const offlineThreshold = this.settings.get('offlineThreshold');
+    const offlineThreshold = DeviceDataService.DEFAULT_OFFLINE_THRESHOLD;
     
     changedIds.forEach(deviceId => {
       const row = this.dom.getRow(deviceId);
@@ -66,7 +66,7 @@ class DeviceRenderer {
   updateOfflineStatus() {
     if (!this.dom.isAvailable()) return;
     
-    const threshold = this.settings.get('offlineThreshold');
+    const threshold = DeviceDataService.DEFAULT_OFFLINE_THRESHOLD;
     const rows = this.dom.getAllRows();
 
     rows.forEach(row => {

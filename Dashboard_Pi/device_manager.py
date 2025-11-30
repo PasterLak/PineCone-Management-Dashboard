@@ -1,16 +1,28 @@
-"""
-Device data management - loading, saving, and in-memory storage
-"""
 import json
 from datetime import datetime
 from config import DEVICES_JSON
 
 # In-memory device storage
 devices = {}
+OFFLINE_THRESHOLD_SECONDS = 5
+
+
+def _parse_iso(ts):
+    try:
+        return datetime.fromisoformat(ts)
+    except Exception:
+        return None
+
+
+def _is_online(device):
+    ts = _parse_iso(device.get("last_seen", ""))
+    if not ts:
+        return False
+    delta = datetime.now() - ts
+    return delta.total_seconds() <= OFFLINE_THRESHOLD_SECONDS
 
 
 def load_devices():
-    """Load device data from disk"""
     if not DEVICES_JSON.is_file():
         return {}
     
@@ -33,7 +45,6 @@ def load_devices():
 
 
 def save_devices():
-    """Save device data to disk"""
     try:
         with DEVICES_JSON.open("w", encoding="utf-8") as f:
             json.dump(devices, f, ensure_ascii=False, indent=2)
@@ -42,18 +53,17 @@ def save_devices():
 
 
 def get_device(node_id):
-    """Get a device by ID"""
     return devices.get(node_id)
 
 
 def update_device(node_id, data):
-    """Update or create a device"""
-    devices[node_id] = data
+    clean = {**data}
+    clean.pop("online", None)
+    devices[node_id] = clean
     save_devices()
 
 
 def delete_device(node_id):
-    """Delete a device"""
     if node_id in devices:
         del devices[node_id]
         save_devices()
@@ -62,9 +72,10 @@ def delete_device(node_id):
 
 
 def get_all_devices():
-    """Get all devices"""
-    return devices
+    enriched = {}
+    for node_id, device in devices.items():
+        enriched[node_id] = {**device, "online": _is_online(device)}
+    return enriched
 
 
-# Load devices on module import
 devices.update(load_devices())

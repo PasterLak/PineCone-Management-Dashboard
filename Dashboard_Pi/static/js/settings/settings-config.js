@@ -9,13 +9,6 @@ class SettingsConfig {
       name: 'Device Polling Interval',
       description: 'How often the dashboard fetches device data from the server (device table updates)'
     },
-    offlineThreshold: {
-      id: 'offlineThresholdInput',
-      min: 1000,
-      default: 5000,
-      name: 'Offline Threshold',
-      description: 'Time of inactivity before a device is marked as offline (no heartbeat received)'
-    },
     tickOffline: {
       id: 'tickOfflineInput',
       min: 100,

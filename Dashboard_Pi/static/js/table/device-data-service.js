@@ -1,6 +1,8 @@
 // Manages device data in memory
 // Handles sorting, offline detection, and last-seen timestamps
 class DeviceDataService {
+  static DEFAULT_OFFLINE_THRESHOLD = 5000;
+
   constructor() {
     this.devices = window.initialDevices || {};
   }
@@ -36,7 +38,7 @@ class DeviceDataService {
   toSortedRows(devices = this.devices) {
     return Object.entries(devices).map(([id, d]) => {
       const timestamp = new Date(d.last_seen).getTime();
-      const offline = (typeof d.online === 'boolean') ? !d.online : this.isOffline(d, 5 * 60 * 1000);
+      const offline = (typeof d.online === 'boolean') ? !d.online : this.isOffline(d);
 
       return {
         id,
@@ -54,7 +56,7 @@ class DeviceDataService {
   }
 
   // Checks if device is offline
-  isOffline(device, offlineThreshold) {
+  isOffline(device, offlineThreshold = DeviceDataService.DEFAULT_OFFLINE_THRESHOLD) {
     if (typeof device.online === 'boolean') return !device.online;
 
     const now = Date.now();
