@@ -7,7 +7,7 @@ class DeviceEditHandler {
     this.activeCell = null;
   }
 
-  // Startet Edit-Modus
+  // Start edit mode
   startEdit(deviceId) {
     const row = this.dom.getRow(deviceId);
     if (!row) return;
