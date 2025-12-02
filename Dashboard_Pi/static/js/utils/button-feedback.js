@@ -98,15 +98,19 @@ class ButtonFeedback {
       
       this.originalStates.set(button, {
         icon: originalIconName,
-        bg: button.style.background
+        bg: button.style.background,
+        border: button.style.borderColor,
+        shadow: button.style.boxShadow
       });
     }
 
     const original = this.originalStates.get(button);
 
-    // Set new icon
+    // Set new icon and colors
     iconElement.setAttribute('data-feather', newIcon);
     button.style.background = bgColor;
+    button.style.borderColor = bgColor;
+    button.style.boxShadow = 'none';
     if (window.feather) feather.replace();
 
     // Reset after timeout
@@ -115,6 +119,8 @@ class ButtonFeedback {
       if (currentIconElement && original.icon) {
         currentIconElement.setAttribute('data-feather', original.icon);
         button.style.background = original.bg;
+        button.style.borderColor = original.border;
+        button.style.boxShadow = original.shadow;
         if (window.feather) feather.replace();
       }
 
