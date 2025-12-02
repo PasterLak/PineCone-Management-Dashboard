@@ -24,7 +24,7 @@ class DeviceConfig {
   static BUTTONS = {
     EDIT: '.edit-btn',
     DELETE: '.delete-btn',
-    PINS: '.pins-btn',
+    COPY: '.copy-btn',
     BLINK: '.blink-btn',
     OK: '.ok-btn',
     CANCEL: '.cancel-btn'
