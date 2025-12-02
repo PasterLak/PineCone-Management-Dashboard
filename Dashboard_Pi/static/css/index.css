@@ -71,7 +71,29 @@
   --focus-ring: 0 0 0 3px rgba(30, 136, 229, 0.1);
   
   /* ===== Console Colors ===== */
+  --console-bg: #1e1e1e;
   --console-text: #4caf50;
+  --console-text-default: #d4d4d4;
+  --console-text-info: #4fc3f7;
+  --console-text-warning: #ffb74d;
+  --console-text-error: #ef5350;
+  --console-text-success: #66bb6a;
+  --console-text-http: #808080;
+  --console-text-http-success: #606060;
+  --console-text-simulator: #ba68c8;
+  --console-line-hover: rgba(255, 255, 255, 0.05);
+  --console-scrollbar-track: #2d2d2d;
+  --console-scrollbar-thumb: #555;
+  --console-scrollbar-thumb-hover: #666;
+  
+  /* ===== Dialog & Overlay Colors ===== */
+  --overlay-bg: rgba(0, 0, 0, 0.6);
+  --icon-bg-danger: rgba(239, 83, 80, 0.15);
+  --icon-bg-warning: rgba(255, 183, 77, 0.15);
+  --icon-bg-success: rgba(102, 187, 106, 0.15);
+  --icon-bg-primary: rgba(30, 136, 229, 0.15);
+  --icon-bg-secondary: rgba(224, 224, 224, 0.15);
+  --icon-bg-offline: rgba(158, 158, 158, 0.15);
   
   /* ===== Switch Colors ===== */
   --switch-off: #666;

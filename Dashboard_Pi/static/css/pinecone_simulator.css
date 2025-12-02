@@ -563,7 +563,7 @@ input:checked+.slider:before {
 
 .sim-json-approve {
     background: var(--color-success);
-    color: white;
+    color: var(--color-white);
 }
 
 .sim-json-approve:hover {
@@ -574,7 +574,7 @@ input:checked+.slider:before {
 
 .sim-json-discard {
     background: var(--color-danger);
-    color: white;
+    color: var(--color-white);
 }
 
 .sim-json-discard:hover {

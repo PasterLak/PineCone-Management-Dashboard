@@ -2,10 +2,10 @@
   display: flex;
   flex-direction: column;
   height: calc(100vh - 4rem);
-  background: var(--bg, #1a1919);
+  background: var(--bg);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .console-header {
@@ -13,14 +13,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  background: var(--card, #1a1919);
-  border-bottom: 1px solid var(--border, #2a2a2a);
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
 }
 
 .console-header h2 {
   margin: 0;
   font-size: 1.5rem;
-  color: var(--text, #e0e0e0);
+  color: var(--text);
 }
 
 .console-actions {
@@ -57,8 +57,8 @@
   font-family: 'Courier New', Courier, monospace;
   font-size: 0.875rem;
   line-height: 1.5;
-  background: #1e1e1e;
-  color: #d4d4d4;
+  background: var(--console-bg);
+  color: var(--console-text-default);
   box-sizing: border-box;
 }
 
@@ -74,44 +74,44 @@
   white-space: pre-wrap;
   word-break: break-word;
   line-height: 1.6;
-  color: #d4d4d4;
+  color: var(--console-text-default);
 }
 
 .console-line:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--console-line-hover);
 }
 
 .console-info {
-  color: #4fc3f7;
+  color: var(--console-text-info);
 }
 
 .console-warning {
-  color: #ffb74d;
+  color: var(--console-text-warning);
   font-weight: 500;
 }
 
 .console-error {
-  color: #ef5350;
+  color: var(--console-text-error);
   font-weight: 600;
 }
 
 .console-success {
-  color: #66bb6a;
+  color: var(--console-text-success);
   font-weight: 500;
 }
 
 .console-http {
-  color: #808080;
+  color: var(--console-text-http);
   opacity: 0.7;
 }
 
 .console-http-success {
-  color: #606060;
+  color: var(--console-text-http-success);
   opacity: 0.5;
 }
 
 .console-simulator {
-  color: #ba68c8;
+  color: var(--console-text-simulator);
   font-weight: 500;
 }
 
@@ -122,14 +122,14 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: var(--color-primary, #1e88e5);
+  background: var(--color-primary);
   border: none;
   color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
@@ -144,8 +144,8 @@
 }
 
 .console-scroll-btn:hover {
-  background: var(--color-primary-hover, #1565c0);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-lg);
 }
 
 .console-scroll-btn i {
@@ -158,14 +158,14 @@
 }
 
 .console-output::-webkit-scrollbar-track {
-  background: #2d2d2d;
+  background: var(--console-scrollbar-track);
 }
 
 .console-output::-webkit-scrollbar-thumb {
-  background: #555;
+  background: var(--console-scrollbar-thumb);
   border-radius: 6px;
 }
 
 .console-output::-webkit-scrollbar-thumb:hover {
-  background: #666;
+  background: var(--console-scrollbar-thumb-hover);
 }
