@@ -971,3 +971,19 @@ textarea:disabled {
         font-size: 0.8rem;
     }
 }
+
+@media (max-width: 320px) {
+    .sim-switch-field {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .sim-switch-field > span {
+        width: 100%;
+    }
+
+    .switch {
+        align-self: flex-start;
+    }
+}
