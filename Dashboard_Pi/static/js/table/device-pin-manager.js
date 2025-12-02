@@ -1,8 +1,12 @@
 // Controls the display of pin details in a dialog
 // Shows device pin configuration when user clicks on a row
 class DevicePinManager {
-  constructor(dom) {
+  constructor(dom, settingsManager) {
     this.dom = dom;
+    this.settings = settingsManager;
+    this.currentDeviceId = null;
+    this.pinContainer = null;
+    this.updateInterval = null;
   }
 
   // Shows pin details dialog for a device
@@ -13,10 +17,14 @@ class DevicePinManager {
 
   // Shows pin details in a confirm dialog
   async showPinDialog(deviceId, deviceData) {
+    this.currentDeviceId = deviceId;
     const pins = deviceData.pins || {};
+    
     const pinContainer = this._createPinContainer(pins);
     
     if (window.ConfirmDialog) {
+      this._startPinUpdates(deviceId);
+      
       await ConfirmDialog.show({
         title: `Device ${deviceId}`,
         type: 'info',
@@ -24,7 +32,8 @@ class DevicePinManager {
         customContent: pinContainer
       });
       
-      // Replace feather icons after dialog is shown
+      this._stopPinUpdates();
+      
       setTimeout(() => {
         if (window.feather) feather.replace();
       }, 100);
@@ -32,6 +41,55 @@ class DevicePinManager {
       console.error('ConfirmDialog not available');
       alert(`Pin details for ${deviceId}:\n${JSON.stringify(pins, null, 2)}`);
     }
+    
+    this.pinContainer = pinContainer;
+  }
+
+  // Start updating pin values
+  _startPinUpdates(deviceId) {
+    this._stopPinUpdates();
+    
+    const pollInterval = this.settings ? this.settings.get('pollInterval') : 1000;
+    
+    this.updateInterval = setInterval(() => {
+      if (!this.pinContainer || !window.deviceDataService) return;
+      
+      const deviceData = window.deviceDataService.get(deviceId);
+      if (!deviceData || !deviceData.pins) return;
+      
+      this._updatePinValues(deviceData.pins);
+    }, pollInterval);
+  }
+
+  // Stop updating pin values
+  _stopPinUpdates() {
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = null;
+    }
+    this.currentDeviceId = null;
+    this.pinContainer = null;
+  }
+
+  // Update pin values in the DOM
+  _updatePinValues(pins) {
+    if (!this.pinContainer) return;
+    
+    Object.entries(pins).forEach(([gpio, pin]) => {
+      const cards = this.pinContainer.querySelectorAll('.pin-card');
+      cards.forEach(card => {
+        const gpioElement = card.querySelector('.pin-gpio');
+        if (gpioElement && gpioElement.textContent === gpio) {
+          const valueElement = card.querySelector('.pin-value');
+          if (valueElement) {
+            const newValue = pin.value !== undefined ? pin.value : '-';
+            if (valueElement.textContent !== String(newValue)) {
+              valueElement.textContent = newValue;
+            }
+          }
+        }
+      });
+    });
   }
 
   // Creates Pin Container
@@ -60,15 +118,19 @@ class DevicePinManager {
     const header = document.createElement('div');
     header.className = 'pin-details-header';
     
-    const titleContainer = document.createElement('div');
-    titleContainer.className = 'pin-details-title';
-    titleContainer.innerHTML = `
+    const titleText = document.createElement('div');
+    titleText.className = 'pin-title-text';
+    titleText.innerHTML = `
       <i data-feather="cpu"></i>
       <span>Pin Configuration</span>
-      <span class="pin-count-badge">${pinCount}</span>
     `;
     
-    header.appendChild(titleContainer);
+    const badge = document.createElement('span');
+    badge.className = 'pin-count-badge';
+    badge.textContent = pinCount;
+    
+    header.appendChild(titleText);
+    header.appendChild(badge);
     return header;
   }
 

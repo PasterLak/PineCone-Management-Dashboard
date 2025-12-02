@@ -451,24 +451,26 @@ th.col-actions { width: 8%; text-align: center; }
   padding: 0;
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .pin-details-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 16px;
   padding-bottom: 12px;
   border-bottom: 2px solid var(--border);
 }
 
-.pin-details-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--brand);
+.pin-title-text {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--brand);
 }
 
 .pin-count-badge {
@@ -488,6 +490,10 @@ th.col-actions { width: 8%; text-align: center; }
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .pin-card {
@@ -501,8 +507,6 @@ th.col-actions { width: 8%; text-align: center; }
 
 .pin-card:hover {
   border-color: var(--brand);
-  box-shadow: var(--shadow-primary);
-  transform: translateY(-2px);
 }
 
 .pin-card-header {
@@ -602,4 +606,52 @@ th.col-actions { width: 8%; text-align: center; }
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+
+/* Pin Card Responsive */
+@media (max-width: 420px) {
+  .pin-card {
+    padding: 12px;
+  }
+
+  .pin-gpio {
+    font-size: 0.85rem;
+  }
+
+  .pin-mode {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+  }
+
+  .pin-detail-row {
+    font-size: 0.8rem;
+  }
+
+  .pin-value {
+    font-size: 1rem;
+    padding: 3px 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .pin-card {
+    padding: 10px;
+  }
+
+  .pin-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .pin-gpio {
+    font-size: 0.8rem;
+  }
+
+  .pin-detail-row {
+    font-size: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
 }

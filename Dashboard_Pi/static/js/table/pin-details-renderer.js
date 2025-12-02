@@ -46,8 +46,10 @@ class PinDetailsRenderer {
     const titleContainer = document.createElement('div');
     titleContainer.className = 'pin-details-title';
     titleContainer.innerHTML = `
-      <i data-feather="cpu"></i>
-      <span>Pin Configuration</span>
+      <div class="pin-title-text">
+        <i data-feather="cpu"></i>
+        <span>Pin Configuration</span>
+      </div>
       <span class="pin-count-badge">${pinCount}</span>
     `;
     
