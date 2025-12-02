@@ -50,7 +50,7 @@ class DeviceDataService {
   toSortedRows(devices = this.devices) {
     return Object.entries(devices).map(([id, d]) => {
       const timestamp = new Date(d.last_seen).getTime();
-      const offline = (typeof d.online === 'boolean') ? !d.online : this.isOffline(d);
+  const offline = this.isOffline(d);
       const nowMs = this.getServerNow();
 
       return {
@@ -70,8 +70,6 @@ class DeviceDataService {
 
   // Checks if device is offline
   isOffline(device, offlineThreshold = DeviceDataService.DEFAULT_OFFLINE_THRESHOLD) {
-    if (typeof device.online === 'boolean') return !device.online;
-
     const now = this.getServerNow();
     const ts = new Date(device.last_seen).getTime();
     if (Number.isNaN(ts)) return true;

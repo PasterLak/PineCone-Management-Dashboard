@@ -41,7 +41,6 @@ def get_device(node_id):
 
 def update_device(node_id, data):
     clean = {**data}
-    clean.pop("online", None)
     devices[node_id] = clean
     save_devices()
 

@@ -52,12 +52,51 @@ class DevicePollingService extends PollingService {
       if (changes.structureChanged) {
         this.renderer.render(newDevices);
       } else if (changes.dataChanged) {
-        this.renderer.updateInPlace(newDevices, changes.changedIds);
+        const needsResort = this.checkIfResortNeeded(newDevices);
+        if (needsResort) {
+          this.renderer.render(newDevices);
+        } else {
+          this.renderer.updateInPlace(newDevices, changes.changedIds);
+        }
       } else {
         this.dataService.setAll(newDevices);
       }
     } catch (err) {
       console.error('Device polling failed:', err);
     }
+  }
+
+  // Check if the sort order would change based on new timestamps (beyond polling threshold - othwerwise the order of online devices would change continuously)
+  checkIfResortNeeded(newDevices) {
+    const currentDomOrder = Array.from(this.renderer.dom.getAllRows()).map(row => row.dataset.id);
+    
+    const newSortedRows = this.dataService.toSortedRows(newDevices);
+    const newOrder = newSortedRows.map(r => r.id);
+    
+    if (currentDomOrder.length !== newOrder.length) return true;
+    
+    const sortThreshold = this.settings.get('pollInterval');
+    
+    for (let i = 0; i < newOrder.length - 1; i++) {
+      const currentId = newOrder[i];
+      const nextId = newOrder[i + 1];
+      
+      const currentDomPos = currentDomOrder.indexOf(currentId);
+      const nextDomPos = currentDomOrder.indexOf(nextId);
+      
+      if (currentDomPos === -1 || nextDomPos === -1) return true;
+      
+      if (currentDomPos > nextDomPos) {
+        const currentRow = newSortedRows[i];
+        const nextRow = newSortedRows[i + 1];
+        const timeDiff = Math.abs(currentRow.timestamp - nextRow.timestamp);
+        
+        if (timeDiff > sortThreshold) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
   }
 }
