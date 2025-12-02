@@ -4,6 +4,7 @@ class SidebarManager {
   constructor() {
     this.sidebar = document.getElementById('sidebar');
     this.toggle = document.getElementById('sidebarToggle');
+    this.overlay = document.querySelector('.sidebar-overlay');
     this.isOpen = false;
     this.sidebarItems = document.querySelectorAll('.sidebar-item');
     this.activeIndicator = null;
@@ -74,16 +75,13 @@ class SidebarManager {
       this.toggleState();
     });
 
-    // Click outside to close
-    document.addEventListener('click', (e) => {
-      if (!this.isOpen) return;
-      
-      const clickedSidebar = e.target.closest('#sidebar');
-      const clickedToggle = e.target.closest('#sidebarToggle');
-      
-      if (!clickedSidebar && !clickedToggle) {
+    // Click overlay to close
+    if (this.overlay) {
+      this.overlay.addEventListener('click', () => {
         this.close();
-      }
-    });
+      });
+    }
+
+   
   }
 }
