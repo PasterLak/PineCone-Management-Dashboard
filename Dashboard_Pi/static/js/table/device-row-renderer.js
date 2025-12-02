@@ -14,7 +14,7 @@ class DeviceRowRenderer {
     const threshold = offlineThreshold || DeviceDataService.DEFAULT_OFFLINE_THRESHOLD;
     const isOffline = (typeof rowData.offline === 'boolean')
       ? rowData.offline
-      : this.dataService.isOffline({ last_seen: lastSeenSource, online: rowData.online }, threshold);
+      : this.dataService.isOffline({ last_seen: lastSeenSource }, threshold);
     const statusClass = isOffline ? 'device-status--offline' : 'device-status--online';
     const statusText = isOffline ? 'Offline' : 'Online ';
     const nowMs = this.dataService.getServerNow();
