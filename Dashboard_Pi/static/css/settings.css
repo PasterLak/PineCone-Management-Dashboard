@@ -1,5 +1,6 @@
 .settings-page {
     margin-bottom: 20px;
+    min-width: 0;
 }
 
 .center-btn {
@@ -7,11 +8,13 @@
     display: flex;
     justify-content: center;
     gap: 12px;
+    min-width: 0;
 }
 
 .settings-container {
     width: 100%;
     box-sizing: border-box;
+    min-width: 0;
 }
 
 .settings-card {
@@ -22,6 +25,7 @@
     padding: 24px;
     box-shadow: var(--shadow-sm);
     box-sizing: border-box;
+    min-width: 0;
 }
 
 .settings-card h2 {
@@ -42,12 +46,14 @@
     flex-direction: column;
     gap: 8px;
     margin-bottom: 24px;
+    min-width: 0;
 }
 
 .settings-field label {
     font-size: 0.9rem;
     font-weight: 500;
     color: var(--text);
+    word-wrap: break-word;
 }
 
 .settings-field input {
@@ -59,6 +65,9 @@
     font-size: 1rem;
     transition: border-color 0.2s ease;
     max-width: 300px;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
 }
 
 .settings-field input:focus {
@@ -98,4 +107,24 @@
 
 .mt-20 {
     margin-top: 20px;
+}
+
+@media (max-width: 500px) {
+    .center-btn {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .center-btn .btn-primary,
+    .center-btn .btn-secondary {
+        width: 100%;
+    }
+
+    .settings-card {
+        padding: 16px;
+    }
+
+    .settings-field input {
+        max-width: 100%;
+    }
 }
