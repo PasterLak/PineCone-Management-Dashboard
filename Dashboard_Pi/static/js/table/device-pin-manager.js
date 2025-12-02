@@ -1,94 +1,118 @@
-// Controls the expand/collapse of pin details rows
-// Manages which device/row has its pins config currently visible
+// Controls the display of pin details in a dialog
+// Shows device pin configuration when user clicks on a row
 class DevicePinManager {
-  constructor(dom, pinRenderer) {
+  constructor(dom) {
     this.dom = dom;
-    this.pinRenderer = pinRenderer;
-    this.expandedPinRow = null;
   }
 
-  // Toggles pin details for a device
+  // Shows pin details dialog for a device
   togglePinDetails(deviceId, deviceData) {
     if (!deviceData) return;
+    this.showPinDialog(deviceId, deviceData);
+  }
 
-    const deviceRow = this.dom.getRow(deviceId);
-    if (!deviceRow) return;
-
-    const existingPinRow = this.dom.getNextRow(deviceRow);
-    const isCurrentlyExpanded = existingPinRow && 
-                                existingPinRow.classList.contains(DeviceConfig.CSS_CLASSES.PIN_DETAILS_ROW);
-
-    // Close other open pin details
-    if (this.expandedPinRow && this.expandedPinRow !== existingPinRow) {
-      this.dom.removeRow(this.expandedPinRow);
-      this._deactivatePinsButton(this.expandedPinRow.dataset.deviceId);
-    }
-
-    // Toggle current device
-    if (isCurrentlyExpanded) {
-      this.dom.removeRow(existingPinRow);
-      this.expandedPinRow = null;
-      this._deactivatePinsButton(deviceId, deviceRow);
-    } else {
-      const pinRow = this.pinRenderer.createPinDetailsRow(deviceId, deviceData.pins || {});
-      this.dom.insertAfter(pinRow, deviceRow);
-      this.expandedPinRow = pinRow;
-      this._activatePinsButton(deviceId, deviceRow);
+  // Shows pin details in a confirm dialog
+  async showPinDialog(deviceId, deviceData) {
+    const pins = deviceData.pins || {};
+    const pinContainer = this._createPinContainer(pins);
+    
+    if (window.ConfirmDialog) {
+      await ConfirmDialog.show({
+        title: `Device ${deviceId}`,
+        type: 'info',
+        infoOnly: true,
+        customContent: pinContainer
+      });
       
-      if (window.feather) feather.replace();
+      // Replace feather icons after dialog is shown
+      setTimeout(() => {
+        if (window.feather) feather.replace();
+      }, 100);
+    } else {
+      console.error('ConfirmDialog not available');
+      alert(`Pin details for ${deviceId}:\n${JSON.stringify(pins, null, 2)}`);
     }
   }
 
-  // Updates pin details if expanded
-  updateExpandedPins(deviceId, pins) {
-    if (!this.expandedPinRow) return;
-    if (this.expandedPinRow.dataset.deviceId !== deviceId) return;
+  // Creates Pin Container
+  _createPinContainer(pins) {
+    const container = document.createElement('div');
+    container.className = 'pin-details-container';
 
-    this.pinRenderer.updatePinDetailsContent(this.expandedPinRow, pins);
+    const pinEntries = Object.entries(pins);
+
+    // Header
+    const header = this._createHeader(pinEntries.length);
+    container.appendChild(header);
+
+    // Content
+    if (pinEntries.length === 0) {
+      container.appendChild(this._createEmptyMessage());
+    } else {
+      container.appendChild(this._createPinsGrid(pinEntries));
+    }
+
+    return container;
+  }
+
+  // Creates Header
+  _createHeader(pinCount) {
+    const header = document.createElement('div');
+    header.className = 'pin-details-header';
     
-    if (window.feather) feather.replace();
-  }
-
-  // Restores expanded pins after re-render
-  restoreExpandedPins(deviceId, deviceData) {
-    if (!this.expandedPinRow) return;
-    if (this.expandedPinRow.dataset.deviceId !== deviceId) return;
-    if (!deviceData) return;
-
-    const deviceRow = this.dom.getRow(deviceId);
-    if (!deviceRow) {
-      this.expandedPinRow = null;
-      return;
-    }
-
-    const pinRow = this.pinRenderer.createPinDetailsRow(deviceId, deviceData.pins || {});
-    this.dom.insertAfter(pinRow, deviceRow);
-    this.expandedPinRow = pinRow;
-    this._activatePinsButton(deviceId, deviceRow);
+    const titleContainer = document.createElement('div');
+    titleContainer.className = 'pin-details-title';
+    titleContainer.innerHTML = `
+      <i data-feather="cpu"></i>
+      <span>Pin Configuration</span>
+      <span class="pin-count-badge">${pinCount}</span>
+    `;
     
-    if (window.feather) feather.replace();
+    header.appendChild(titleContainer);
+    return header;
   }
 
-  // Activates Pins button
-  _activatePinsButton(deviceId, deviceRow = null) {
-    const row = deviceRow || this.dom.getRow(deviceId);
-    const btn = this.dom.findButton(row, DeviceConfig.BUTTONS.PINS);
-    if (btn) {
-      btn.classList.add(DeviceConfig.CSS_CLASSES.ACTIVE);
-    }
+  // Creates "No Pins" message
+  _createEmptyMessage() {
+    const noMsg = document.createElement('div');
+    noMsg.className = 'no-pins-message';
+    noMsg.innerHTML = '<div class="no-pins-content"><i data-feather="info"></i> No pins configured for this device</div>';
+    return noMsg;
   }
 
-  // Deactivates Pins button
-  _deactivatePinsButton(deviceId, deviceRow = null) {
-    const row = deviceRow || this.dom.getRow(deviceId);
-    const btn = this.dom.findButton(row, DeviceConfig.BUTTONS.PINS);
-    if (btn) {
-      btn.classList.remove(DeviceConfig.CSS_CLASSES.ACTIVE);
-    }
+  // Creates Pins Grid
+  _createPinsGrid(pinEntries) {
+    const grid = document.createElement('div');
+    grid.className = 'pins-grid';
+
+    pinEntries.forEach(([gpio, pin]) => {
+      grid.appendChild(this._createPinCard(gpio, pin));
+    });
+
+    return grid;
   }
 
-  // Returns currently expanded device ID
-  getExpandedDeviceId() {
-    return this.expandedPinRow?.dataset.deviceId || null;
+  // Creates individual Pin Card
+  _createPinCard(gpio, pin) {
+    const card = document.createElement('div');
+    card.className = 'pin-card';
+    card.innerHTML = `
+      <div class="pin-card-header">
+        <div class="pin-gpio">${gpio}</div>
+        <span class="pin-mode pin-mode--${pin.mode || 'input'}">${pin.mode || 'input'}</span>
+      </div>
+      <div class="pin-card-body">
+        <div class="pin-detail-row">
+          <span class="pin-detail-label">Name:</span>
+          <span class="pin-detail-value pin-name">${pin.name || '-'}</span>
+        </div>
+        <div class="pin-detail-row">
+          <span class="pin-detail-label">Value:</span>
+          <span class="pin-value">${pin.value !== undefined ? pin.value : '-'}</span>
+        </div>
+      </div>
+    `;
+    return card;
   }
 }
+

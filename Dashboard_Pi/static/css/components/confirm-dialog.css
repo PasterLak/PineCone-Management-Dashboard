@@ -28,6 +28,13 @@
   opacity: 0;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.confirm-dialog:has(.confirm-dialog-custom-content) {
+  max-width: 800px;
 }
 
 .confirm-dialog--active {
@@ -111,6 +118,33 @@
 
 .confirm-dialog-body {
   padding: 0 2rem 2rem 2rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.confirm-dialog-custom-content {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.confirm-dialog-custom-content .pin-details-container {
+  padding: 0;
+}
+
+.confirm-dialog-custom-content .pin-details-header {
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.confirm-dialog-custom-content .pins-grid {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 600px) {
+  .confirm-dialog-custom-content .pins-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .confirm-dialog-message {

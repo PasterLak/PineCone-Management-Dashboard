@@ -15,7 +15,6 @@ class DeviceRenderer {
     if (!this.dom.isAvailable()) return;
     
     const rows = this.dataService.toSortedRows(devices);
-    const expandedDeviceId = this.pinManager.getExpandedDeviceId();
 
     // No devices available
     if (rows.length === 0) {
@@ -36,11 +35,6 @@ class DeviceRenderer {
     this.dataService.setAll(devices);
 
     if (window.feather) feather.replace();
-
-    // Restore expanded pins
-    if (expandedDeviceId && devices[expandedDeviceId]) {
-      this.pinManager.restoreExpandedPins(expandedDeviceId, devices[expandedDeviceId]);
-    }
     
     // Update stats counter
     if (this.statsCounter) {
@@ -60,9 +54,6 @@ class DeviceRenderer {
       
       // Update row data
       this.rowRenderer.updateRowInPlace(row, deviceData, offlineThreshold);
-
-      // Update pin details if expanded
-      this.pinManager.updateExpandedPins(deviceId, deviceData.pins || {});
     });
 
     this.dataService.setAll(newDevices);

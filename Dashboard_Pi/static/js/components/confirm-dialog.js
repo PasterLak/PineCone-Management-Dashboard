@@ -26,7 +26,8 @@ class ConfirmDialogInstance {
       confirmText: options.confirmText || 'Confirm',
       cancelText: options.cancelText || 'Cancel',
       type: options.type || 'info', // 'danger', 'warning', 'info', 'success'
-      infoOnly: options.infoOnly || false // Show only close button (no cancel/confirm)
+      infoOnly: options.infoOnly || false, // Show only close button (no cancel/confirm)
+      customContent: options.customContent || null // Custom HTML content element
     };
     
     this.resolveCallback = resolveCallback;
@@ -66,12 +67,20 @@ class ConfirmDialogInstance {
         <h3 class="confirm-dialog-title">${this.escapeHtml(this.options.title)}</h3>
       </div>
       <div class="confirm-dialog-body">
-        <p class="confirm-dialog-message">${this.escapeHtml(this.options.message)}</p>
+        ${this.options.customContent ? '<div class="confirm-dialog-custom-content"></div>' : `<p class="confirm-dialog-message">${this.escapeHtml(this.options.message)}</p>`}
       </div>
       <div class="confirm-dialog-footer">
         ${footerButtons}
       </div>
     `;
+    
+    // Insert custom content if provided
+    if (this.options.customContent) {
+      const customContentContainer = this.dialog.querySelector('.confirm-dialog-custom-content');
+      if (customContentContainer) {
+        customContentContainer.appendChild(this.options.customContent);
+      }
+    }
     
     this.overlay.appendChild(this.dialog);
     document.body.appendChild(this.overlay);
@@ -198,3 +207,6 @@ class ConfirmDialogInstance {
     return div.innerHTML;
   }
 }
+
+// Expose ConfirmDialog to global scope
+window.ConfirmDialog = ConfirmDialog;

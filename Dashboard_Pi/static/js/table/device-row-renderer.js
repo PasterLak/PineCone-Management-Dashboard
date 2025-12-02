@@ -23,19 +23,19 @@ class DeviceRowRenderer {
       : (rowData.last_seen || 'unknown');
     
     tr.innerHTML = `
-      <td class="status-cell">
+      <td class="status-cell" data-label="Status">
         <div class="device-status ${statusClass}">
           <span class="device-status-dot"></span>
           <span>${statusText}</span>
         </div>
       </td>
-      <td>${rowData.id}</td>
-      <td>${rowData.ip}</td>
-      <td class="desc-cell" data-id="${rowData.id}">
+      <td data-label="ID">${rowData.id}</td>
+      <td data-label="IP">${rowData.ip}</td>
+      <td class="desc-cell" data-id="${rowData.id}" data-label="Description">
         <span class="desc-text">${rowData.description}</span>
       </td>
-      <td>${lastSeenDisplay}</td>
-      <td class="actions-cell">
+      <td data-label="Last Seen">${lastSeenDisplay}</td>
+      <td class="actions-cell" data-label="Actions">
         <button class="edit-btn" type="button" data-id="${rowData.id}" aria-label="Edit description">
           <i data-feather="edit-3"></i>
         </button>

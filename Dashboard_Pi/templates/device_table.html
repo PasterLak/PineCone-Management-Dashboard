@@ -32,19 +32,19 @@
     <tbody id="tbody">
       {% for id, d in devices.items() %}
       <tr data-id="{{ id }}">
-        <td class="status-cell">
+        <td class="status-cell" data-label="Status">
           <div class="device-status device-status--online">
             <span class="device-status-dot"></span>
             <span>Online </span>
           </div>
         </td>
-        <td>{{ id }}</td>
-        <td>{{ d.ip }}</td>
-        <td data-id="{{ id }}">
+        <td data-label="ID">{{ id }}</td>
+        <td data-label="IP">{{ d.ip }}</td>
+        <td data-id="{{ id }}" data-label="Description">
           <span class="desc-text">{{ d.description }}</span>
         </td>
-        <td>{{ d.last_seen }}</td>
-        <td class="actions-cell">
+        <td data-label="Last Seen">{{ d.last_seen }}</td>
+        <td class="actions-cell" data-label="Actions">
           <button class="edit-btn" type="button">
             <i data-feather="edit-3"></i>
           </button>

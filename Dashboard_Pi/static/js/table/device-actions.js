@@ -1,12 +1,11 @@
 // Executes device operations (delete, blink, edit description)
 // Communicates with backend API and updates device state
 class DeviceActions {
-  constructor(dataService, apiService, rowRenderer, editHandler, pinRenderer) {
+  constructor(dataService, apiService, rowRenderer, editHandler) {
     this.dataService = dataService;
     this.api = apiService;
     this.rowRenderer = rowRenderer;
     this.editHandler = editHandler;
-    this.pinRenderer = pinRenderer;
   }
 
   // Deletes a device

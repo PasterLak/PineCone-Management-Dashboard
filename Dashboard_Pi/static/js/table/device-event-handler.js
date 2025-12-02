@@ -33,8 +33,7 @@ class DeviceEventHandler {
     const copyBtn = e.target.closest(DeviceConfig.BUTTONS.COPY);
     const blinkBtn = e.target.closest(DeviceConfig.BUTTONS.BLINK);
     const pinCard = e.target.closest('.pin-card');
-    const pinDetailsRow = e.target.closest('tr.pin-details-row');
-    const row = e.target.closest('tbody tr:not(.pin-details-row)');
+    const row = e.target.closest('tbody tr');
 
     if (okBtn) {
       this._handleOkButton(okBtn);
@@ -50,8 +49,6 @@ class DeviceEventHandler {
       this._handleBlinkButton(blinkBtn);
     } else if (pinCard) {
       return;
-    } else if (pinDetailsRow) {
-      this._handlePinDetailsRowClick(pinDetailsRow);
     } else if (row) {
       if (!e.target.closest('button') && !e.target.closest('input')) {
         this._handleRowClick(row);
@@ -146,15 +143,7 @@ class DeviceEventHandler {
     const deviceId = row.dataset.id;
     if (deviceId) {
       const device = this.actions.dataService.getDevice(deviceId);
-      this.pinManager.togglePinDetails(deviceId, device);
-    }
-  }
-
-  // Pin Details Row Click - Close pin details
-  _handlePinDetailsRowClick(pinDetailsRow) {
-    const deviceId = pinDetailsRow.dataset.deviceId;
-    if (deviceId) {
-      const device = this.actions.dataService.getDevice(deviceId);
+      console.log('Row clicked, showing pin details for:', deviceId, device);
       this.pinManager.togglePinDetails(deviceId, device);
     }
   }

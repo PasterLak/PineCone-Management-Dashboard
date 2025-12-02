@@ -14,7 +14,6 @@ class DeviceConfig {
   // CSS Classes
   static CSS_CLASSES = {
     BLINK_ACTIVE: 'blink-active',
-    PIN_DETAILS_ROW: 'pin-details-row',
     ACTIVE: 'active',
     STATUS_ONLINE: 'device-status--online',
     STATUS_OFFLINE: 'device-status--offline'
