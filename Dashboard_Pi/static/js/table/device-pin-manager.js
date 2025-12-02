@@ -1,38 +1,42 @@
 // Controls the display of pin details in a dialog
-// Shows device pin configuration when user clicks on a row
 class DevicePinManager {
-  constructor(dom, settingsManager) {
+  constructor(dom, settingsManager, dataService) {
     this.dom = dom;
     this.settings = settingsManager;
+    this.dataService = dataService;
     this.currentDeviceId = null;
     this.pinContainer = null;
     this.updateInterval = null;
   }
 
-  // Shows pin details dialog for a device
   togglePinDetails(deviceId, deviceData) {
     if (!deviceData) return;
     this.showPinDialog(deviceId, deviceData);
   }
 
-  // Shows pin details in a confirm dialog
   async showPinDialog(deviceId, deviceData) {
+    this._stopPinUpdates();
+    
     this.currentDeviceId = deviceId;
     const pins = deviceData.pins || {};
     
     const pinContainer = this._createPinContainer(pins);
+    this.pinContainer = pinContainer;
     
     if (window.ConfirmDialog) {
-      this._startPinUpdates(deviceId);
-      
-      await ConfirmDialog.show({
+      const dialogPromise = ConfirmDialog.show({
         title: `Device ${deviceId}`,
         type: 'info',
         infoOnly: true,
         customContent: pinContainer
       });
       
+      this._startPinUpdatesWhenReady(deviceId);
+      
+      await dialogPromise;
+      
       this._stopPinUpdates();
+      this.pinContainer = null;
       
       setTimeout(() => {
         if (window.feather) feather.replace();
@@ -41,69 +45,119 @@ class DevicePinManager {
       console.error('ConfirmDialog not available');
       alert(`Pin details for ${deviceId}:\n${JSON.stringify(pins, null, 2)}`);
     }
+  }
+  
+  _startPinUpdatesWhenReady(deviceId) {
+    if (document.body.contains(this.pinContainer)) {
+      this._startPinUpdates(deviceId);
+      return;
+    }
     
-    this.pinContainer = pinContainer;
+    const observer = new MutationObserver(() => {
+      if (this.pinContainer && document.body.contains(this.pinContainer)) {
+        observer.disconnect();
+        this._startPinUpdates(deviceId);
+      }
+    });
+    
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+    
+    setTimeout(() => {
+      observer.disconnect();
+      if (this.pinContainer && document.body.contains(this.pinContainer)) {
+        this._startPinUpdates(deviceId);
+      }
+    }, 2000);
   }
 
-  // Start updating pin values
   _startPinUpdates(deviceId) {
     this._stopPinUpdates();
     
     const pollInterval = this.settings ? this.settings.get('pollInterval') : 1000;
     
     this.updateInterval = setInterval(() => {
-      if (!this.pinContainer || !window.deviceDataService) return;
+      if (!this.pinContainer || !this.dataService) {
+        this._stopPinUpdates();
+        return;
+      }
       
-      const deviceData = window.deviceDataService.get(deviceId);
+      const deviceData = this.dataService.getDevice(deviceId);
       if (!deviceData || !deviceData.pins) return;
       
       this._updatePinValues(deviceData.pins);
     }, pollInterval);
   }
 
-  // Stop updating pin values
   _stopPinUpdates() {
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
     }
     this.currentDeviceId = null;
-    this.pinContainer = null;
   }
 
-  // Update pin values in the DOM
   _updatePinValues(pins) {
-    if (!this.pinContainer) return;
+    if (!this.pinContainer) {
+      this._stopPinUpdates();
+      return;
+    }
+
+    const pinCards = this.pinContainer.querySelectorAll('.pin-card');
     
-    Object.entries(pins).forEach(([gpio, pin]) => {
-      const cards = this.pinContainer.querySelectorAll('.pin-card');
-      cards.forEach(card => {
-        const gpioElement = card.querySelector('.pin-gpio');
-        if (gpioElement && gpioElement.textContent === gpio) {
-          const valueElement = card.querySelector('.pin-value');
-          if (valueElement) {
-            const newValue = pin.value !== undefined ? pin.value : '-';
-            if (valueElement.textContent !== String(newValue)) {
-              valueElement.textContent = newValue;
-            }
-          }
+    pinCards.forEach(card => {
+      const gpioElement = card.querySelector('.pin-gpio');
+      if (!gpioElement) return;
+      
+      const gpio = gpioElement.textContent.trim();
+      const pinData = pins[gpio];
+      
+      if (!pinData) return;
+
+      const valueElement = card.querySelector('.pin-value');
+      if (valueElement && pinData.value !== undefined) {
+        const currentValue = valueElement.textContent.trim();
+        const newValue = String(pinData.value);
+        
+        if (currentValue !== newValue) {
+          valueElement.textContent = newValue;
         }
-      });
+      }
+
+      const modeElement = card.querySelector('.pin-mode');
+      if (modeElement && pinData.mode) {
+        const currentMode = modeElement.textContent.trim();
+        const newMode = pinData.mode;
+        
+        if (currentMode !== newMode) {
+          modeElement.className = `pin-mode pin-mode--${newMode}`;
+          modeElement.textContent = newMode;
+        }
+      }
+
+      const nameElement = card.querySelector('.pin-name');
+      if (nameElement && pinData.name) {
+        const currentName = nameElement.textContent.trim();
+        const newName = pinData.name;
+        
+        if (currentName !== newName && newName !== '-') {
+          nameElement.textContent = newName;
+        }
+      }
     });
   }
 
-  // Creates Pin Container
   _createPinContainer(pins) {
     const container = document.createElement('div');
     container.className = 'pin-details-container';
 
     const pinEntries = Object.entries(pins);
 
-    // Header
     const header = this._createHeader(pinEntries.length);
     container.appendChild(header);
 
-    // Content
     if (pinEntries.length === 0) {
       container.appendChild(this._createEmptyMessage());
     } else {
@@ -113,7 +167,6 @@ class DevicePinManager {
     return container;
   }
 
-  // Creates Header
   _createHeader(pinCount) {
     const header = document.createElement('div');
     header.className = 'pin-details-header';
@@ -134,7 +187,6 @@ class DevicePinManager {
     return header;
   }
 
-  // Creates "No Pins" message
   _createEmptyMessage() {
     const noMsg = document.createElement('div');
     noMsg.className = 'no-pins-message';
@@ -142,7 +194,6 @@ class DevicePinManager {
     return noMsg;
   }
 
-  // Creates Pins Grid
   _createPinsGrid(pinEntries) {
     const grid = document.createElement('div');
     grid.className = 'pins-grid';
@@ -154,7 +205,6 @@ class DevicePinManager {
     return grid;
   }
 
-  // Creates individual Pin Card
   _createPinCard(gpio, pin) {
     const card = document.createElement('div');
     card.className = 'pin-card';

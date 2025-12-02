@@ -18,7 +18,7 @@ class DeviceManager {
     
     // Feature managers
     this.editHandler = new DeviceEditHandler(this.dom);
-    this.pinManager = new DevicePinManager(this.dom, this.settings);
+    this.pinManager = new DevicePinManager(this.dom, this.settings, this.dataService);
     this.renderer = new DeviceRenderer(
       this.dom,
       this.dataService,
