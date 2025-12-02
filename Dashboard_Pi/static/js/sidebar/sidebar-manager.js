@@ -25,8 +25,8 @@ class SidebarManager {
     const activeItem = document.querySelector('.sidebar-item--active');
     if (!activeItem || !this.activeIndicator) return;
 
-    const itemRect = activeItem.getBoundingClientRect();
     const containerRect = document.querySelector('.sidebar-items').getBoundingClientRect();
+    const itemRect = activeItem.getBoundingClientRect();
     
     const offsetTop = itemRect.top - containerRect.top;
     
