@@ -1,12 +1,13 @@
 // Renders the device table with current device data
 // Updates rows, offline status, and preserves expanded pin details
 class DeviceRenderer {
-  constructor(dom, dataService, rowRenderer, pinManager, settingsManager) {
+  constructor(dom, dataService, rowRenderer, pinManager, settingsManager, statsCounter) {
     this.dom = dom;
     this.dataService = dataService;
     this.rowRenderer = rowRenderer;
     this.pinManager = pinManager;
     this.settings = settingsManager;
+    this.statsCounter = statsCounter;
   }
 
   // Full re-render
@@ -40,6 +41,11 @@ class DeviceRenderer {
     if (expandedDeviceId && devices[expandedDeviceId]) {
       this.pinManager.restoreExpandedPins(expandedDeviceId, devices[expandedDeviceId]);
     }
+    
+    // Update stats counter
+    if (this.statsCounter) {
+      this.statsCounter.update();
+    }
   }
 
   // In-Place Update (without full re-render)
@@ -60,6 +66,11 @@ class DeviceRenderer {
     });
 
     this.dataService.setAll(newDevices);
+    
+    // Update stats counter
+    if (this.statsCounter) {
+      this.statsCounter.update();
+    }
   }
 
   // Updates offline status of all rows
@@ -95,5 +106,10 @@ class DeviceRenderer {
         this.rowRenderer.updateStatusBadge(statusCell, isOffline);
       }
     });
+    
+    // Update stats counter
+    if (this.statsCounter) {
+      this.statsCounter.update();
+    }
   }
 }
