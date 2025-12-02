@@ -1,28 +1,15 @@
 {
   "mac-acd82951cfb1": {
-    "ip": "192.168.178.96",
-    "description": "jo",
-    "last_seen": "2025-11-30T22:31:58",
-    "pins": {
-      "GPIO11": {
-        "name": "LED",
-        "mode": "output",
-        "value": "On"
-      }
-    },
-    "blink": false
-  },
-  "mac-acd829537a79": {
-    "ip": "192.168.178.95",
+    "ip": "10.42.0.181",
     "description": "",
-    "last_seen": "2025-11-30T23:12:46",
+    "last_seen": "2025-12-02T19:28:23",
     "pins": {
       "GPIO11": {
         "name": "LED",
         "mode": "output",
-        "value": "On"
+        "value": "Off"
       }
     },
-    "blink": false
+    "blink": true
   }
 }
