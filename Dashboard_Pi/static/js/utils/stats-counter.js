@@ -71,7 +71,6 @@ class StatsCounter {
     // Get filtered devices based on card type
     let devicesToCopy;
     const allDevices = this.dataService.getAll();
-    const deviceList = Object.values(allDevices);
     
     switch (cardType) {
       case 'total':
@@ -95,42 +94,11 @@ class StatsCounter {
         return;
     }
     
-    const jsonString = JSON.stringify(devicesToCopy, null, 2);
-    
-    // Try to copy to clipboard
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(jsonString);
-        this.showCopyFeedback(card, true);
-      } else {
-        // Fallback for older browsers or HTTP
-        this.fallbackCopyToClipboard(jsonString);
-        this.showCopyFeedback(card, true);
-      }
-    } catch (error) {
-      console.error('Failed to copy:', error);
-      this.showCopyFeedback(card, false);
-    }
+    const success = await ClipboardUtils.copyJSON(devicesToCopy);
+    this.showCopyFeedback(card, success, cardType);
   }
 
-  // Fallback copy method for browsers without clipboard API
-  fallbackCopyToClipboard(text) {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    
-    try {
-      document.execCommand('copy');
-    } finally {
-      document.body.removeChild(textarea);
-    }
-  }
-
-  showCopyFeedback(card, success) {
-    const cardType = card.getAttribute('data-card-type');
+  showCopyFeedback(card, success, cardType) {
     let title, message, type;
     
     if (success) {
