@@ -1,5 +1,8 @@
 .simulator-page {
     margin-bottom: 20px;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .sim-info-card {
@@ -177,6 +180,9 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     mask-image: linear-gradient(
         to right,
         rgba(0, 0, 0, 0) 0%,
@@ -236,6 +242,8 @@
     flex-direction: column;
     gap: 20px;
     position: relative;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .simulator-card {
@@ -248,6 +256,9 @@
     transform-origin: center;
     overflow: hidden;
     transition: opacity 0.2s ease, transform 0.2s ease;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .simulator-card--removing {
@@ -329,12 +340,14 @@
     grid-template-columns: 1fr 1fr;
     gap: 16px;
     margin-bottom: 16px;
+    min-width: 0;
 }
 
 .sim-field {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    min-width: 0;
 }
 
 .sim-field label {
@@ -351,6 +364,9 @@
     color: var(--text);
     font-size: 0.95rem;
     transition: border-color 0.2s ease;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .sim-field input:focus {
@@ -513,6 +529,7 @@ input:checked+.slider:before {
     grid-template-columns: 1fr 1fr;
     gap: 16px;
     margin-bottom: 16px;
+    min-width: 0;
 }
 
 .sim-json,
@@ -520,6 +537,7 @@ input:checked+.slider:before {
     display: flex;
     flex-direction: column;
     position: relative;
+    min-width: 0;
 }
 
 .sim-console-header {
@@ -646,6 +664,7 @@ textarea:disabled {
     font-size: 0.9rem;
     box-sizing: border-box;
     transition: border-color 0.2s ease;
+    min-width: 0;
 }
 
 .sim-json textarea {
