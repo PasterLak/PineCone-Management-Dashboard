@@ -10,6 +10,9 @@ class DeviceManager {
     DeviceDataService.DEFAULT_OFFLINE_THRESHOLD = this.settings.get('offlineThreshold') || DeviceDataService.DEFAULT_OFFLINE_THRESHOLD;
     this.apiService = new APIService();
     
+    // Stats counter
+    this.statsCounter = new StatsCounter('statsCounter', this.dataService);
+    
     // Rendering
     this.rowRenderer = new DeviceRowRenderer(this.dataService);
     this.pinRenderer = new PinDetailsRenderer();
@@ -22,7 +25,8 @@ class DeviceManager {
       this.dataService,
       this.rowRenderer,
       this.pinManager,
-      this.settings
+      this.settings,
+      this.statsCounter
     );
     
     // User actions (delete, blink, etc.)
@@ -60,6 +64,9 @@ class DeviceManager {
 
     // Initial render
     this.renderer.render(this.dataService.getAll());
+    
+    // Initial stats update
+    this.statsCounter.updateImmediate();
 
     // Setup events
     this.eventHandler.setup();
