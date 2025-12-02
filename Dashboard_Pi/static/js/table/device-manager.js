@@ -15,11 +15,10 @@ class DeviceManager {
     
     // Rendering
     this.rowRenderer = new DeviceRowRenderer(this.dataService);
-    this.pinRenderer = new PinDetailsRenderer();
     
     // Feature managers
     this.editHandler = new DeviceEditHandler(this.dom);
-    this.pinManager = new DevicePinManager(this.dom, this.pinRenderer);
+    this.pinManager = new DevicePinManager(this.dom);
     this.renderer = new DeviceRenderer(
       this.dom,
       this.dataService,
@@ -34,8 +33,7 @@ class DeviceManager {
       this.dataService,
       this.apiService,
       this.rowRenderer,
-      this.editHandler,
-      this.pinRenderer
+      this.editHandler
     );
     
     // Periodic updates
