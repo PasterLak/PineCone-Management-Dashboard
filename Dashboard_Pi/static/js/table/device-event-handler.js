@@ -1,10 +1,11 @@
 // Wires up all user interactions on the device table
-// Handles clicks on delete, blink, edit, pin buttons, and table clear
+// Handles clicks on delete, blink, edit, copy buttons, and table clear
 class DeviceEventHandler {
   constructor(actions, pinManager, renderer) {
     this.actions = actions;
     this.pinManager = pinManager;
     this.renderer = renderer;
+    this.buttonFeedback = new ButtonFeedback();
   }
 
   // Setup event listener
@@ -29,7 +30,7 @@ class DeviceEventHandler {
     const cancelBtn = e.target.closest(DeviceConfig.BUTTONS.CANCEL);
     const editBtn = e.target.closest(DeviceConfig.BUTTONS.EDIT);
     const deleteBtn = e.target.closest(DeviceConfig.BUTTONS.DELETE);
-    const pinsBtn = e.target.closest(DeviceConfig.BUTTONS.PINS);
+    const copyBtn = e.target.closest(DeviceConfig.BUTTONS.COPY);
     const blinkBtn = e.target.closest(DeviceConfig.BUTTONS.BLINK);
     const pinCard = e.target.closest('.pin-card');
     const pinDetailsRow = e.target.closest('tr.pin-details-row');
@@ -43,8 +44,8 @@ class DeviceEventHandler {
       this._handleEditButton(editBtn);
     } else if (deleteBtn) {
       this._handleDeleteButton(deleteBtn);
-    } else if (pinsBtn) {
-      this._handlePinsButton(pinsBtn);
+    } else if (copyBtn) {
+      this._handleCopyButton(copyBtn);
     } else if (blinkBtn) {
       this._handleBlinkButton(blinkBtn);
     } else if (pinCard) {
@@ -93,12 +94,62 @@ class DeviceEventHandler {
     }
   }
 
-  // Pins Button
-  _handlePinsButton(button) {
+  // Copy Button - Copy device JSON to clipboard
+  async _handleCopyButton(button) {
     const deviceId = button.dataset.id;
-    if (deviceId) {
-      const device = this.actions.dataService.getDevice(deviceId);
-      this.pinManager.togglePinDetails(deviceId, device);
+    if (!deviceId) return;
+    
+    const device = this.actions.dataService.getDevice(deviceId);
+    if (!device) return;
+    
+    const deviceJson = JSON.stringify({ [deviceId]: device }, null, 2);
+    
+    // Try modern clipboard API first, fallback to legacy method
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(deviceJson);
+      } else {
+        // Fallback for HTTP or older browsers
+        this._fallbackCopyToClipboard(deviceJson);
+      }
+      
+      this.buttonFeedback.showIconFeedback(button, 'check', {
+        bgColor: 'var(--color-success)',
+        duration: 2000
+      });
+      
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      
+      this.buttonFeedback.showIconFeedback(button, 'x', {
+        bgColor: 'var(--color-danger)',
+        duration: 2000
+      });
+      
+      if (window.ConfirmDialog) {
+        ConfirmDialog.show({
+          title: 'Copy Failed',
+          message: `Could not copy to clipboard. JSON:\n\n${deviceJson}`,
+          type: 'warning',
+          infoOnly: true
+        });
+      }
+    }
+  }
+  
+  // Fallback copy method for browsers without clipboard API
+  _fallbackCopyToClipboard(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+      document.execCommand('copy');
+    } finally {
+      document.body.removeChild(textarea);
     }
   }
 

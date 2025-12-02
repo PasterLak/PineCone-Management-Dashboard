@@ -1,5 +1,6 @@
 // Stats Counter Component - Displays device  (table) statistics
 // Shows total devices, online count, and offline count
+// Allows clicking to copy device JSON to clipboard
 
 class StatsCounter {
   constructor(containerId, dataService) {
@@ -7,16 +8,18 @@ class StatsCounter {
     this.dataService = dataService;
     this.currentCounts = { total: 0, online: 0, offline: 0 };
     this.animationDuration = 2000; // 2 seconds
+    this.buttonFeedback = new ButtonFeedback();
     
     if (this.container) {
       this.render();
+      this.attachEventListeners();
     }
   }
 
   render() {
     this.container.innerHTML = `
       <div class="stats-counter-container">
-        <div class="stats-card">
+        <div class="stats-card" data-card-type="total">
           <div class="stats-icon stats-icon--total">
             <i data-feather="hard-drive"></i>
           </div>
@@ -26,7 +29,7 @@ class StatsCounter {
           </div>
         </div>
         
-        <div class="stats-card">
+        <div class="stats-card" data-card-type="online">
           <div class="stats-icon stats-icon--online">
             <i data-feather="check-circle"></i>
           </div>
@@ -36,7 +39,7 @@ class StatsCounter {
           </div>
         </div>
         
-        <div class="stats-card">
+        <div class="stats-card" data-card-type="offline">
           <div class="stats-icon stats-icon--offline">
             <i data-feather="x-circle"></i>
           </div>
@@ -51,6 +54,101 @@ class StatsCounter {
     if (window.feather) {
       feather.replace();
     }
+  }
+
+  // Attach click event listeners to cards
+  attachEventListeners() {
+    const cards = this.container.querySelectorAll('.stats-card[data-card-type]');
+    cards.forEach(card => {
+      card.addEventListener('click', (e) => this.handleCardClick(e, card));
+    });
+  }
+
+  // Handle card click to copy device JSON
+  async handleCardClick(event, card) {
+    const cardType = card.getAttribute('data-card-type');
+    
+    // Get filtered devices based on card type
+    let devicesToCopy;
+    const allDevices = this.dataService.getAll();
+    const deviceList = Object.values(allDevices);
+    
+    switch (cardType) {
+      case 'total':
+        devicesToCopy = allDevices;
+        break;
+      case 'online':
+        devicesToCopy = Object.fromEntries(
+          Object.entries(allDevices).filter(([id, device]) => 
+            !this.dataService.isOffline(device)
+          )
+        );
+        break;
+      case 'offline':
+        devicesToCopy = Object.fromEntries(
+          Object.entries(allDevices).filter(([id, device]) => 
+            this.dataService.isOffline(device)
+          )
+        );
+        break;
+      default:
+        return;
+    }
+    
+    const jsonString = JSON.stringify(devicesToCopy, null, 2);
+    
+    // Try to copy to clipboard
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(jsonString);
+        this.showCopyFeedback(card, true);
+      } else {
+        // Fallback for older browsers or HTTP
+        this.fallbackCopyToClipboard(jsonString);
+        this.showCopyFeedback(card, true);
+      }
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      this.showCopyFeedback(card, false);
+    }
+  }
+
+  // Fallback copy method for browsers without clipboard API
+  fallbackCopyToClipboard(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+      document.execCommand('copy');
+    } finally {
+      document.body.removeChild(textarea);
+    }
+  }
+
+  showCopyFeedback(card, success) {
+    const cardType = card.getAttribute('data-card-type');
+    let title, message, type;
+    
+    if (success) {
+      title = 'Copied!';
+      message = `${cardType.charAt(0).toUpperCase() + cardType.slice(1)} devices JSON copied to clipboard.`;
+      type = 'success';
+    } else {
+      title = 'Error!';
+      message = 'Failed to copy to clipboard.';
+      type = 'danger';
+    }
+    
+    ConfirmDialog.show({
+      title: title,
+      message: message,
+      type: type,
+      infoOnly: true
+    });
   }
 
   // Update stats with animation
@@ -123,5 +221,5 @@ class StatsCounter {
   }
 }
 
-// Export for use in other scripts
+// Export for use in other scripts 
 window.StatsCounter = StatsCounter;

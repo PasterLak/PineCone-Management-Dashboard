@@ -57,6 +57,15 @@
             <i data-feather="cpu"></i>
           </button>
           <button
+            class="copy-btn"
+            type="button"
+            data-id="{{ id }}"
+            data-original-icon="copy"
+            aria-label="Copy JSON"
+          >
+            <i data-feather="copy"></i>
+          </button>
+          <button
             class="blink-btn {{ 'blink-active' if d.blink else '' }}"
             type="button"
             data-id="{{ id }}"
