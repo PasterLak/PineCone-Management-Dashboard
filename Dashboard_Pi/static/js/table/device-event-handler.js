@@ -31,6 +31,8 @@ class DeviceEventHandler {
     const deleteBtn = e.target.closest(DeviceConfig.BUTTONS.DELETE);
     const pinsBtn = e.target.closest(DeviceConfig.BUTTONS.PINS);
     const blinkBtn = e.target.closest(DeviceConfig.BUTTONS.BLINK);
+    const pinCard = e.target.closest('.pin-card');
+    const pinDetailsRow = e.target.closest('tr.pin-details-row');
     const row = e.target.closest('tbody tr:not(.pin-details-row)');
 
     if (okBtn) {
@@ -45,8 +47,11 @@ class DeviceEventHandler {
       this._handlePinsButton(pinsBtn);
     } else if (blinkBtn) {
       this._handleBlinkButton(blinkBtn);
+    } else if (pinCard) {
+      return;
+    } else if (pinDetailsRow) {
+      this._handlePinDetailsRowClick(pinDetailsRow);
     } else if (row) {
-      // Click on row (but not on buttons or inputs)
       if (!e.target.closest('button') && !e.target.closest('input')) {
         this._handleRowClick(row);
       }
@@ -82,7 +87,6 @@ class DeviceEventHandler {
     const deviceId = button.dataset.id;
     if (deviceId) {
       this.actions.deleteDevice(deviceId, () => {
-        // After delete: Re-render
         const devices = this.actions.dataService.getAll();
         this.renderer.render(devices);
       });
@@ -103,7 +107,6 @@ class DeviceEventHandler {
     const deviceId = button.dataset.id;
     if (deviceId) {
       this.actions.toggleBlink(deviceId, (newBlinkState) => {
-        // Update button UI
         this.renderer.rowRenderer.updateBlinkButton(
           button.closest('tr'),
           newBlinkState
@@ -121,10 +124,18 @@ class DeviceEventHandler {
     }
   }
 
+  // Pin Details Row Click - Close pin details
+  _handlePinDetailsRowClick(pinDetailsRow) {
+    const deviceId = pinDetailsRow.dataset.deviceId;
+    if (deviceId) {
+      const device = this.actions.dataService.getDevice(deviceId);
+      this.pinManager.togglePinDetails(deviceId, device);
+    }
+  }
+
   // Clear Table
   _handleClearTable() {
     this.actions.clearTable(() => {
-      // Re-render table after clearing
       const devices = this.actions.dataService.getAll();
       this.renderer.render(devices);
     });

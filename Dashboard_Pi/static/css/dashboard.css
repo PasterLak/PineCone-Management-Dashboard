@@ -108,6 +108,18 @@ tbody tr:hover {
   background: var(--row-alt-hover);
 }
 
+tbody tr[data-id]:hover + tr.pin-details-row {
+  background: var(--row-alt-hover);
+}
+
+tbody tr.pin-details-row:hover {
+  background: var(--row-alt-hover);
+}
+
+tbody tr[data-id]:has(+ tr.pin-details-row:hover) {
+  background: var(--row-alt-hover);
+}
+
 th.col-status  { width: 10%; }
 th.col-id      { width: 18%; }
 th.col-ip      { width: 14%; }
@@ -321,6 +333,8 @@ th.col-actions { width: 8%; text-align: center; }
 tr.pin-details-row {
   background: var(--bg);
   border-left: 3px solid var(--brand);
+  transition: background 0.2s ease;
+  cursor: pointer;
 }
 
 tr.pin-details-row td {
@@ -334,7 +348,6 @@ tr.pin-details-row td {
   padding: 24px;
   width: 100%;
   box-sizing: border-box;
-  cursor: default;
 }
 
 .pin-details-header {
@@ -380,6 +393,7 @@ tr.pin-details-row td {
   border-radius: 8px;
   padding: 16px;
   transition: all 0.2s ease;
+  cursor: default;
 }
 
 .pin-card:hover {
