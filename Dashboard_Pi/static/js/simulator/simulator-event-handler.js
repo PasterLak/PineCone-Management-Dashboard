@@ -143,7 +143,7 @@ class SimulatorEventHandler {
     // Example button
     if (this._handleExampleButton(e)) return;
     
-    // Copy response button (async)
+    // Copy response button
     if (await this._handleCopyButton(e)) return;
     
     // Scroll button
