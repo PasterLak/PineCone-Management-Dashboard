@@ -22,7 +22,6 @@
 .confirm-dialog {
   background: var(--card, #2a2a2a);
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   max-width: 480px;
   width: 100%;
   transform: scale(0.9) translateY(20px);
