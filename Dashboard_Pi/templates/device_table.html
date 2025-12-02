@@ -42,19 +42,11 @@
         <td>{{ d.ip }}</td>
         <td data-id="{{ id }}">
           <span class="desc-text">{{ d.description }}</span>
-          <button class="edit-btn" type="button">
-            <i data-feather="edit-3"></i>
-          </button>
         </td>
         <td>{{ d.last_seen }}</td>
         <td class="actions-cell">
-          <button
-            class="pins-btn"
-            type="button"
-            data-id="{{ id }}"
-            aria-label="View pins"
-          >
-            <i data-feather="cpu"></i>
+          <button class="edit-btn" type="button">
+            <i data-feather="edit-3"></i>
           </button>
           <button
             class="copy-btn"
