@@ -19,6 +19,7 @@
   box-shadow: var(--shadow-sm);
   cursor: pointer;
   user-select: none;
+  overflow: hidden;
 }
 
 .stats-card:hover {
@@ -66,8 +67,11 @@
 .stats-content {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
   padding-right: 8px;
+}
+
+.stats-card:has(.stats-value--animating) .stats-content {
+  overflow: visible;
 }
 
 .stats-label {
@@ -96,6 +100,8 @@
 
 .stats-value--animating {
   animation: countPulse 0.3s ease-out;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 @keyframes countPulse {
