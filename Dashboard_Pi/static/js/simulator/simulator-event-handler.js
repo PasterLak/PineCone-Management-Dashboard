@@ -27,8 +27,8 @@ class SimulatorEventHandler {
 
   // Setup click handlers
   _setupClickHandlers() {
-    document.addEventListener('click', (e) => {
-      this._handleClick(e);
+    document.addEventListener('click', async (e) => {
+      await this._handleClick(e);
     });
   }
 
@@ -136,15 +136,15 @@ class SimulatorEventHandler {
   }
 
   // Handle click events
-  _handleClick(e) {
+  async _handleClick(e) {
     // Pin info toggle
     if (this._handlePinInfoToggle(e)) return;
     
     // Example button
     if (this._handleExampleButton(e)) return;
     
-    // Copy response button
-    if (this._handleCopyButton(e)) return;
+    // Copy response button (async)
+    if (await this._handleCopyButton(e)) return;
     
     // Scroll button
     if (this._handleScrollButton(e)) return;
@@ -200,7 +200,7 @@ class SimulatorEventHandler {
     const simId = parseInt(copyBtn.dataset.id);
     const consoleEl = this.dom.findConsoleOutput(simId);
     
-    if (!consoleEl) return false;
+    if (!consoleEl) return true; // Found button but no console
     
     const text = consoleEl.textContent;
     const success = await ClipboardUtils.copy(text);
@@ -228,6 +228,8 @@ class SimulatorEventHandler {
   _handleActionButton(e) {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
+
+    if (btn.disabled) return;
 
     const id = parseInt(btn.dataset.id);
     const action = btn.dataset.action;
