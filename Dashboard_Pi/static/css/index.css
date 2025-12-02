@@ -60,12 +60,12 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
   --shadow-lg: 0 4px 12px rgba(30, 136, 229, 0.4);
-  --shadow-primary: 0 4px 12px rgba(30, 136, 229, 0.3);
+  --shadow-primary: 0 2px 8px rgba(30, 136, 229, 0.25);
   --shadow-secondary: 0 4px 12px rgba(97, 97, 97, 0.3);
   --shadow-tertiary: 0 4px 12px rgba(59, 58, 58, 0.3);
-  --shadow-warning: 0 4px 12px rgba(255, 193, 7, 0.3);
-  --shadow-success: 0 4px 12px rgba(76, 175, 80, 0.3);
-  --shadow-danger: 0 4px 12px rgba(211, 47, 47, 0.4);
+  --shadow-warning: 0 2px 8px rgba(255, 193, 7, 0.25);
+  --shadow-success: 0 2px 8px rgba(76, 175, 80, 0.25);
+  --shadow-danger: 0 2px 8px rgba(211, 47, 47, 0.3);
   
   /* ===== Focus & Interaction ===== */
   --focus-ring: 0 0 0 3px rgba(30, 136, 229, 0.1);
@@ -118,6 +118,32 @@ body {
   background: var(--bg);
   color: var(--text);
   min-width: 265px;
+}
+
+/* ===== Global Custom Scrollbar ===== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand) var(--bg);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--bg);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--brand);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-hover);
 }
 
 h1 {

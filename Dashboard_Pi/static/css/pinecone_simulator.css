@@ -176,13 +176,20 @@
     margin-bottom: 24px;
     position: relative;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: visible;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+    --fade-start-left: 0%;
+    --fade-end-right: 100%;
+    transition: --fade-start-left 0.3s ease, --fade-end-right 0.3s ease;
+    padding: 4px 0;
+    margin-top: -4px;
+    margin-bottom: 20px;
+}
+
+.sim-controls.has-scroll-fade {
     mask-image: linear-gradient(
         to right,
         rgba(0, 0, 0, 0) 0%,
@@ -201,11 +208,6 @@
         rgba(0, 0, 0, 0.8) var(--fade-end-right, 100%),
         rgba(0, 0, 0, 0) 100%
     );
-    transition: --fade-start-left 0.3s ease, --fade-end-right 0.3s ease;
-}
-
-.sim-controls::-webkit-scrollbar {
-    display: none;
 }
 
 .sim-controls > div {

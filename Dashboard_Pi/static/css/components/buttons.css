@@ -47,8 +47,7 @@
 
 .btn-primary:hover:not(:disabled) {
   background: var(--color-primary-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-primary);
+  transform: translateY(-1px);
 }
 
 .btn-success {
@@ -59,7 +58,6 @@
 .btn-success:hover:not(:disabled) {
   background: var(--color-success-hover);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-success);
 }
 
 .btn-danger {
@@ -70,7 +68,6 @@
 .btn-danger:hover:not(:disabled) {
   background: var(--color-danger-hover);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-danger);
 }
 
 .btn-secondary {
@@ -81,7 +78,6 @@
 .btn-secondary:hover:not(:disabled) {
   background: var(--color-secondary-hover);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-secondary);
 }
 
 .btn-warning {
@@ -92,7 +88,6 @@
 .btn-warning:hover:not(:disabled) {
   background: var(--color-warning-hover);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-warning);
 }
 
 .btn-tertiary {
@@ -103,7 +98,6 @@
 .btn-tertiary:hover:not(:disabled) {
   background: var(--color-tertiary-hover);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-tertiary);
 }
 
 .btn-group {
