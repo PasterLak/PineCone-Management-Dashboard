@@ -102,31 +102,22 @@ class DeviceEventHandler {
     const device = this.actions.dataService.getDevice(deviceId);
     if (!device) return;
     
-    const deviceJson = JSON.stringify({ [deviceId]: device }, null, 2);
+    const deviceData = { [deviceId]: device };
+    const success = await ClipboardUtils.copyJSON(deviceData);
     
-    // Try modern clipboard API first, fallback to legacy method
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(deviceJson);
-      } else {
-        // Fallback for HTTP or older browsers
-        this._fallbackCopyToClipboard(deviceJson);
-      }
-      
+    if (success) {
       this.buttonFeedback.showIconFeedback(button, 'check', {
         bgColor: 'var(--color-success)',
         duration: 2000
       });
-      
-    } catch (err) {
-      console.error('Failed to copy:', err);
-      
+    } else {
       this.buttonFeedback.showIconFeedback(button, 'x', {
         bgColor: 'var(--color-danger)',
         duration: 2000
       });
       
       if (window.ConfirmDialog) {
+        const deviceJson = JSON.stringify(deviceData, null, 2);
         ConfirmDialog.show({
           title: 'Copy Failed',
           message: `Could not copy to clipboard. JSON:\n\n${deviceJson}`,
@@ -134,22 +125,6 @@ class DeviceEventHandler {
           infoOnly: true
         });
       }
-    }
-  }
-  
-  // Fallback copy method for browsers without clipboard API
-  _fallbackCopyToClipboard(text) {
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    
-    try {
-      document.execCommand('copy');
-    } finally {
-      document.body.removeChild(textarea);
     }
   }
 

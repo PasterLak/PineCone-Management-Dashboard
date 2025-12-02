@@ -193,7 +193,7 @@ class SimulatorEventHandler {
   }
 
   // Handle copy button
-  _handleCopyButton(e) {
+  async _handleCopyButton(e) {
     const copyBtn = e.target.closest('.copy-response-btn');
     if (!copyBtn) return false;
 
@@ -203,42 +203,12 @@ class SimulatorEventHandler {
     if (!consoleEl) return false;
     
     const text = consoleEl.textContent;
+    const success = await ClipboardUtils.copy(text);
     
-    // Try modern Clipboard API first
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text)
-        .then(() => {
-          this.buttonFeedback.showSuccess(copyBtn);
-        })
-        .catch(err => {
-          console.error('Copy failed:', err);
-          this.buttonFeedback.showError(copyBtn);
-        });
+    if (success) {
+      this.buttonFeedback.showSuccess(copyBtn);
     } else {
-      // Fallback for HTTP using execCommand
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      
-      try {
-        const successful = document.execCommand('copy');
-        document.body.removeChild(textArea);
-        
-        if (successful) {
-          this.buttonFeedback.showSuccess(copyBtn);
-        } else {
-          this.buttonFeedback.showError(copyBtn);
-        }
-      } catch (err) {
-        document.body.removeChild(textArea);
-        console.error('Copy failed:', err);
-        this.buttonFeedback.showError(copyBtn);
-      }
+      this.buttonFeedback.showError(copyBtn);
     }
     
     return true;
