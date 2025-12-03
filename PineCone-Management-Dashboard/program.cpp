@@ -20,7 +20,7 @@ void* __dso_handle = nullptr;
 #include "components/PinsManager.hpp"
 #include "components/WLANHandler.hpp"
 #include "components/delta_time.hpp"
-#include "extentions/Print.hpp"
+#include "extentions/Log.hpp"
 #include "include/Config.hpp"
 
 // ============================================================================
@@ -49,16 +49,16 @@ void task_app_wrapper(void* pvParameters) {
   vTaskDelay(pdMS_TO_TICKS(100));
 
   start();
-
+ 
   while (1) {
     loop();
   }
 }
 
 void start() {
-  Printer printer;
-  printer.printl("====== PINECONE BL602 STARTED! ======");
-  printer.printl("====== BUILD:", Config::BUILD_VERSION, "======");
+ 
+  Log::println("====== PINECONE BL602 STARTED! ======");
+  Log::println("====== BUILD:", Config::BUILD_VERSION, "======");
 
   ledController.initialize();
   wlan.start();
