@@ -1,17 +1,69 @@
 // Wires up all user interactions on the device table
-// Handles clicks on delete, blink, edit, copy buttons, and table clear
+// Handles clicks and hover on delete, blink, edit, copy buttons, and table clear
 class DeviceEventHandler {
   constructor(actions, pinManager, renderer) {
     this.actions = actions;
     this.pinManager = pinManager;
     this.renderer = renderer;
     this.buttonFeedback = new ButtonFeedback();
+    this.tooltip = null;
   }
 
   // Setup event listener
   setup() {
     document.addEventListener('click', (e) => this._handleClick(e));
     this._setupClearTableButton();
+    this._setupTooltip();
+  }
+
+  // Setup tooltip for action buttons
+  _setupTooltip() {
+    this.tooltip = document.createElement('div');
+    this.tooltip.className = 'action-tooltip';
+    document.body.appendChild(this.tooltip);
+
+    const showTooltip = (btn) => {
+      const text = btn.getAttribute('data-tooltip');
+      if (!text) return;
+      
+      this.tooltip.textContent = text;
+      
+      const rect = btn.getBoundingClientRect();
+      this.tooltip.style.top = `${rect.top - 30}px`;
+      this.tooltip.style.left = `${rect.left + rect.width / 2}px`;
+      this.tooltip.style.transform = 'translateX(-50%)';
+      this.tooltip.classList.add('visible');
+    };
+
+    const hideTooltip = () => {
+      this.tooltip.classList.remove('visible');
+    };
+
+    const tbody = document.getElementById('tbody');
+    if (tbody) {
+      let currentBtn = null;
+      
+      tbody.addEventListener('mouseover', (e) => {
+        const btn = e.target.closest('.actions-cell button[data-tooltip]');
+        if (btn && btn !== currentBtn) {
+          currentBtn = btn;
+          showTooltip(btn);
+        }
+      });
+
+      tbody.addEventListener('mouseout', (e) => {
+        const btn = e.target.closest('.actions-cell button[data-tooltip]');
+        if (btn) {
+          const relatedBtn = e.relatedTarget?.closest('.actions-cell button[data-tooltip]');
+          if (relatedBtn !== btn) {
+            currentBtn = null;
+            hideTooltip();
+          }
+        }
+      });
+    }
+
+    window.addEventListener('scroll', hideTooltip, true);
   }
 
   // Setup clear table button
@@ -76,6 +128,7 @@ class DeviceEventHandler {
   _handleEditButton(button) {
     const deviceId = button.dataset.id;
     if (deviceId) {
+      this.tooltip.classList.remove('visible');
       this.actions.startEdit(deviceId);
     }
   }
