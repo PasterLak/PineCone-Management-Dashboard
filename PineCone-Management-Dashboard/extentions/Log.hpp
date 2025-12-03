@@ -18,21 +18,19 @@ public:
 
     template <typename... Args>
     static void print(const char* fmt, Args... args) {
-        process(fmt, args...);
+        format(fmt, args...);
     }
 
     template <typename... Args>
     static void println(const char* fmt, Args... args) {
-        process(fmt, args...);
+        format(fmt, args...);
         putchar('\n');
     }
 
 private:
     inline static bool separator_enabled = true;
 
-    // --------------------
-    // Print single value
-    // --------------------
+    // Print a single value
     static void printValue(const char* v)          { printf("%s", v); }
     static void printValue(char* v)                { printf("%s", v); }
     static void printValue(char v)                 { putchar(v); }
@@ -45,75 +43,48 @@ private:
     static void printValue(unsigned long long v)   { printf("%llu", v); }
     static void printValue(float v)                { printf("%f", (double)v); }
     static void printValue(double v)               { printf("%f", v); }
-
     template <typename T>
     static void printValue(const T&)               { printf("[unsupported]"); }
 
-
-    template <typename... Args>
-    static void process(const char* fmt, Args... args) {
-        void* arg_ptrs[sizeof...(Args)] = { (void*)&args... };
-        char arg_types[sizeof...(Args)] = { getTypeCode(args)... };
-        size_t total_args = sizeof...(Args);
-        size_t arg_index = 0;
-
+    // --------------------
+    // Format implementation
+    // --------------------
+    template <typename T, typename... Rest>
+    static void format(const char* fmt, T value, Rest... rest) {
         while (*fmt) {
             if (*fmt == '\\') {
                 ++fmt;
-                if (*fmt == '{') { putchar('{'); ++fmt; }
-                else if (*fmt == '\\') { putchar('\\'); ++fmt; }
+                if (*fmt == '{') putchar('{');
+                else if (*fmt == '\\') putchar('\\');
                 else putchar('\\');
+                ++fmt;
             }
             else if (*fmt == '{' && *(fmt+1) == '}') {
                 fmt += 2;
-                if (arg_index < total_args) {
-                    printGeneric(arg_ptrs[arg_index], arg_types[arg_index]);
-                    ++arg_index;
-                } else {
-                    putchar('{'); putchar('}');
-                }
+                printValue(value);
+                format(fmt, rest...);
+                return;
             }
-            else {
-                putchar(*fmt++);
-            }
+            else putchar(*fmt++);
         }
+        // leftover arguments
+        appendRemaining(value, rest...);
+    }
 
-        // Print remaining arguments after all placeholders
-        for (size_t i = arg_index; i < total_args; ++i) {
-            if (separator_enabled) putchar(' ');
-            printGeneric(arg_ptrs[i], arg_types[i]);
+    static void format(const char* fmt) {
+        while (*fmt) {
+            if (*fmt == '\\') {
+                ++fmt; if (*fmt) putchar(*fmt++);
+            } else putchar(*fmt++);
         }
     }
 
-    // --------------------
-    // Type detection
-    // --------------------
-    static constexpr char getTypeCode(int) { return 'i'; }
-    static constexpr char getTypeCode(unsigned) { return 'i'; }
-    static constexpr char getTypeCode(long) { return 'i'; }
-    static constexpr char getTypeCode(unsigned long) { return 'i'; }
-    static constexpr char getTypeCode(long long) { return 'i'; }
-    static constexpr char getTypeCode(unsigned long long) { return 'i'; }
-    static constexpr char getTypeCode(char) { return 'c'; }
-    static constexpr char getTypeCode(const char*) { return 's'; }
-    static constexpr char getTypeCode(char*) { return 's'; }
-    static constexpr char getTypeCode(bool) { return 'b'; }
-    static constexpr char getTypeCode(float) { return 'f'; }
-    static constexpr char getTypeCode(double) { return 'f'; }
-    template <typename T>
-    static constexpr char getTypeCode(T) { return 'o'; }
-
-    // --------------------
-    // Generic print
-    // --------------------
-    static void printGeneric(void* ptr, char type) {
-        switch(type) {
-            case 'i': printf("%d", *(int*)ptr); break;
-            case 'c': putchar(*(char*)ptr); break;
-            case 's': printf("%s", *(const char**)ptr); break;
-            case 'b': printf("%s", *(bool*)ptr ? "true" : "false"); break;
-            case 'f': printf("%f", *(double*)ptr); break;
-            default: printf("[unsupported]"); break;
-        }
+    // Print remaining arguments after placeholders
+    template <typename T, typename... Rest>
+    static void appendRemaining(T value, Rest... rest) {
+        if (separator_enabled) putchar(' ');
+        printValue(value);
+        appendRemaining(rest...);
     }
+    static void appendRemaining() {}
 };
