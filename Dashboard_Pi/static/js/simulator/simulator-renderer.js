@@ -13,6 +13,9 @@ class SimulatorRenderer {
   render() {
     if (!this.dom.isAvailable()) return;
 
+    // Save page scroll position before re-render
+    const pageScrollTop = window.scrollY || document.documentElement.scrollTop;
+
     const simulators = this.dataService.getAll();
 
     // Empty state
@@ -50,6 +53,11 @@ class SimulatorRenderer {
 
     // Replace feather icons to get svg
     if (window.feather) feather.replace();
+
+    // Restore page scroll position after render
+    requestAnimationFrame(() => {
+      window.scrollTo(0, pageScrollTop);
+    });
   }
 
   // Add a single new simulator card
