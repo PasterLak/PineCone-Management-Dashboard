@@ -11,8 +11,7 @@ bl_venv/
 suas_app_http/
 
 Dashboard_Pi/data/devices.json
-/Dashboard_Pi/__pycache__
-
+Dashboard_Pi/__pycache__/
 
 # VS Code - keep ALL config files, ignore only cache
 .vscode/*
