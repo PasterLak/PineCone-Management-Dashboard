@@ -10,6 +10,20 @@ build_out/
 bl_venv/
 suas_app_http/
 
+# Python bytecode
+*.py[cod]
+*$py.class
+*.pyo
+*.pyc
+
+# __pycache__ directories
+__pycache__/
+**/__pycache__/
+
+# Specific to your Python version (312)
+*.cpython-*.pyc
+*.cpython-312.pyc
+
 Dashboard_Pi/data/devices.json
 Dashboard_Pi/__pycache__/
 
