@@ -4,7 +4,7 @@ extern "C" {
 #include <stdio.h>
 }
 
-#include "../extentions/Print.hpp"
+#include "../extentions/Log.hpp"
 
 DashboardManager::DashboardManager(WLANHandler& wlan_handler,
                                    const char* server_ip, uint16_t server_port,
@@ -25,9 +25,8 @@ bool DashboardManager::update(float delta_time_sec) {
 
   time_accumulator = 0.0f;
 
-  Printer printer;
   bool wifi_connected = wlan.isConnected();
-  printer.printl("WiFi Connected:", wifi_connected);
+  Log::println("WiFi Connected:", wifi_connected);
 
   if (!wifi_connected) {
     connected = false;
@@ -37,7 +36,7 @@ bool DashboardManager::update(float delta_time_sec) {
   sendDataToDashboard();
   connected = wlan.is_dashboard_connected();
 
-  printer.printl("Dashboard Connected:", connected);
+  Log::println("Dashboard Connected:", connected);
 
   if (connected) {
     logDashboardInfo();
@@ -51,8 +50,8 @@ bool DashboardManager::shouldBlink() const {
 }
 
 void DashboardManager::sendDataToDashboard() {
-  Printer printer;
-  printer.printl("Sending data to dashboard...");
+ 
+  Log::println("Sending data to dashboard...");
   wlan.sendData(server_ip, server_port);
 }
 
@@ -61,11 +60,11 @@ void DashboardManager::logDashboardInfo() {
     return;
   }
 
-  Printer printer;
-  printer.printl("Node ID:", wlan.get_node_id());
-  printer.printl("Description:", wlan.get_description());
+ 
+  Log::println("Node ID:", wlan.get_node_id());
+  Log::println("Description:", wlan.get_description());
 
   if (wlan.is_blinking()) {
-    printer.printl("Blinking: true");
+    Log::println("Blinking: true");
   }
 }
