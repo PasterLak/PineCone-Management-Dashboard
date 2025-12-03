@@ -229,6 +229,8 @@ class SimulatorEventHandler {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
 
+    e.preventDefault();
+
     if (btn.disabled) return;
 
     const id = parseInt(btn.dataset.id);

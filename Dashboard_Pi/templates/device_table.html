@@ -45,7 +45,7 @@
         </td>
         <td data-label="Last Seen">{{ d.last_seen }}</td>
         <td class="actions-cell" data-label="Actions">
-          <button class="edit-btn" type="button">
+          <button class="edit-btn" type="button" title="Edit description">
             <i data-feather="edit-3"></i>
           </button>
           <button
@@ -54,6 +54,7 @@
             data-id="{{ id }}"
             data-original-icon="copy"
             aria-label="Copy JSON"
+            title="Copy JSON"
           >
             <i data-feather="copy"></i>
           </button>
@@ -62,14 +63,16 @@
             type="button"
             data-id="{{ id }}"
             aria-label="Toggle blink"
+            title="Toggle blink"
           >
-            <i data-feather="zap"></i>
+            <i data-feather="sun"></i>
           </button>
           <button
             class="delete-btn"
             type="button"
             data-id="{{ id }}"
             aria-label="Delete device"
+            title="Delete device"
           >
             <i data-feather="trash-2"></i>
           </button>

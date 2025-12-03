@@ -36,16 +36,16 @@ class DeviceRowRenderer {
       </td>
       <td data-label="Last Seen">${lastSeenDisplay}</td>
       <td class="actions-cell" data-label="Actions">
-        <button class="edit-btn" type="button" data-id="${rowData.id}" aria-label="Edit description">
+        <button class="edit-btn" type="button" data-id="${rowData.id}" aria-label="Edit description" title="Edit description">
           <i data-feather="edit-3"></i>
         </button>
-        <button class="copy-btn" type="button" data-id="${rowData.id}" data-original-icon="copy" aria-label="Copy JSON">
+        <button class="copy-btn" type="button" data-id="${rowData.id}" data-original-icon="copy" aria-label="Copy JSON" title="Copy JSON">
           <i data-feather="copy"></i>
         </button>
-        <button class="blink-btn ${rowData.blink ? 'blink-active' : ''}" type="button" data-id="${rowData.id}" aria-label="Toggle blink">
-          <i data-feather="zap"></i>
+        <button class="blink-btn ${rowData.blink ? 'blink-active' : ''}" type="button" data-id="${rowData.id}" aria-label="Toggle blink" title="Toggle blink">
+          <i data-feather="sun"></i>
         </button>
-        <button class="delete-btn" type="button" data-id="${rowData.id}" aria-label="Delete device">
+        <button class="delete-btn" type="button" data-id="${rowData.id}" aria-label="Delete device" title="Delete device">
           <i data-feather="trash-2"></i>
         </button>
       </td>
