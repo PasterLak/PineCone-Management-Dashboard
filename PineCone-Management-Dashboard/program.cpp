@@ -49,14 +49,13 @@ void task_app_wrapper(void* pvParameters) {
   vTaskDelay(pdMS_TO_TICKS(100));
 
   start();
- 
+
   while (1) {
     loop();
   }
 }
 
 void start() {
- 
   Log::println("====== PINECONE BL602 STARTED! ======");
   Log::println("====== BUILD:", Config::BUILD_VERSION, "======");
 

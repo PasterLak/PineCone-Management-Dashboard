@@ -4,20 +4,23 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+
 #include "bl_uart.h"
 }
 
 // ##### SIMPLE FORMATTING LOGGER #####
 //
 //   Log::println("Hello {}!", name);
-//   Log::println("Money: {}", 5);
+//   Log::println("Money: {}", 5);  // prints: Money: 5
+//
+//   Use setSeparatorEnabled(bool) to enable/disable space between args
 //
 
 class Log {
  public:
   static void setSeparatorEnabled(bool enabled) { separator_enabled = enabled; }
 
-    template <typename T>
+  template <typename T>
   void print(T t) {
     printValue(t);
   }
@@ -37,16 +40,14 @@ class Log {
  private:
   inline static bool separator_enabled = true;
 
-  static void writeChar(char c) { bl_uart_data_send(0, static_cast<uint8_t>(c) ); }
-
-  static void writeString(const char* s) {
-    while (*s) writeChar(*s++);
+  static void writeChar(char c) {
+    bl_uart_data_send(0, static_cast<uint8_t>(c));
   }
 
   static void printValue(const char* v) { printf("%s", v); }
-  static void printValue(char* v) { printf("%s", v);  }
+  static void printValue(char* v) { printf("%s", v); }
 
-  static void printValue(char v) {bl_uart_data_send(0, static_cast<uint8_t>(v) );  }
+  static void printValue(char v) { writeChar(v); }
 
   static void printValue(bool v) { printf("%s", v ? "true" : "false"); }
 
@@ -54,25 +55,31 @@ class Log {
   static void printValue(unsigned int v) { printf("%u", v); }
 
   static void printValue(int8_t v) { printf("%d", static_cast<int>(v)); }
-  static void printValue(uint8_t v) { printf("%u", static_cast<unsigned int>(v)); }
+  static void printValue(uint8_t v) {
+    printf("%u", static_cast<unsigned int>(v));
+  }
 
   static void printValue(int16_t v) { printf("%d", static_cast<int>(v)); }
-  static void printValue(uint16_t v) { printf("%u", static_cast<unsigned int>(v)); }
+  static void printValue(uint16_t v) {
+    printf("%u", static_cast<unsigned int>(v));
+  }
 
   static void printValue(int32_t v) { printf("%d", static_cast<int>(v)); }
-  static void printValue(uint32_t v) { printf("%u", static_cast<unsigned int>(v)); }
+  static void printValue(uint32_t v) {
+    printf("%u", static_cast<unsigned int>(v));
+  }
 
-  static void printValue(float v) { printf("%f", static_cast<double>(v)); }
-  static void printValue(double v) { printf("%lf", v); }
+  static void printValue(float v) { printf("%.3f", static_cast<double>(v)); }
+  static void printValue(double v) { printf("%.3lf", v); }
 
   // Fallback
   template <typename T>
   static void printValue(const T&) {
-   printf("%s", "[unsupported]" );
+    printf("%s", "[unsupported]");
   }
 
   // --------------------------------------------------
-  // Formatting "{}"
+  // Replacing "{}" with arguments
   // --------------------------------------------------
   template <typename T, typename... Rest>
   static void format(const char* fmt, T value, Rest... rest) {
@@ -129,6 +136,4 @@ class Log {
   }
 
   static void appendRemaining() {}
-
-
 };
