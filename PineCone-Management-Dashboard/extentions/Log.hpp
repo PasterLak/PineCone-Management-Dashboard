@@ -8,101 +8,112 @@ extern "C" {
 
 //##### SIMPLE FORMATTING LOGGER #####
 
-// USAGE: 
+// USAGE:
 //  Log::println("Hello {}!", name); -> "Hello Mike!"
 
 
 class Log {
 public:
-    // print without newline
+    static void setSeparatorEnabled(bool enabled) { separator_enabled = enabled; }
+
     template <typename... Args>
-    static void print(const char* fmt, const Args&... args) {
-        format_impl(fmt, args...);
+    static void print(const char* fmt, Args... args) {
+        process(fmt, args...);
     }
 
-    // print with newline
     template <typename... Args>
-    static void println(const char* fmt, const Args&... args) {
-        format_impl(fmt, args...);
-        putchar('\n');
-    }
-
-    // compile-time checked version (fmt must be string literal)
-    template <size_t N, typename... Args>
-    static void println_ct(const char (&fmt)[N], const Args&... args) {
-        static_assert(count_placeholders(fmt) <= sizeof...(Args),
-                      "Not enough arguments for format string");
-        format_impl(fmt, args...);
+    static void println(const char* fmt, Args... args) {
+        process(fmt, args...);
         putchar('\n');
     }
 
 private:
-    // print one value — basic supported types
-    static void printValue(const char* v)            { printf("%s", v); }
-    static void printValue(char* v)                  { printf("%s", v); }
-    static void printValue(bool v)                   { printf("%s", v ? "true" : "false"); }
-    static void printValue(int v)                    { printf("%d", v); }
-    static void printValue(unsigned v)               { printf("%u", v); }
-    static void printValue(long v)                   { printf("%ld", v); }
-    static void printValue(unsigned long v)          { printf("%lu", v); }
-    static void printValue(long long v)              { printf("%lld", v); }
-    static void printValue(unsigned long long v)     { printf("%llu", v); }
-    static void printValue(float v)                  { printf("%f", (double)v); }
-    static void printValue(double v)                 { printf("%f", v); }
+    inline static bool separator_enabled = true;
+
+    // --------------------
+    // Print single value
+    // --------------------
+    static void printValue(const char* v)          { printf("%s", v); }
+    static void printValue(char* v)                { printf("%s", v); }
+    static void printValue(char v)                 { putchar(v); }
+    static void printValue(bool v)                 { printf("%s", v ? "true" : "false"); }
+    static void printValue(int v)                  { printf("%d", v); }
+    static void printValue(unsigned v)             { printf("%u", v); }
+    static void printValue(long v)                 { printf("%ld", v); }
+    static void printValue(unsigned long v)        { printf("%lu", v); }
+    static void printValue(long long v)            { printf("%lld", v); }
+    static void printValue(unsigned long long v)   { printf("%llu", v); }
+    static void printValue(float v)                { printf("%f", (double)v); }
+    static void printValue(double v)               { printf("%f", v); }
 
     template <typename T>
-    static void printValue(const T&)                 { printf("[unsupported]"); }
+    static void printValue(const T&)               { printf("[unsupported]"); }
 
-    // ------------------------------------------------
-    // Format implementation
-    // ------------------------------------------------
-    template <typename T, typename... Rest>
-    static void format_impl(const char* fmt, T value, Rest... rest) {
-        const char* p = fmt;
-        while (*p) {
-            if (*p == '\\') {
-                ++p;
-                if (*p == '{') { putchar('{'); ++p; }
-                else if (*p == '\\') { putchar('\\'); ++p; }
-                else { putchar('\\'); }
+
+    template <typename... Args>
+    static void process(const char* fmt, Args... args) {
+        void* arg_ptrs[sizeof...(Args)] = { (void*)&args... };
+        char arg_types[sizeof...(Args)] = { getTypeCode(args)... };
+        size_t total_args = sizeof...(Args);
+        size_t arg_index = 0;
+
+        while (*fmt) {
+            if (*fmt == '\\') {
+                ++fmt;
+                if (*fmt == '{') { putchar('{'); ++fmt; }
+                else if (*fmt == '\\') { putchar('\\'); ++fmt; }
+                else putchar('\\');
             }
-            else if (*p == '{' && p[1] == '}') {
-                p += 2;
-                printValue(value);
-                format_impl(p, rest...);
-                return;
+            else if (*fmt == '{' && *(fmt+1) == '}') {
+                fmt += 2;
+                if (arg_index < total_args) {
+                    printGeneric(arg_ptrs[arg_index], arg_types[arg_index]);
+                    ++arg_index;
+                } else {
+                    putchar('{'); putchar('}');
+                }
             }
             else {
-                putchar(*p);
-                ++p;
+                putchar(*fmt++);
             }
+        }
+
+        // Print remaining arguments after all placeholders
+        for (size_t i = arg_index; i < total_args; ++i) {
+            if (separator_enabled) putchar(' ');
+            printGeneric(arg_ptrs[i], arg_types[i]);
         }
     }
 
-    // Base case: no more arguments
-    static void format_impl(const char* fmt) {
-        const char* p = fmt;
-        while (*p) {
-            if (*p == '\\') {
-                ++p;
-                if (*p == '{') { putchar('{'); ++p; }
-                else if (*p == '\\') { putchar('\\'); ++p; }
-                else { putchar('\\'); }
-            }
-            else { putchar(*p); ++p; }
-        }
-    }
+    // --------------------
+    // Type detection
+    // --------------------
+    static constexpr char getTypeCode(int) { return 'i'; }
+    static constexpr char getTypeCode(unsigned) { return 'i'; }
+    static constexpr char getTypeCode(long) { return 'i'; }
+    static constexpr char getTypeCode(unsigned long) { return 'i'; }
+    static constexpr char getTypeCode(long long) { return 'i'; }
+    static constexpr char getTypeCode(unsigned long long) { return 'i'; }
+    static constexpr char getTypeCode(char) { return 'c'; }
+    static constexpr char getTypeCode(const char*) { return 's'; }
+    static constexpr char getTypeCode(char*) { return 's'; }
+    static constexpr char getTypeCode(bool) { return 'b'; }
+    static constexpr char getTypeCode(float) { return 'f'; }
+    static constexpr char getTypeCode(double) { return 'f'; }
+    template <typename T>
+    static constexpr char getTypeCode(T) { return 'o'; }
 
-    // ------------------------------------------------
-    // compile-time count "{}" placeholders
-    // ------------------------------------------------
-    template <size_t N>
-    static constexpr size_t count_placeholders(const char (&fmt)[N]) {
-        size_t count = 0;
-        for (size_t i = 0; i + 1 < N; ++i) {
-            if (fmt[i] == '\\') { ++i; continue; }
-            if (fmt[i] == '{' && fmt[i+1] == '}') { ++count; ++i; }
+    // --------------------
+    // Generic print
+    // --------------------
+    static void printGeneric(void* ptr, char type) {
+        switch(type) {
+            case 'i': printf("%d", *(int*)ptr); break;
+            case 'c': putchar(*(char*)ptr); break;
+            case 's': printf("%s", *(const char**)ptr); break;
+            case 'b': printf("%s", *(bool*)ptr ? "true" : "false"); break;
+            case 'f': printf("%f", *(double*)ptr); break;
+            default: printf("[unsupported]"); break;
         }
-        return count;
     }
 };
