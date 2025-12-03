@@ -153,6 +153,13 @@ class ConfirmDialogInstance {
   }
 
   show() {
+    // Block background scrolling
+    this.savedScrollPosition = window.scrollY;
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${this.savedScrollPosition}px`;
+    document.body.style.width = '100%';
+    
     // Force reflow for animation
     this.overlay.offsetHeight;
     
@@ -186,6 +193,13 @@ class ConfirmDialogInstance {
     if (this.enterHandler) {
       document.removeEventListener('keydown', this.enterHandler);
     }
+    
+    // Restore background scrolling
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    window.scrollTo(0, this.savedScrollPosition);
     
     // Fade out animation
     this.overlay.classList.remove('confirm-dialog-overlay--active');
