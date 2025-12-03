@@ -1,151 +1,178 @@
 #include "WLANHandler.hpp"
 
-#include <stdio.h>
-#include <string.h>
-
 extern "C" {
-    #include <FreeRTOS.h>
-    #include <task.h>
-    #include <wifi_mgmr_ext.h>
-    #include <lwip/sockets.h>
-    #include <lwip/inet.h>
-    #include <lwip/netdb.h>
-    #include <easyflash.h>
-    #include <vfs.h>
-    #include <libfdt.h>
-    #include <hal_board.h>
-    #include <hal_button.h>
-    #include <hal_gpio.h>
-    #include <hal_sys.h>
-    #include <hal_uart.h>
-    #include <hal_wifi.h>
-    #include <event_device.h>
-    #include <http_client.h>
+#include <easyflash.h>
+#include <event_device.h>
+#include <hal_wifi.h>
+#include <vfs.h>
+
+#include "pins.h"
 }
 
-#include <etl/array.h>
-#include <etl/string.h>
+WLANHandler::WLANHandler(const char* mySsid, const char* myPassword)
+    : ssid(mySsid), password(myPassword) {}
 
-WLANHandler::WLANHandler(const char* mySsid, const char* myPassword) {
-    this->ssid = mySsid;
-    this->password = myPassword;
-}
+// WiFi Management
+void WLANHandler::initNodeIdFromMac() {
+  uint8_t mac[6];
+  wifi_mgmr_sta_mac_get(mac);
 
-char* WLANHandler::get_password(){
-    return (char*)this->password;
+  // Format MAC as: "mac-AABBCCDDEEFF"
+  snprintf(node_id, sizeof(node_id), "mac-%02x%02x%02x%02x%02x%02x", mac[0],
+           mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+  printf("[WIFI] Initial Node ID from MAC: '%s'\r\n", node_id);
 }
 
 void WLANHandler::start() {
-    if (!wifi_initialized) {
+  if (!wifi_initialized) {
+    static wifi_conf_t conf{.country_code = "EU", .channel_nums = {}};
 
-        static wifi_conf_t conf = {
-            .country_code = "EU",
-            .channel_nums = {},
-        };
+    easyflash_init();
 
-        easyflash_init();
-        vfs_init();
-        vfs_device_init();
+    vfs_init();
+    vfs_device_init();
 
-        hal_wifi_start_firmware_task();
-        vTaskDelay(pdMS_TO_TICKS(300));
+    hal_wifi_start_firmware_task();
 
-        wifi_mgmr_start_background(&conf);
-        vTaskDelay(pdMS_TO_TICKS(300));
+    vTaskDelay(pdMS_TO_TICKS(500));
 
-        wifi_initialized = true;
+    wifi_mgmr_start_background(&conf);
+
+    wifi_initialized = true;
+
+    if (node_id[0] == '\0') {
+      initNodeIdFromMac();
     }
+  }
 
-    auto wifi_interface = wifi_mgmr_sta_enable();
+  auto wifi_interface = wifi_mgmr_sta_enable();
 
-    vTaskDelay(pdMS_TO_TICKS(200));
+  wifi_mgmr_sta_connect(&wifi_interface, (char*)ssid, (char*)password, nullptr,
+                        0, 0, 0);
 
-    wifi_mgmr_sta_connect(
-        &wifi_interface,
-        (char*)ssid,
-        (char*)password,
-        NULL, 0, 0, 0
-    );
-
-    printf("[WIFI] Connecting...\r\n");
+  wifi_mgmr_sta_autoconnect_enable();
 }
 
 bool WLANHandler::isConnected() {
-    int state;
-    wifi_mgmr_state_get(&state);
-    return state == WIFI_STATE_CONNECTED_IP_GOT;
-}
+  int state;
+  wifi_mgmr_state_get(&state);
 
-char* WLANHandler::getStatusCode(){
-    int status;
-    wifi_mgmr_status_code_get(&status);
-    return (char*)wifi_mgmr_status_code_str(status);
+  // Only return true when State 4 = Connected with IP (IPOK)
+  // State 3 = Still obtaining IP, not ready for network traffic
+  bool connected = (state == 4);
+
+  printf("[WIFI] State: %d (%s) - %s\r\n", state,
+         wifi_mgmr_status_code_str(state),
+         connected ? "Connected" : "Not Connected");
+
+  return connected;
 }
 
 char* WLANHandler::get_ip_address() {
-    uint32_t ip;
-    uint32_t mask;
-    uint32_t gw;
+  uint32_t ip, mask;
+  wifi_mgmr_ap_ip_get(&ip, nullptr, &mask);
 
-    wifi_mgmr_sta_ip_get(&ip, &gw, &mask);
+  struct in_addr ip_addr;
+  ip_addr.s_addr = ip;
 
-    struct in_addr ip_addr; 
-    ip_addr.s_addr = ip; 
-    
-    return inet_ntoa(ip_addr);
+  return inet_ntoa(ip_addr);
 }
 
-char* WLANHandler::get_mac_address(){
-    uint8_t mac[6];
-    static char macStr[18];
-    wifi_mgmr_ap_mac_get(mac);
+// HTTP Communication
 
-    snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
-             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+bool WLANHandler::sendData(const char* server_ip, uint16_t port) {
+  printf("[NET] sendData() called for %s:%d\r\n", server_ip, port);
 
-    return macStr;
+  // Build JSON payload with only configured pins
+  char payload[1024];
+  int pos = 0;
+
+  // Start JSON
+  pos += snprintf(payload + pos, sizeof(payload) - pos,
+                  "{\"node_id\":\"%s\",\"description\":\"%s\",\"pins\":{",
+                  node_id, description);
+
+  bool first_pin = true;
+  for (uint8_t pin = 0; pin < MAX_PINS; pin++) {
+    if (isPinConfigured(pin)) {
+      const char* value_str =
+          getPinValueString(pin);  // Get value as string (custom or "0"/"1")
+      const char* mode = getPinModeString(pin);
+      const char* name = getPinName(pin);
+
+      // Add comma if not first pin
+      if (!first_pin) {
+        pos += snprintf(payload + pos, sizeof(payload) - pos, ",");
+      }
+      first_pin = false;
+
+      // Add pin entry: "GPIO5":{"name":"LED","mode":"output","value":"1"}
+      // or: "GPIO2":{"name":"temp","mode":"input","value":"23.5°C"}
+      pos += snprintf(
+          payload + pos, sizeof(payload) - pos,
+          "\"GPIO%d\":{\"name\":\"%s\",\"mode\":\"%s\",\"value\":\"%s\"}", pin,
+          name, mode, value_str);
+
+      // Safety check: stop if buffer nearly full
+      if (pos >= (int)sizeof(payload) - 100) {
+        printf(
+            "[NET] WARNING: Payload buffer nearly full, stopping at pin %d\r\n",
+            pin);
+        break;
+      }
+    }
+  }
+
+  // Close JSON
+  pos += snprintf(payload + pos, sizeof(payload) - pos, "}}");
+
+  printf("[NET] Payload size: %d bytes\r\n", pos);
+  printf("[NET] Payload prepared, calling http_client.post()...\r\n");
+
+  if (!http_client.post(server_ip, port, "/api/data", payload)) {
+    printf("[NET] http_client.post() returned false\r\n");
+    last_request_successful = false;
+    return false;
+  }
+
+  printf("[NET] http_client.post() succeeded, getting response body...\r\n");
+
+  const char* response_body = http_client.getResponseBody();
+  if (!response_body) {
+    printf("[NET] ERROR: No response body\r\n");
+    last_request_successful = false;
+    return false;
+  }
+
+  printf("[NET] Response body received, parsing...\r\n");
+  parseServerResponse(response_body);
+  last_request_successful = true;
+  return true;
 }
 
+// helper
 
-void WLANHandler::sendData(const char* ip_address, const int port, const char* json) {
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0) {
-        printf("[HTTP] Socket creation failed!\r\n");
-        return;
-    }
+void WLANHandler::parseServerResponse(const char* json) {
+  // Parse status
+  if (!JSONParser::isStatusOk(json)) {
+    printf("[NET] ERROR: Status not OK\r\n");
+    return;
+  }
 
-    struct sockaddr_in server;
-    server.sin_family = AF_INET;
-    server.sin_port = htons(port);
-    server.sin_addr.s_addr = inet_addr(ip_address);
+  // Parse device info
+  JSONParser::getString(json, "node_id", node_id, sizeof(node_id));
+  JSONParser::getString(json, "description", description, sizeof(description));
+  JSONParser::getBool(json, "blink", should_blink);
 
-    if (connect(sock, (struct sockaddr*)&server, sizeof(server)) < 0) {
-        printf("[HTTP] Connection failed!\r\n");
-        close(sock);
-        return;
-    }
-
-    printf("[HTTP] Connected!\r\n");
-
-    char request[512];
-    snprintf(request, sizeof(request),
-        "POST /data HTTP/1.1\r\n"
-        "Host: %s\r\n"
-        "Content-Type: application/json\r\n"
-        "Content-Length: %d\r\n"
-        "Connection: close\r\n\r\n"
-        "%s",
-        ip_address, strlen(json), json
-    );
-
-    write(sock, request, strlen(request));
-
-    char buffer[512];
-    int len = read(sock, buffer, sizeof(buffer)-1);
-    if (len > 0) {
-        buffer[len] = 0;
-        printf("[HTTP] Server Response:\r\n%s\r\n", buffer);
-    }
-
-    close(sock);
+  // Debug output
+  if (node_id[0] != '\0') {
+    printf("[NET] Node ID: '%s'\r\n", node_id);
+  }
+  if (description[0] != '\0') {
+    printf("[NET] Description: '%s'\r\n", description);
+  }
+  if (should_blink) {
+    printf("[NET] *** BLINK MODE ACTIVE ***\r\n");
+  }
 }

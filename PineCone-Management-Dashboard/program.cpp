@@ -1,106 +1,77 @@
 #include "program.hpp"
 
 extern "C" {
-#include <stdio.h>
-#include <bl_timer.h>
-#include "pins.h"
 #include <FreeRTOS.h>
+#include <bl_timer.h>
 #include <lwip/tcpip.h>
+#include <stdio.h>
 #include <task.h>
+
+#include "pins.h"
+
+// Fix for missing __dso_handle symbol with global C++ objects
+void* __dso_handle = nullptr;
 }
 
-#include "components/delta_time.hpp"
-#include "components/button.hpp"
-//#include <etl/string.h>
+#include <etl/string.h>
 
-//extentions
-#include "extentions/Print.hpp"
-
-// Wifi
+#include "components/DashboardManager.hpp"
+#include "components/LEDController.hpp"
+#include "components/PinsManager.hpp"
 #include "components/WLANHandler.hpp"
+#include "components/delta_time.hpp"
+#include "extentions/Print.hpp"
+#include "include/Config.hpp"
 
-#define BUILD_VERSION 7
-
-
-static long counter = 0;
-#define LED_PIN 11
-#define BUTTON_PIN 4
-
-static float time = 0.0f;
-const float timeIntervalSec = 2.0f;
+// ============================================================================
+// Application Components
+// ============================================================================
 
 DeltaTime deltaTime;
-static char deltaStr[64];
+PinsManager pinsManager;  // Global pin state manager
+WLANHandler wlan(Config::WIFI_SSID, Config::WIFI_PASSWORD);
+LEDController ledController(Config::LED_PIN, Config::LED_BLINK_INTERVAL_SEC);
+DashboardManager dashboardManager(wlan, Config::DASHBOARD_SERVER_IP,
+                                  Config::DASHBOARD_SERVER_PORT,
+                                  Config::DASHBOARD_UPDATE_INTERVAL_SEC);
 
-Button button1(BUTTON_PIN);
-int pressedCount = 0;
+// Expose PinsManager to C code
+extern "C" {
+PinsManager* getPinsManager() { return &pinsManager; }
+}
 
-Printer printer;
-WLANHandler wlan("Felix", "5825472266844300");
+// ============================================================================
+// Application Lifecycle
+// ============================================================================
 
 void task_app_wrapper(void* pvParameters) {
-    (void)pvParameters;
-    vTaskDelay(pdMS_TO_TICKS(100));
+  (void)pvParameters;
+  vTaskDelay(pdMS_TO_TICKS(100));
 
-    start();
+  start();
 
-    while (1) {
-        loop();
-    }
+  while (1) {
+    loop();
+  }
 }
 
 void start() {
-    printer.printl("====== PINECONE BL602 STARTED! ======");
-    printer.printl("====== BUILD:",BUILD_VERSION,"======");
+  Printer printer;
+  printer.printl("====== PINECONE BL602 STARTED! ======");
+  printer.printl("====== BUILD:", Config::BUILD_VERSION, "======");
 
-   button1.setDebounceDelayMS(20);
-
-   wlan.start();
+  ledController.initialize();
+  wlan.start();
 }
 
 void loop() {
+  deltaTime.update();
+  float delta_sec = deltaTime.getSec();
 
-    deltaTime.update();
-    button1.update();
-    time += deltaTime.getSec();
+  // Update dashboard communication
+  bool is_connected = dashboardManager.update(delta_sec);
+  bool should_blink = dashboardManager.shouldBlink();
 
-    if(button1.isDown()) {
-        pressedCount++;
-        printf("Button was Pressed! Presses: %d\r\n", pressedCount);
-
-    }
-
-
-
-    if(time > timeIntervalSec) {
-        time = 0.0f;
-
-        counter++;
-
-        deltaTime.getAsString(deltaStr, sizeof(deltaStr));
-
-        if (wlan.isConnected()) {
-            printer.printl(wlan.getStatusCode());
-            printer.printl(wlan.get_ip_address());
-            wlan.sendData("192.168.2.227", 8080, "{\"status\":\"ok\"}");
-            printer.printl("Mac: ", wlan.get_mac_address());
-        }
-
-        //printer.printl(wlan.get_ip_address());
-        //printer.printl("=================",wlan.get_password(),"===============");
-
-        //printer.printl(wlan.get_ip_address());
-
-        /*
-        printer.printl("Counter:", counter);
-        printer.printl("Pin button:", digitalRead(BUTTON_PIN));
-        printer.printl(deltaStr);
-        printer.printl("Current:", deltaTime.getUs(), "us (",
-                       deltaTime.getMs(), "ms) FPS:",
-                       deltaTime.getFps());
-        printer.printl("Stats - Avg:", deltaTime.getAverageUs(), "us Min:",
-                       deltaTime.getMinUs(), "us Max:",
-                       deltaTime.getMaxUs());
-        */
-    }
+  // Update LED based on connection state
+  ledController.update(is_connected, should_blink, delta_sec);
 }
