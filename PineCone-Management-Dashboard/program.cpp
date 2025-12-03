@@ -15,6 +15,7 @@ extern "C" {
 
 //extentions
 #include "extentions/Print.hpp"
+#include "extentions/Log.hpp"
 
 // Wifi
 #include "components/WLANHandler.hpp"
@@ -35,7 +36,6 @@ static char deltaStr[64];
 Button button1(BUTTON_PIN);
 int pressedCount = 0;
 
-Printer printer;
 WLANHandler wlan("Felix", "5825472266844300");
 
 void task_app_wrapper(void* pvParameters) {
@@ -50,12 +50,12 @@ void task_app_wrapper(void* pvParameters) {
 }
 
 void start() {
-    printer.printl("====== PINECONE BL602 STARTED! ======");
-    printer.printl("====== BUILD:",BUILD_VERSION,"======");
+    Log::println("====== PINECONE BL602 STARTED! ======");
+    Log::println("====== BUILD:",BUILD_VERSION,"======");
 
-   button1.setDebounceDelayMS(20);
+    button1.setDebounceDelayMS(20);
 
-   wlan.start();
+    wlan.start();
 }
 
 void loop() {
@@ -66,11 +66,9 @@ void loop() {
 
     if(button1.isDown()) {
         pressedCount++;
-        printf("Button was Pressed! Presses: %d\r\n", pressedCount);
+        Log::println("Button was pressed {} times!", pressedCount);
 
     }
-
-
 
     if(time > timeIntervalSec) {
         time = 0.0f;
@@ -80,10 +78,10 @@ void loop() {
         deltaTime.getAsString(deltaStr, sizeof(deltaStr));
 
         if (wlan.isConnected()) {
-            printer.printl(wlan.getStatusCode());
-            printer.printl(wlan.get_ip_address());
+            Log::println(wlan.getStatusCode());
+            Log::println(wlan.get_ip_address());
             wlan.sendData("192.168.2.227", 8080, "{\"status\":\"ok\"}");
-            printer.printl("Mac: ", wlan.get_mac_address());
+            Log::println("Mac: {}", wlan.get_mac_address());
         }
 
         //printer.printl(wlan.get_ip_address());
