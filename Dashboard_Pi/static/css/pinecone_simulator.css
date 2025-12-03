@@ -173,48 +173,10 @@
 }
 
 .sim-controls {
-    margin-bottom: 24px;
-    position: relative;
-    overflow-x: auto;
-    overflow-y: visible;
-    -webkit-overflow-scrolling: touch;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    --fade-start-left: 0%;
-    --fade-end-right: 100%;
-    transition: --fade-start-left 0.3s ease, --fade-end-right 0.3s ease;
-    padding: 4px 0;
-    margin-top: -4px;
-    margin-bottom: 20px;
-}
-
-.sim-controls.has-scroll-fade {
-    mask-image: linear-gradient(
-        to right,
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.8) var(--fade-start-left, 0%),
-        rgba(0, 0, 0, 1) calc(var(--fade-start-left, 0%) + 5%),
-        rgba(0, 0, 0, 1) calc(var(--fade-end-right, 100%) - 5%),
-        rgba(0, 0, 0, 0.8) var(--fade-end-right, 100%),
-        rgba(0, 0, 0, 0) 100%
-    );
-    -webkit-mask-image: linear-gradient(
-        to right,
-        rgba(0, 0, 0, 0) 0%,
-        rgba(0, 0, 0, 0.8) var(--fade-start-left, 0%),
-        rgba(0, 0, 0, 1) calc(var(--fade-start-left, 0%) + 5%),
-        rgba(0, 0, 0, 1) calc(var(--fade-end-right, 100%) - 5%),
-        rgba(0, 0, 0, 0.8) var(--fade-end-right, 100%),
-        rgba(0, 0, 0, 0) 100%
-    );
-}
-
-.sim-controls > div {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
     gap: 12px;
-    min-width: min-content;
-    padding: 0 2px;
+    margin-bottom: 24px;
 }
 
 .sim-controls .btn-primary,
@@ -223,10 +185,24 @@
 .sim-controls .btn-secondary,
 .sim-controls .btn-warning,
 .sim-controls .btn-tertiary {
-    padding: 12px 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
     font-size: 1rem;
+    min-width: 0;
+}
+
+.sim-controls .btn-primary span,
+.sim-controls .btn-success span,
+.sim-controls .btn-danger span,
+.sim-controls .btn-secondary span,
+.sim-controls .btn-warning span,
+.sim-controls .btn-tertiary span {
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
-    flex-shrink: 0;
 }
 
 .sim-controls .btn-primary svg,
@@ -237,6 +213,46 @@
 .sim-controls .btn-tertiary svg {
     width: 18px;
     height: 18px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 1000px) {
+    .sim-controls {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .sim-controls {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .sim-controls .btn-primary,
+    .sim-controls .btn-success,
+    .sim-controls .btn-danger,
+    .sim-controls .btn-secondary,
+    .sim-controls .btn-warning,
+    .sim-controls .btn-tertiary {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .sim-controls {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .sim-controls .btn-primary,
+    .sim-controls .btn-success,
+    .sim-controls .btn-danger,
+    .sim-controls .btn-secondary,
+    .sim-controls .btn-warning,
+    .sim-controls .btn-tertiary {
+        padding: 12px 16px;
+    }
 }
 
 .simulator-list {
@@ -726,7 +742,6 @@ textarea:disabled {
     box-shadow: var(--focus-ring);
 }
 
-/* Responsive Design */
 @media (max-width: 900px) {
     .sim-config {
         grid-template-columns: 1fr;
@@ -954,16 +969,6 @@ textarea:disabled {
     .sim-btn {
         width: 100%;
         padding: 10px;
-    }
-
-    .sim-controls .btn-primary,
-    .sim-controls .btn-success,
-    .sim-controls .btn-danger,
-    .sim-controls .btn-secondary,
-    .sim-controls .btn-warning,
-    .sim-controls .btn-tertiary {
-        padding: 10px 16px;
-        font-size: 0.9rem;
     }
 
     .sim-json textarea,
