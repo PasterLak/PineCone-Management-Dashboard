@@ -397,6 +397,27 @@ th.col-actions { width: 8%; text-align: center; }
   box-shadow: var(--shadow-success);
 }
 
+.action-tooltip {
+  position: fixed;
+  background: var(--bg);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.action-tooltip.visible {
+  opacity: 1;
+}
+
 .status-cell {
   padding: 8px 12px !important;
 }
@@ -446,7 +467,6 @@ th.col-actions { width: 8%; text-align: center; }
   box-shadow: var(--focus-ring);
 }
 
-/* Pin details styles (for dialog) */
 .pin-details-container {
   padding: 0;
   width: 100%;
@@ -608,7 +628,6 @@ th.col-actions { width: 8%; text-align: center; }
   gap: 8px;
 }
 
-/* Pin Card Responsive */
 @media (max-width: 420px) {
   .pin-card {
     padding: 12px;
