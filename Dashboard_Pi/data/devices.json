@@ -1,70 +1,36 @@
 {
-  "mac-acd82951cfb1": {
-    "ip": "10.42.0.181",
-    "description": "",
-    "last_seen": "2025-12-02T19:28:23",
-    "pins": {
-      "GPIO11": {
-        "name": "LED",
-        "mode": "output",
-        "value": "Off"
-      }
-    },
-    "blink": true
-  },
-  "auto-5f1ceac9": {
+  "auto-3f12b18f": {
     "ip": "127.0.0.1",
     "description": "",
-    "last_seen": "2025-12-03T13:59:47",
+    "last_seen": "2025-12-03T18:06:16",
     "pins": {},
     "blink": false
   },
-  "auto-c060845c": {
+  "PineCone_001": {
     "ip": "127.0.0.1",
-    "description": "Sensor Module",
-    "last_seen": "2025-12-03T14:14:26",
+    "description": "Button Device",
+    "last_seen": "2025-12-03T17:54:30",
     "pins": {
-      "GPIO1": {
-        "mode": "pulldown",
-        "name": "motion_detect",
-        "value": "0"
-      },
-      "GPIO2": {
-        "mode": "pulldown",
-        "name": "motion_detect",
-        "value": "0"
-      },
-      "GPIO23": {
-        "mode": "pulldown",
-        "name": "motion_detect",
-        "value": "0"
-      },
-      "GPIO3": {
-        "mode": "input",
-        "name": "temp_sensor",
-        "value": "23"
-      },
-      "GPIO4": {
-        "mode": "input",
-        "name": "temp_sensor",
-        "value": "23"
-      },
-      "GPIO5": {
-        "mode": "pulldown",
-        "name": "motion_detect",
-        "value": "0"
-      },
-      "GPIO50": {
-        "mode": "pulldown",
-        "name": "motion_detect",
-        "value": "0"
-      },
-      "GPIO9": {
-        "mode": "pulldown",
-        "name": "motion_detect",
-        "value": "0"
+      "GPIO0": {
+        "mode": "pullup",
+        "name": "button",
+        "value": "1"
       }
     },
+    "blink": false
+  },
+  "auto-e38092d0": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-12-03T18:06:16",
+    "pins": {},
+    "blink": false
+  },
+  "auto-9e13c477": {
+    "ip": "127.0.0.1",
+    "description": "",
+    "last_seen": "2025-12-03T17:54:24",
+    "pins": {},
     "blink": false
   }
 }
