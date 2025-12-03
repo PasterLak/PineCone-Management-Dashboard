@@ -104,23 +104,23 @@ class SimulatorCardRenderer {
   _generateActionButtons(sim) {
     return `
       <div class="sim-actions">
-        <button class="sim-btn sim-btn--start" data-id="${sim.id}" data-action="${SimulatorConfig.ACTIONS.START}" ${sim.running ? 'disabled' : ''}>
+        <button type="button" class="sim-btn sim-btn--start" data-id="${sim.id}" data-action="${SimulatorConfig.ACTIONS.START}" ${sim.running ? 'disabled' : ''}>
           <i data-feather="play"></i>
           <span>Start</span>
         </button>
-        <button class="sim-btn sim-btn--stop" data-id="${sim.id}" data-action="${SimulatorConfig.ACTIONS.STOP}" ${!sim.running ? 'disabled' : ''}>
+        <button type="button" class="sim-btn sim-btn--stop" data-id="${sim.id}" data-action="${SimulatorConfig.ACTIONS.STOP}" ${!sim.running ? 'disabled' : ''}>
           <i data-feather="stop-circle"></i>
           <span>Stop</span>
         </button>
-        <button class="sim-btn sim-btn--send" data-id="${sim.id}" data-action="${SimulatorConfig.ACTIONS.SEND}">
+        <button type="button" class="sim-btn sim-btn--send" data-id="${sim.id}" data-action="${SimulatorConfig.ACTIONS.SEND}">
           <i data-feather="send"></i>
           <span>Send Once</span>
         </button>
-        <button class="sim-btn sim-btn--clear" data-id="${sim.id}" data-action="${SimulatorConfig.ACTIONS.CLEAR}">
+        <button type="button" class="sim-btn sim-btn--clear" data-id="${sim.id}" data-action="${SimulatorConfig.ACTIONS.CLEAR}">
           <i data-feather="x-circle"></i>
           <span>Clear Responses</span>
         </button>
-        <button class="sim-btn sim-btn--remove" data-id="${sim.id}" data-action="${SimulatorConfig.ACTIONS.REMOVE}">
+        <button type="button" class="sim-btn sim-btn--remove" data-id="${sim.id}" data-action="${SimulatorConfig.ACTIONS.REMOVE}">
           <i data-feather="trash-2"></i>
           <span>Remove</span>
         </button>

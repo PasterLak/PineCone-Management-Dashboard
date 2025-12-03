@@ -397,6 +397,50 @@ th.col-actions { width: 8%; text-align: center; }
   box-shadow: var(--shadow-success);
 }
 
+.actions-cell {
+  overflow: visible !important;
+}
+
+.actions-cell button[title] {
+  position: relative;
+}
+
+.actions-cell button[title]::after {
+  content: attr(title);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: var(--bg);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.actions-cell button[title]:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+table {
+  overflow: visible;
+}
+
+tbody tr {
+  overflow: visible;
+}
+
 .status-cell {
   padding: 8px 12px !important;
 }
