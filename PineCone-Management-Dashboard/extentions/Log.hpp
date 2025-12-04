@@ -69,8 +69,10 @@ class Log {
     printf("%u", static_cast<unsigned int>(v));
   }
 
-  static void printValue(float v) { printf("%.3f", static_cast<double>(v)); }
-  static void printValue(double v) { printf("%.3lf", v); }
+  static void printValue(float v) {
+    printf("%s", doubleToString(static_cast<double>(v)));
+  }
+  static void printValue(double v) { printf("%s", doubleToString(v)); }
 
   // Fallback
   template <typename T>
@@ -78,6 +80,15 @@ class Log {
     printf("%s", "[unsupported]");
   }
 
+  static char* doubleToString(double v) {
+    int int_part = static_cast<int>(v);
+    int frac_part = static_cast<int>((v - int_part) * 1000 + 0.5);
+
+    static char buffer[16];
+
+    snprintf(buffer, sizeof(buffer), "%d.%03d", int_part, frac_part);
+    return buffer;
+  }
   // --------------------------------------------------
   // Replacing "{}" with arguments
   // --------------------------------------------------
