@@ -15,13 +15,13 @@ void* __dso_handle = nullptr;
 
 #include <etl/string.h>
 
-#include "components/DashboardManager.hpp"
-#include "components/LEDController.hpp"
-#include "components/PinsManager.hpp"
-#include "components/WLANHandler.hpp"
+#include "components/dashboard_manager.hpp"
+#include "components/led_controller.hpp"
+#include "components/pins_manager.hpp"
+#include "components/wifi_handler.hpp"
 #include "components/delta_time.hpp"
-#include "extentions/Log.hpp"
-#include "include/Config.hpp"
+#include "extentions/log.hpp"
+#include "include/config.hpp"
 
 // ============================================================================
 // Application Components
@@ -29,7 +29,7 @@ void* __dso_handle = nullptr;
 
 DeltaTime deltaTime;
 PinsManager pinsManager;  // Global pin state manager
-WLANHandler wlan(Config::WIFI_SSID, Config::WIFI_PASSWORD);
+WIFIHandler wlan(Config::WIFI_SSID, Config::WIFI_PASSWORD);
 LEDController ledController(Config::LED_PIN, Config::LED_BLINK_INTERVAL_SEC);
 DashboardManager dashboardManager(wlan, Config::DASHBOARD_SERVER_IP,
                                   Config::DASHBOARD_SERVER_PORT,

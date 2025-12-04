@@ -1,4 +1,4 @@
-#include "PinsManager.hpp"
+#include "pins_manager.hpp"
 
 #include <stdio.h>
 #include <string.h>

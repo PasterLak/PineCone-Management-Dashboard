@@ -1,12 +1,12 @@
-#include "DashboardManager.hpp"
+#include "dashboard_manager.hpp"
 
 extern "C" {
 #include <stdio.h>
 }
 
-#include "../extentions/Log.hpp"
+#include "../extentions/log.hpp"
 
-DashboardManager::DashboardManager(WLANHandler& wlan_handler,
+DashboardManager::DashboardManager(WIFIHandler& wlan_handler,
                                    const char* server_ip, uint16_t server_port,
                                    float update_interval_sec)
     : wlan(wlan_handler),

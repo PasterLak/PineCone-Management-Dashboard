@@ -1,4 +1,4 @@
-#include "PinsManager.hpp"
+#include "pins_manager.hpp"
 
 // C wrapper functions for PinsManager
 extern "C" {
