@@ -9,10 +9,10 @@ extern "C" {
 #include <wifi_mgmr_ext.h>
 }
 
-#include "HTTPClient.hpp"
-#include "JSONParser.hpp"
+#include "http_client.hpp"
+#include "json_parser.hpp"
 
-class WLANHandler {
+class WIFIHandler {
  private:
   const char* ssid;
   const char* password;
@@ -31,7 +31,7 @@ class WLANHandler {
   void parseServerResponse(const char* json);
 
  public:
-  WLANHandler(const char* mySsid, const char* myPassword);
+    WIFIHandler(const char* mySsid, const char* myPassword);
 
   void start();
   bool isConnected();

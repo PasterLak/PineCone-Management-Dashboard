@@ -1,4 +1,4 @@
-#include "WLANHandler.hpp"
+#include "wifi_handler.hpp"
 
 extern "C" {
 #include <easyflash.h>
@@ -9,11 +9,11 @@ extern "C" {
 #include "pins.h"
 }
 
-WLANHandler::WLANHandler(const char* mySsid, const char* myPassword)
+WIFIHandler::WIFIHandler(const char* mySsid, const char* myPassword)
     : ssid(mySsid), password(myPassword) {}
 
 // WiFi Management
-void WLANHandler::initNodeIdFromMac() {
+void WIFIHandler::initNodeIdFromMac() {
   uint8_t mac[6];
   wifi_mgmr_sta_mac_get(mac);
 
@@ -24,7 +24,7 @@ void WLANHandler::initNodeIdFromMac() {
   printf("[WIFI] Initial Node ID from MAC: '%s'\r\n", node_id);
 }
 
-void WLANHandler::start() {
+void WIFIHandler::start() {
   if (!wifi_initialized) {
     static wifi_conf_t conf{.country_code = "EU", .channel_nums = {}};
 
@@ -54,7 +54,7 @@ void WLANHandler::start() {
   wifi_mgmr_sta_autoconnect_enable();
 }
 
-bool WLANHandler::isConnected() {
+bool WIFIHandler::isConnected() {
   int state;
   wifi_mgmr_state_get(&state);
 
@@ -69,7 +69,7 @@ bool WLANHandler::isConnected() {
   return connected;
 }
 
-char* WLANHandler::get_ip_address() {
+char* WIFIHandler::get_ip_address() {
   uint32_t ip, mask;
   wifi_mgmr_ap_ip_get(&ip, nullptr, &mask);
 
@@ -81,7 +81,7 @@ char* WLANHandler::get_ip_address() {
 
 // HTTP Communication
 
-bool WLANHandler::sendData(const char* server_ip, uint16_t port) {
+bool WIFIHandler::sendData(const char* server_ip, uint16_t port) {
   printf("[NET] sendData() called for %s:%d\r\n", server_ip, port);
 
   // Build JSON payload with only configured pins
@@ -153,7 +153,7 @@ bool WLANHandler::sendData(const char* server_ip, uint16_t port) {
 
 // helper
 
-void WLANHandler::parseServerResponse(const char* json) {
+void WIFIHandler::parseServerResponse(const char* json) {
   // Parse status
   if (!JSONParser::isStatusOk(json)) {
     printf("[NET] ERROR: Status not OK\r\n");

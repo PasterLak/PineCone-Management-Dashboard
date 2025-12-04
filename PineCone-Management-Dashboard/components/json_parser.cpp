@@ -1,4 +1,4 @@
-#include "JSONParser.hpp"
+#include "json_parser.hpp"
 
 #include <stdio.h>
 #include <string.h>
