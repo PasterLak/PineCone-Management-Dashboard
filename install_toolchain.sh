@@ -73,6 +73,10 @@ echo "[10/14] Reloading shell configuration..."
 #------------------------------------------------------------------------------#
 echo "[11/14] Installing Python 3.12 and virtual environment..."
 
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n eval "$(pyenv init -)"\nfi' >> ~/.bashrc
+
 pyenv install 3.12
 pyenv virtualenv 3.12 bl_venv
 
