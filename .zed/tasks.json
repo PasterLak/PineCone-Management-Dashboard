@@ -1,0 +1,28 @@
+[
+  {
+    "version": "1",
+    "tasks": [
+      {
+        "label": "Pinecone BL602: Compile",
+        "command": "./compile.sh",
+        "cwd": ".",
+        "use_new_terminal": true,
+        "allow_concurrent_runs": false
+      },
+      {
+        "label": "Pinecone BL602: Flash",
+        "command": "./flash.sh",
+        "cwd": ".",
+        "use_new_terminal": true,
+        "allow_concurrent_runs": false
+      },
+      {
+        "label": "Pinecone BL602: Clean",
+        "command": "./clean.sh",
+        "cwd": ".",
+        "use_new_terminal": true,
+        "allow_concurrent_runs": false
+      }
+    ]
+  }
+]
