@@ -1,0 +1,10 @@
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      "alt-g": ["task:run", { "task": "Pinecone BL602: Compile" }],
+      "alt-f": ["task:run", { "task": "Pinecone BL602: Flash" }],
+      "alt-c": ["task:run", { "task": "Pinecone BL602: Clean" }]
+    }
+  }
+]
