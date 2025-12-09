@@ -1,9 +1,8 @@
-#include "dashboard_manager.hpp"
 
 extern "C" {
 #include <stdio.h>
 }
-
+#include "dashboard_manager.hpp"
 #include "../extentions/log.hpp"
 
 DashboardManager::DashboardManager(WIFIHandler& wlan_handler,
@@ -17,16 +16,19 @@ DashboardManager::DashboardManager(WIFIHandler& wlan_handler,
       connected(false) {}
 
 bool DashboardManager::update(float delta_time_sec) {
-  time_accumulator += delta_time_sec;
+  if (delta_time_sec <= 0.0f) {
+    return connected;
+  }
 
+  time_accumulator += delta_time_sec;
   if (time_accumulator < update_interval_sec) {
     return connected;
   }
 
-  time_accumulator = 0.0f;
+  time_accumulator -= update_interval_sec;
 
-  bool wifi_connected = wlan.isConnected();
-  Log::println("WiFi Connected:", wifi_connected);
+  const bool wifi_connected = wlan.isConnected();
+  Log::println("[DashboardManager] WiFi Connected:", wifi_connected);
 
   if (!wifi_connected) {
     connected = false;
@@ -34,9 +36,9 @@ bool DashboardManager::update(float delta_time_sec) {
   }
 
   sendDataToDashboard();
-  connected = wlan.is_dashboard_connected();
 
-  Log::println("Dashboard Connected:", connected);
+  connected = wlan.is_dashboard_connected();
+  Log::println("[DashboardManager] Dashboard Connected:", connected);
 
   if (connected) {
     logDashboardInfo();
@@ -50,21 +52,28 @@ bool DashboardManager::shouldBlink() const {
 }
 
 void DashboardManager::sendDataToDashboard() {
- 
-  Log::println("Sending data to dashboard...");
+  if (!server_ip || server_ip[0] == '\0' || server_port == 0) {
+    return;
+  }
+
+  Log::println("[DashboardManager] Sending data to dashboard...");
   wlan.sendData(server_ip, server_port);
 }
 
 void DashboardManager::logDashboardInfo() {
-  if (wlan.get_node_id()[0] == '\0') {
+  const char* node_id = wlan.get_node_id();
+  if (!node_id || node_id[0] == '\0') {
     return;
   }
 
- 
-  Log::println("Node ID:", wlan.get_node_id());
-  Log::println("Description:", wlan.get_description());
+  Log::println("[DashboardManager] Node ID:", node_id);
+
+  const char* desc = wlan.get_description();
+  if (desc && desc[0] != '\0') {
+    Log::println("[DashboardManager] Description:", desc);
+  }
 
   if (wlan.is_blinking()) {
-    Log::println("Blinking: true");
+    Log::println("[DashboardManager] Blinking: true");
   }
 }

@@ -9,7 +9,6 @@ class DashboardManager {
                    uint16_t server_port, float update_interval_sec);
 
   bool update(float delta_time_sec);
-
   bool isConnected() const { return connected; }
   bool shouldBlink() const;
 
