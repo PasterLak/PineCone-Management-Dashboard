@@ -60,6 +60,7 @@ void start() {
   Log::println("====== BUILD:", Config::BUILD_VERSION, "======");
 
   ledController.initialize();
+  dashboardManager.setDebugEnabled(false);
   wifi.setDebugEnabled(false);
   wifi.start();
 }

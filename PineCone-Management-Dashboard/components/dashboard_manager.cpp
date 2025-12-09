@@ -28,7 +28,7 @@ bool DashboardManager::update(float delta_time_sec) {
   time_accumulator -= update_interval_sec;
 
   const bool wifi_connected = wlan.isConnected();
-  Log::println("[DashboardManager] WiFi Connected:", wifi_connected);
+  log("[DashboardManager] WiFi Connected:", wifi_connected);
 
   if (!wifi_connected) {
     connected = false;
@@ -38,7 +38,7 @@ bool DashboardManager::update(float delta_time_sec) {
   sendDataToDashboard();
 
   connected = wlan.is_dashboard_connected();
-  Log::println("[DashboardManager] Dashboard Connected:", connected);
+  log("[DashboardManager] Dashboard Connected:", connected);
 
   if (connected) {
     logDashboardInfo();
@@ -56,7 +56,7 @@ void DashboardManager::sendDataToDashboard() {
     return;
   }
 
-  Log::println("[DashboardManager] Sending data to dashboard...");
+  log("[DashboardManager] Sending data to dashboard...");
   wlan.sendData(server_ip, server_port);
 }
 
@@ -66,14 +66,14 @@ void DashboardManager::logDashboardInfo() {
     return;
   }
 
-  Log::println("[DashboardManager] Node ID:", node_id);
+  log("[DashboardManager] Node ID:", node_id);
 
   const char* desc = wlan.get_description();
   if (desc && desc[0] != '\0') {
-    Log::println("[DashboardManager] Description:", desc);
+    log("[DashboardManager] Description:", desc);
   }
 
   if (wlan.is_blinking()) {
-    Log::println("[DashboardManager] Blinking: true");
+    log("[DashboardManager] Blinking: true");
   }
 }
