@@ -4,7 +4,7 @@
 extern "C" {
     #include <bl_timer.h>
 }
-
+#include "extentions/log.hpp"
 
 Profiler::Profiler() {
     startTime_us = 0;
@@ -18,7 +18,7 @@ void Profiler::start() {
 
 void Profiler::end() {
     endTime_us = bl_timer_now_us64();
-    
+
     if (endTime_us >= startTime_us)
         elapsed_us = static_cast<uint32_t>(endTime_us - startTime_us);
     else
@@ -40,8 +40,10 @@ float Profiler::getSec() const {
 }
 
 void Profiler::printTime() const {
-    printf("Time: %luus (%.3fms) (%.6fs)\n", 
-           static_cast<unsigned long>(elapsed_us),
-           getMs(),
-           getSec());
+    Log::println(
+        "Time: {}us ({}ms) ({}s)",
+        elapsed_us,
+        getMs(),
+        getSec()
+    );
 }
