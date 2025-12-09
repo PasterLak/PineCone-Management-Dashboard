@@ -20,21 +20,43 @@ class Log {
  public:
   static void setSeparatorEnabled(bool enabled) { separator_enabled = enabled; }
 
-  template <typename T>
-  void print(T t) {
-    printValue(t);
+  static void print(const char* text) {
+    writeString(text);
+  }
+
+  static void println(const char* text) {
+    writeString(text);
+    writeChar('\r');
+    writeChar('\n');
   }
 
   template <typename... Args>
   static void print(const char* fmt, Args... args) {
-    format(fmt, args...);
+    char buffer[256];
+    formatToBuffer(buffer, sizeof(buffer), fmt, args...);
+    writeString(buffer);
   }
 
   template <typename... Args>
   static void println(const char* fmt, Args... args) {
-    format(fmt, args...);
+    char buffer[256];
+    formatToBuffer(buffer, sizeof(buffer), fmt, args...);
+    writeString(buffer);
     writeChar('\r');
     writeChar('\n');
+  }
+
+  template <typename... Args>
+  static bool formatToBuffer(char* out, size_t out_size,
+                             const char* fmt, Args... args) {
+    if (!out || out_size == 0) return false;
+    size_t pos = 0;
+    formatFmt(out, out_size, pos, fmt, args...);
+    if (pos < out_size)
+      out[pos] = '\0';
+    else
+      out[out_size - 1] = '\0';
+    return true;
   }
 
  private:
@@ -44,107 +66,73 @@ class Log {
     bl_uart_data_send(0, static_cast<uint8_t>(c));
   }
 
-  static void printValue(const char* v) { printf("%s", v); }
-  static void printValue(char* v) { printf("%s", v); }
-
-  static void printValue(char v) { writeChar(v); }
-
-  static void printValue(bool v) { printf("%s", v ? "true" : "false"); }
-
-  static void printValue(int v) { printf("%d", v); }
-  static void printValue(unsigned int v) { printf("%u", v); }
-
-  static void printValue(int8_t v) { printf("%d", static_cast<int>(v)); }
-  static void printValue(uint8_t v) {
-    printf("%u", static_cast<unsigned int>(v));
+  static void writeString(const char* s) {
+    while (*s) writeChar(*s++);
   }
 
-  static void printValue(int16_t v) { printf("%d", static_cast<int>(v)); }
-  static void printValue(uint16_t v) {
-    printf("%u", static_cast<unsigned int>(v));
+  static void putChar(char* out, size_t size, size_t& pos, char c) {
+    if (pos + 1 < size) out[pos++] = c;
   }
 
-  static void printValue(int32_t v) { printf("%d", static_cast<int>(v)); }
-  static void printValue(uint32_t v) {
-    printf("%u", static_cast<unsigned int>(v));
+  static void putString(char* out, size_t size, size_t& pos, const char* s) {
+    while (*s) putChar(out, size, pos, *s++);
   }
 
-  static void printValue(float v) {
-    printf("%s", doubleToString(static_cast<double>(v)));
+  static void putValue(char* out, size_t size, size_t& pos, const char* v) {
+    putString(out, size, pos, v);
   }
-  static void printValue(double v) { printf("%s", doubleToString(v)); }
 
-  // Fallback
+  static void putValue(char* out, size_t size, size_t& pos, bool v) {
+    putString(out, size, pos, v ? "true" : "false");
+  }
+
   template <typename T>
-  static void printValue(const T&) {
-    printf("%s", "[unsupported]");
+  static void putValue(char* out, size_t size, size_t& pos, T v) {
+    char tmp[32];
+    snprintf(tmp, sizeof(tmp), "%d", (int)v);
+    putString(out, size, pos, tmp);
   }
 
-  static char* doubleToString(double v) {
-    int int_part = static_cast<int>(v);
-    int frac_part = static_cast<int>((v - int_part) * 1000 + 0.5);
-
-    static char buffer[16];
-
-    snprintf(buffer, sizeof(buffer), "%d.%03d", int_part, frac_part);
-    return buffer;
+  static void putValue(char* out, size_t size, size_t& pos, double v) {
+    char tmp[32];
+    int ip = (int)v;
+    int fp = (int)((v - ip) * 1000 + 0.5);
+    snprintf(tmp, sizeof(tmp), "%d.%03d", ip, fp);
+    putString(out, size, pos, tmp);
   }
-  // --------------------------------------------------
-  // Replacing "{}" with arguments
-  // --------------------------------------------------
+  static void putValue(char* out, size_t size, size_t& pos, float v) {
+      putValue(out, size, pos, static_cast<double>(v));
+  }
+
+  static void formatFmt(char* out, size_t size, size_t& pos,
+                        const char* fmt) {
+    while (*fmt) putChar(out, size, pos, *fmt++);
+  }
+
   template <typename T, typename... Rest>
-  static void format(const char* fmt, T value, Rest... rest) {
+  static void formatFmt(char* out, size_t size, size_t& pos,
+                        const char* fmt, T value, Rest... rest) {
     while (*fmt) {
-      if (*fmt == '\\') {
-        fmt++;
-        if (*fmt == '{') {
-          writeChar('{');
-          fmt++;
-          continue;
-        }
-        if (*fmt == '\\') {
-          writeChar('\\');
-          fmt++;
-          continue;
-        }
-        writeChar('\\');
-        continue;
-      }
-
       if (*fmt == '{' && *(fmt + 1) == '}') {
-        printValue(value);
-        fmt += 2;
-        format(fmt, rest...);
+        putValue(out, size, pos, value);
+        formatFmt(out, size, pos, fmt + 2, rest...);
         return;
       }
-
-      writeChar(*fmt++);
+      putChar(out, size, pos, *fmt++);
     }
 
-    appendRemaining(value, rest...);
+    if (separator_enabled) putChar(out, size, pos, ' ');
+    putValue(out, size, pos, value);
+    formatRest(out, size, pos, rest...);
   }
 
-  // no args
-  static void format(const char* fmt) {
-    while (*fmt) {
-      if (*fmt == '\\') {
-        fmt++;
-        if (*fmt)
-          writeChar(*fmt++);
-      } else {
-        writeChar(*fmt++);
-      }
-    }
-  }
+  static void formatRest(char*, size_t, size_t&) {}
 
-  // leftover args after no more {}
   template <typename T, typename... Rest>
-  static void appendRemaining(T value, Rest... rest) {
-    if (separator_enabled)
-      writeChar(' ');
-    printValue(value);
-    appendRemaining(rest...);
+  static void formatRest(char* out, size_t size, size_t& pos,
+                         T value, Rest... rest) {
+    if (separator_enabled) putChar(out, size, pos, ' ');
+    putValue(out, size, pos, value);
+    formatRest(out, size, pos, rest...);
   }
-
-  static void appendRemaining() {}
 };
