@@ -9,29 +9,40 @@ extern "C" {
 #include <lwip/sockets.h>
 }
 
+#include "extentions/log.hpp"
+
 class HTTPClient {
- private:
-  int socket_fd = -1;
-  char response_buffer[1024];
+private:
+    int socket_fd = -1;
+    char response_buffer[1024];
+    bool debug_enabled = true;
 
-  bool connectToServer(const char* server_ip, uint16_t port);
-  bool sendRequest(const char* method, const char* path, const char* host,
-                   uint16_t port, const char* body);
-  bool receiveResponse();
-  void closeConnection();
+    bool connectToServer(const char* server_ip, uint16_t port);
+    bool sendRequest(const char* method, const char* path, const char* host,
+                     uint16_t port, const char* body);
+    bool receiveResponse();
+    void closeConnection();
 
- public:
-  HTTPClient();
-  ~HTTPClient();
+    template <typename... Args>
+    void log(const char* fmt, Args... args) const {
+        if (debug_enabled) {
+            Log::println(fmt, args...);
+        }
+    }
 
-  // Sends HTTP POST request with JSON payload
-  // Returns true if successful, response can be read with getResponse()
-  bool post(const char* server_ip, uint16_t port, const char* path,
-            const char* json_payload);
+public:
+    HTTPClient() = default;
+    ~HTTPClient() = default;
 
-  // Get the response body (after HTTP headers)
-  const char* getResponseBody();
+    void setDebugEnabled(bool enabled) { debug_enabled = enabled; }
 
-  // Get full response (including headers)
-  const char* getFullResponse() { return response_buffer; }
+    // Sends HTTP POST request with JSON payload
+    bool post(const char* server_ip, uint16_t port, const char* path,
+              const char* json_payload);
+
+    // Get the response body (after HTTP headers)
+    const char* getResponseBody();
+
+    // Get full response (including headers)
+    const char* getFullResponse() { return response_buffer; }
 };
