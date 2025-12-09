@@ -29,9 +29,9 @@ void* __dso_handle = nullptr;
 
 DeltaTime deltaTime;
 PinsManager pinsManager;  // Global pin state manager
-WIFIHandler wlan(Config::WIFI_SSID, Config::WIFI_PASSWORD);
+WIFIHandler wifi(Config::WIFI_SSID, Config::WIFI_PASSWORD);
 LEDController ledController(Config::LED_PIN, Config::LED_BLINK_INTERVAL_SEC);
-DashboardManager dashboardManager(wlan, Config::DASHBOARD_SERVER_IP,
+DashboardManager dashboardManager(wifi, Config::DASHBOARD_SERVER_IP,
                                   Config::DASHBOARD_SERVER_PORT,
                                   Config::DASHBOARD_UPDATE_INTERVAL_SEC);
 
@@ -60,7 +60,8 @@ void start() {
   Log::println("====== BUILD:", Config::BUILD_VERSION, "======");
 
   ledController.initialize();
-  wlan.start();
+  wifi.setDebugEnabled(false);
+  wifi.start();
 }
 
 void loop() {
