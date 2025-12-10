@@ -14,5 +14,5 @@ DEFAULT_MAX_SIMULATOR_RESPONSES = 100
 
 # Server settings
 HOST = "0.0.0.0"
-PORT = 5000
-DEBUG = True
+PORT = 80
+DEBUG = False
