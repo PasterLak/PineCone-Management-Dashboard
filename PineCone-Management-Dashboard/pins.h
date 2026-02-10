@@ -20,6 +20,7 @@
 void pinMode(uint8_t pin, uint8_t mode);
 void digitalWrite(uint8_t pin, uint8_t value);
 int digitalRead(uint8_t pin);
+int analogRead(uint8_t pin);
 void delay(unsigned long ms);
 
 // Pin state tracking

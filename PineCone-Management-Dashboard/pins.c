@@ -5,6 +5,48 @@
 #include <stdio.h>
 #include <string.h>
 #include <task.h>
+#include <bl_adc.h>
+#include <bl602_adc.h>
+#include <bl602_glb.h>
+#include <bl602_common.h>
+
+static bool _adc_initialized = false;
+
+static void adc_init_once(void) {
+    if (_adc_initialized) return;
+
+    GLB_Set_ADC_CLK(ENABLE, GLB_ADC_CLK_96M, 1);
+
+    ADC_Disable();
+    ADC_Reset();
+
+    ADC_CFG_Type adcCfg = {
+        .v18Sel = ADC_V18_SEL_1P82V,
+        .v11Sel = ADC_V11_SEL_1P1V,
+        .clkDiv = ADC_CLK_DIV_32,
+        .gain1 = ADC_PGA_GAIN_1,
+        .gain2 = ADC_PGA_GAIN_1,
+        .chopMode = ADC_CHOP_MOD_AZ_PGA_ON,
+        .biasSel = ADC_BIAS_SEL_MAIN_BANDGAP,
+        .vcm = ADC_PGA_VCM_1V,
+        .vref = ADC_VREF_3P2V,
+        .inputMode = ADC_INPUT_SINGLE_END,
+        .resWidth = ADC_DATA_WIDTH_16_WITH_64_AVERAGE,
+        .offsetCalibEn = DISABLE,
+        .offsetCalibVal = 0
+    };
+
+    ADC_Init(&adcCfg);
+
+    ADC_FIFO_Cfg_Type fifoCfg = {
+        .fifoThreshold = ADC_FIFO_THRESHOLD_1,
+        .dmaEn = DISABLE
+    };
+    ADC_FIFO_Cfg(&fifoCfg);
+
+    ADC_Enable();
+    _adc_initialized = true;
+}
 
 // Forward declaration - PinsManager is created in program.cpp
 typedef struct PinsManager PinsManager;
@@ -47,6 +89,8 @@ void pinMode(uint8_t pin, uint8_t mode) {
   }
 }
 
+
+
 void digitalWrite(uint8_t pin, uint8_t value) {
   if (pin < MAX_PINS) {
     PinsManager* mgr = getPinsManager();
@@ -56,6 +100,42 @@ void digitalWrite(uint8_t pin, uint8_t value) {
 }
 
 int digitalRead(uint8_t pin) { return bl_gpio_input_get_value(pin); }
+
+int analogRead(uint8_t pin) { // <- bad guy
+    if (!_adc_initialized) adc_init_once();
+
+    int channel = -1;
+    switch(pin) {
+        case 4:  channel = 1; break;
+        case 5:  channel = 4; break;
+        case 6:  channel = 5; break;
+        case 12: channel = 0; break;
+        case 13: channel = 3; break;
+        case 14: channel = 2; break;
+        default: return 0;
+    }
+
+    GLB_GPIO_Type gpio_pin = (GLB_GPIO_Type)pin;
+    GLB_GPIO_Func_Init(GPIO_FUN_ANALOG, &gpio_pin, 1);
+
+    ADC_Channel_Config((ADC_Chan_Type)channel, ADC_CHAN_GND, DISABLE);
+
+    while(ADC_Get_FIFO_Count() > 0) {
+        ADC_Read_FIFO();
+    }
+
+    ADC_Start();
+
+    while(ADC_Get_FIFO_Count() == 0) {
+    };
+
+    uint32_t regVal = ADC_Read_FIFO();
+
+    ADC_Result_Type result;
+    ADC_Parse_Result(&regVal, 1, &result);
+
+    return (int)(result.volt * 1000);
+}
 
 void delay(unsigned long ms) { vTaskDelay(pdMS_TO_TICKS(ms)); }
 

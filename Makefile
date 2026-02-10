@@ -31,7 +31,7 @@ COMPONENTS_BLSYS   := bltime blfdt blmtd blota bloop loopadc looprt loopset
 COMPONENTS_VFS     := romfs
 
 
-
+INCLUDE_COMPONENTS += bl602_adc bl602_glb bl602_common
 INCLUDE_COMPONENTS += freertos bl602 bl602_std bl_sys hal_drv bl_gpio hal_gpio
 INCLUDE_COMPONENTS += bl602_wifidrv bl602_wifi lwip
 INCLUDE_COMPONENTS += yloop vfs utils netutils blog blog_testc cli

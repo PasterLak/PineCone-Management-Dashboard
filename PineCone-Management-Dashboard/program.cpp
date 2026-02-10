@@ -14,7 +14,7 @@ void* __dso_handle = nullptr;
 }
 
 #include <etl/string.h>
-
+#include "playground.hpp"
 #include "components/dashboard_manager.hpp"
 #include "components/led_controller.hpp"
 #include "components/pins_manager.hpp"
@@ -48,6 +48,7 @@ void task_app_wrapper(void* pvParameters) {
   (void)pvParameters;
   vTaskDelay(pdMS_TO_TICKS(100));
 
+  runPlayground(deltaTime, true);
   start();
 
   while (1) {
