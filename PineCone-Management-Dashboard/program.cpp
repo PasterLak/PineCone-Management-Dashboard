@@ -48,7 +48,7 @@ void task_app_wrapper(void* pvParameters) {
   (void)pvParameters;
   vTaskDelay(pdMS_TO_TICKS(100));
 
-  runPlayground(deltaTime, true);
+  runPlayground(deltaTime, false);
   start();
 
   while (1) {
