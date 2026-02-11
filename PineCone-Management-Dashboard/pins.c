@@ -12,13 +12,10 @@
 
 static bool _adc_initialized = false;
 
-static void adc_init_once(void) {
+static void adc_init_safe(void) {
     if (_adc_initialized) return;
 
     GLB_Set_ADC_CLK(ENABLE, GLB_ADC_CLK_96M, 1);
-
-    ADC_Disable();
-    ADC_Reset();
 
     ADC_CFG_Type adcCfg = {
         .v18Sel = ADC_V18_SEL_1P82V,
@@ -48,11 +45,9 @@ static void adc_init_once(void) {
     _adc_initialized = true;
 }
 
-// Forward declaration - PinsManager is created in program.cpp
 typedef struct PinsManager PinsManager;
 extern PinsManager* getPinsManager(void);
 
-// C wrapper functions to call C++ PinsManager
 extern void pinsManager_setMode(PinsManager* mgr, uint8_t pin, uint8_t mode);
 extern uint8_t pinsManager_getMode(PinsManager* mgr, uint8_t pin);
 extern void pinsManager_setValue(PinsManager* mgr, uint8_t pin, uint8_t value);
@@ -89,8 +84,6 @@ void pinMode(uint8_t pin, uint8_t mode) {
   }
 }
 
-
-
 void digitalWrite(uint8_t pin, uint8_t value) {
   if (pin < MAX_PINS) {
     PinsManager* mgr = getPinsManager();
@@ -101,8 +94,8 @@ void digitalWrite(uint8_t pin, uint8_t value) {
 
 int digitalRead(uint8_t pin) { return bl_gpio_input_get_value(pin); }
 
-int analogRead(uint8_t pin) { // <- bad guy
-    if (!_adc_initialized) adc_init_once();
+int analogRead(uint8_t pin) {
+    if (!_adc_initialized) adc_init_safe();
 
     int channel = -1;
     switch(pin) {
@@ -120,13 +113,19 @@ int analogRead(uint8_t pin) { // <- bad guy
 
     ADC_Channel_Config((ADC_Chan_Type)channel, ADC_CHAN_GND, DISABLE);
 
-    while(ADC_Get_FIFO_Count() > 0) {
+    int cleanup_attempts = 20;
+    while(ADC_Get_FIFO_Count() > 0 && cleanup_attempts > 0) {
         ADC_Read_FIFO();
+        cleanup_attempts--;
     }
 
     ADC_Start();
 
+    int timeout = 50;
     while(ADC_Get_FIFO_Count() == 0) {
+        vTaskDelay(1);
+        timeout--;
+        if (timeout <= 0) return 0;
     };
 
     uint32_t regVal = ADC_Read_FIFO();
@@ -162,13 +161,11 @@ int getPinValue(uint8_t pin) {
 
   uint8_t mode = getPinMode(pin);
 
-  // For OUTPUT pins, return the value we wrote
   if (mode == OUTPUT) {
     PinsManager* mgr = getPinsManager();
     return pinsManager_getValue(mgr, pin);
   }
 
-  // For INPUT pins, read the actual pin state
   return digitalRead(pin);
 }
 
