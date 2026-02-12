@@ -12,7 +12,9 @@ export PROJECT_PATH PROJECT_BOARD
 -include ./proj_config.mk
 
 NETWORK_FLAGS := -DLWIP_HTTPD_CUSTOM_FILES=1 \
-	-DLWIP_HTTPD_DYNAMIC_HEADERS=1
+	-DLWIP_HTTPD_DYNAMIC_HEADERS=1\
+	-DLWIP_ALTCP_TLS_MBEDTLS \
+	-DWITH_SNIFFER
 
 CFLAGS += $(NETWORK_FLAGS)
 CPPFLAGS += $(NETWORK_FLAGS)
@@ -30,13 +32,12 @@ COMPONENTS_NETWORK := sntp dns_server
 COMPONENTS_BLSYS   := bltime blfdt blmtd blota bloop loopadc looprt loopset
 COMPONENTS_VFS     := romfs
 
-
-
 INCLUDE_COMPONENTS += freertos bl602 bl602_std bl_sys hal_drv bl_gpio hal_gpio
-INCLUDE_COMPONENTS += bl602_wifidrv bl602_wifi lwip
+INCLUDE_COMPONENTS += bl602_wifidrv bl602_wifi lwip_dhcpd lwip
 INCLUDE_COMPONENTS += yloop vfs utils netutils blog blog_testc cli
-INCLUDE_COMPONENTS += httpc lwip_dhcpd mbedtls-bl602 cjson
+INCLUDE_COMPONENTS += mbedtls-bl602 sniffer cjson
 INCLUDE_COMPONENTS += easyflash4 etl rfparam_adapter_tmp
+
 INCLUDE_COMPONENTS += $(COMPONENTS_NETWORK)
 INCLUDE_COMPONENTS += $(COMPONENTS_BLSYS)
 INCLUDE_COMPONENTS += $(COMPONENTS_VFS)
@@ -44,7 +45,7 @@ INCLUDE_COMPONENTS += $(PROJECT_NAME)
 INCLUDE_COMPONENTS += $(PROJECT_NAME)/components
 
 #Only for me necessary because I use another directory: (Timkroe21)
-#ALTERNATIVE_PROJECT_DIR = /home/tim-kroeckel/Dokumente/Iot_Project/PineCone-Management-Dashboard/
+ALTERNATIVE_PROJECT_DIR = /home/tim-kroeckel/Dokumente/Iot_Project/PineCone-Management-Dashboard/
 
 
 

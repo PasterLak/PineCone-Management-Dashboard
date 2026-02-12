@@ -7,7 +7,6 @@ extern "C" {
     #include <FreeRTOS.h>
     #include <task.h>
     #include <wifi_mgmr_ext.h>
-    #include <lwip/sockets.h>
     #include <lwip/inet.h>
     #include <lwip/netdb.h>
 }
@@ -25,7 +24,7 @@ public:
     // KORRIGIERT: Nur ein "bool"
     bool isConnected();
 
-    void sendData(const char* ip_address, const int port, const char* custom_endpoint);
+    //void sendData(const char* ip_address, const int port, const char* custom_endpoint);
 
     char* get_password();
 

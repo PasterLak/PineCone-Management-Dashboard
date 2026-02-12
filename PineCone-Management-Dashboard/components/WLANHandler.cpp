@@ -20,7 +20,6 @@ extern "C" {
     #include <hal_uart.h>
     #include <hal_wifi.h>
     #include <event_device.h>
-    #include <http_client.h>
 }
 
 #include <etl/array.h>
@@ -104,48 +103,4 @@ char* WLANHandler::get_mac_address(){
              mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     return macStr;
-}
-
-
-void WLANHandler::sendData(const char* ip_address, const int port, const char* json) {
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0) {
-        printf("[HTTP] Socket creation failed!\r\n");
-        return;
-    }
-
-    struct sockaddr_in server;
-    server.sin_family = AF_INET;
-    server.sin_port = htons(port);
-    server.sin_addr.s_addr = inet_addr(ip_address);
-
-    if (connect(sock, (struct sockaddr*)&server, sizeof(server)) < 0) {
-        printf("[HTTP] Connection failed!\r\n");
-        close(sock);
-        return;
-    }
-
-    printf("[HTTP] Connected!\r\n");
-
-    char request[512];
-    snprintf(request, sizeof(request),
-        "POST /data HTTP/1.1\r\n"
-        "Host: %s\r\n"
-        "Content-Type: application/json\r\n"
-        "Content-Length: %d\r\n"
-        "Connection: close\r\n\r\n"
-        "%s",
-        ip_address, strlen(json), json
-    );
-
-    write(sock, request, strlen(request));
-
-    char buffer[512];
-    int len = read(sock, buffer, sizeof(buffer)-1);
-    if (len > 0) {
-        buffer[len] = 0;
-        printf("[HTTP] Server Response:\r\n%s\r\n", buffer);
-    }
-
-    close(sock);
 }
