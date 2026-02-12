@@ -32,9 +32,11 @@ WiFi SSID: Marmor
 WiFi Password:
 Dashboard Server IP: 192.168.178.75
 */
+
 constexpr const char* WIFI_SSID = "AccessPi";
 constexpr const char* WIFI_PASSWORD = "PineCone1234";
 constexpr const char* DASHBOARD_SERVER_IP = "10.42.0.1";  // e.g. 192.168.178.75
-constexpr uint16_t DASHBOARD_SERVER_PORT = 5000;
+constexpr uint16_t DASHBOARD_SERVER_PORT = 80;
+
 
 }  // namespace Config
