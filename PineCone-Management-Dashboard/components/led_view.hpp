@@ -3,9 +3,9 @@
 #include "blink.hpp"
 
 // controls LED behavior based on connection state
-class LEDController {
+class LEDView {
  public:
-  LEDController(uint8_t pin, float blink_interval_sec);
+  LEDView(uint8_t pin, float blink_interval_sec);
 
   void initialize();
 

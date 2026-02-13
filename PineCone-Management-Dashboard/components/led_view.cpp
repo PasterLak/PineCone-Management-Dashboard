@@ -1,4 +1,4 @@
-#include "led_controller.hpp"
+#include "led_view.hpp"
 
 extern "C" {
 #include <stdio.h>
@@ -6,21 +6,19 @@ extern "C" {
 #include "../pins.h"
 }
 
-LEDController::LEDController(uint8_t pin, float blink_interval_sec)
+LEDView::LEDView(uint8_t pin, float blink_interval_sec)
     : led(pin),
       pin(pin),
       blink_interval_sec(blink_interval_sec),
       blink_time(0.0f) {}
 
-void LEDController::initialize() {
+void LEDView::initialize() {
   led.off();
   setPinName(pin, "LED");
   setPinValueString(pin, "Off");
-
- 
 }
 
-void LEDController::update(bool is_connected, bool should_blink,
+void LEDView::update(bool is_connected, bool should_blink,
                            float delta_time_sec) {
   if (!is_connected) {
     setOff();
@@ -37,19 +35,19 @@ void LEDController::update(bool is_connected, bool should_blink,
   }
 }
 
-void LEDController::setOff() {
+void LEDView::setOff() {
   led.off();
   setPinValueString(pin, "Off");
   blink_time = 0.0f;
 }
 
-void LEDController::setSteadyOn() {
+void LEDView::setSteadyOn() {
   led.on();
   setPinValueString(pin, "On");
   blink_time = 0.0f;
 }
 
-void LEDController::updateBlinking() {
+void LEDView::updateBlinking() {
   blink_time = 0.0f;
   led.toggle();
   // LED is inverted: LOW (0) = On, HIGH (1) = Off

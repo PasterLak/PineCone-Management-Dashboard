@@ -18,7 +18,7 @@ void* __dso_handle = nullptr;
 #include "components/dashboard_manager.hpp"
 #include "components/joystick.hpp"
 #include "components/joystick_view.hpp"
-#include "components/led_controller.hpp"
+#include "components/led_view.hpp"
 #include "components/pins_manager.hpp"
 #include "components/wifi_handler.hpp"
 #include "components/delta_time.hpp"
@@ -32,7 +32,7 @@ void* __dso_handle = nullptr;
 DeltaTime deltaTime;
 PinsManager pinsManager;  // Global pin state manager
 WIFIHandler wifi(Config::WIFI_SSID, Config::WIFI_PASSWORD);
-LEDController ledController(Config::LED_PIN, Config::LED_BLINK_INTERVAL_SEC);
+LEDView ledController(Config::LED_PIN, Config::LED_BLINK_INTERVAL_SEC);
 DashboardManager dashboardManager(wifi, Config::DASHBOARD_SERVER_IP,
                                   Config::DASHBOARD_SERVER_PORT,
                                   Config::DASHBOARD_UPDATE_INTERVAL_SEC);
