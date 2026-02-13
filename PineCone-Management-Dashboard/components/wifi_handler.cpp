@@ -6,7 +6,7 @@ extern "C" {
 #include <hal_wifi.h>
 #include <vfs.h>
 
-#include "pins.h"
+#include "pins.hpp"
 }
 
 // Constructor: store SSID and password
@@ -80,7 +80,7 @@ char* WIFIHandler::get_ip_address() {
 }
 
 // ===== PUBLIC: Send data to server via HTTP =====
-bool WIFIHandler::sendData(const char* server_ip, uint16_t port) {
+bool WIFIHandler::sendData(const char* server_ip, uint16_t port,  PinsManager& pinsManager) {
     if (debug_enabled) {
         char msg[128];
         snprintf(msg, sizeof(msg), "[NET] sendData() called for %s:%d", server_ip, port);
@@ -96,10 +96,10 @@ bool WIFIHandler::sendData(const char* server_ip, uint16_t port) {
 
     bool first_pin = true;
     for (uint8_t pin = 0; pin < MAX_PINS; pin++) {
-        if (isPinConfigured(pin)) {
-            const char* value_str = getPinValueString(pin);
-            const char* mode = getPinModeString(pin);
-            const char* name = getPinName(pin);
+        if (pinsManager.isConfigured(pin)) {
+            const char* value_str = pinsManager.getValueString(pin);
+            const char* mode = pinsManager.getModeString(pin);
+            const char* name = pinsManager.getName(pin);
 
             if (!first_pin) pos += snprintf(payload + pos, sizeof(payload) - pos, ",");
             first_pin = false;

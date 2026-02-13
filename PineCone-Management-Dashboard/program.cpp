@@ -7,12 +7,12 @@ extern "C" {
 #include <stdio.h>
 #include <task.h>
 
-#include "pins.h"
 
 // Fix for missing __dso_handle symbol with global C++ objects
 void* __dso_handle = nullptr;
 }
 
+#include "pins.hpp"
 #include <etl/string.h>
 #include "playground.hpp"
 #include "components/dashboard_manager.hpp"
@@ -32,18 +32,14 @@ void* __dso_handle = nullptr;
 DeltaTime deltaTime;
 PinsManager pinsManager;  // Global pin state manager
 WIFIHandler wifi(Config::WIFI_SSID, Config::WIFI_PASSWORD);
-LEDView ledController(Config::LED_PIN, Config::LED_BLINK_INTERVAL_SEC);
-DashboardManager dashboardManager(wifi, Config::DASHBOARD_SERVER_IP,
+LEDView ledController(Config::LED_PIN, Config::LED_BLINK_INTERVAL_SEC, pinsManager);
+DashboardManager dashboardManager(wifi,pinsManager, Config::DASHBOARD_SERVER_IP,
                                   Config::DASHBOARD_SERVER_PORT,
                                   Config::DASHBOARD_UPDATE_INTERVAL_SEC);
 
 Joystick joystick(4,5,6);   
-JoystickView joystickView(joystick);
+JoystickView joystickView(joystick, pinsManager);
 
-// Expose PinsManager to C code
-extern "C" {
-PinsManager* getPinsManager() { return &pinsManager; }
-}
 
 // ============================================================================
 // Application Lifecycle
