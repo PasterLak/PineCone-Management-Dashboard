@@ -2,8 +2,8 @@
 
 extern "C" {
 #include "bl_timer.h"
-#include "pins.h"
 }
+#include "pins.hpp"
 
 Button::Button(uint8_t pin) {
   this->_pin = pin;

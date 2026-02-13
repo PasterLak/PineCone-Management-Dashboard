@@ -2,13 +2,15 @@
 extern "C" {
 #include <stdio.h>
 }
-#include "dashboard_manager.hpp"
 #include "../extentions/log.hpp"
+#include "dashboard_manager.hpp"
 
 DashboardManager::DashboardManager(WIFIHandler& wlan_handler,
+                                   PinsManager& pinsManager,
                                    const char* server_ip, uint16_t server_port,
                                    float update_interval_sec)
     : wlan(wlan_handler),
+      _pinsManager(pinsManager),
       server_ip(server_ip),
       server_port(server_port),
       update_interval_sec(update_interval_sec),
@@ -57,7 +59,7 @@ void DashboardManager::sendDataToDashboard() {
   }
 
   log("[DashboardManager] Sending data to dashboard...");
-  wlan.sendData(server_ip, server_port);
+  wlan.sendData(server_ip, server_port, _pinsManager);
 }
 
 void DashboardManager::logDashboardInfo() {
