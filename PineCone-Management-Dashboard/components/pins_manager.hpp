@@ -7,7 +7,6 @@
 #include "../pins.hpp"
 
 #define MAX_PINS_REGISTRY 23
-#define PIN_UNCONFIGURED 255
 
 class PinsManager {
  public:
@@ -31,6 +30,7 @@ class PinsManager {
     uint8_t mode;
     char name[16];
     char value_string[32];
+    bool isConfigured = false;
   };
 
   PinState pins_[MAX_PINS_REGISTRY];

@@ -2,10 +2,10 @@
 
 PinsManager::PinsManager() {
   for (int i = 0; i < MAX_PINS_REGISTRY; i++) {
-    pins_[i].mode = PIN_UNCONFIGURED;
-  
+    pins_[i].mode = INPUT;
     pins_[i].name[0] = '\0';
     pins_[i].value_string[0] = '\0';
+    pins_[i].isConfigured = false;
   }
 }
 
@@ -13,16 +13,19 @@ void PinsManager::registerPin(uint8_t pin, const char* name, uint8_t mode) {
   if (!isValid(pin)) return;
 
     pins_[pin].mode = mode;
- 
+    pins_[pin].isConfigured = true;
+    pinMode(pin,mode);
+
     setName(pin, name);
 }
 
 uint8_t PinsManager::getMode(uint8_t pin) const {
-  return isValid(pin) ? pins_[pin].mode : PIN_UNCONFIGURED;
+
+  return pins_[pin].mode;
 }
 
 bool PinsManager::isConfigured(uint8_t pin) const {
-  return getMode(pin) != PIN_UNCONFIGURED;
+  return pins_[pin].isConfigured;
 }
 
 const char* PinsManager::getModeString(uint8_t pin) const {

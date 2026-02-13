@@ -12,6 +12,8 @@ class JoystickView {
  private:
   Joystick& _joystick;
   PinsManager& _pinsManager;
+  int8_t _cachedX;
+  int8_t _cachedY;
 
   void setStringFromInt(uint8_t pin, int8_t val);
 };
