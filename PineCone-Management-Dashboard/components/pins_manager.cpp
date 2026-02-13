@@ -3,7 +3,7 @@
 PinsManager::PinsManager() {
   for (int i = 0; i < MAX_PINS_REGISTRY; i++) {
     pins_[i].mode = PIN_UNCONFIGURED;
-    pins_[i].value = 0;
+  
     pins_[i].name[0] = '\0';
     pins_[i].value_string[0] = '\0';
   }
@@ -13,7 +13,7 @@ void PinsManager::registerPin(uint8_t pin, const char* name, uint8_t mode) {
   if (!isValid(pin)) return;
 
     pins_[pin].mode = mode;
-    pins_[pin].value = 0;
+ 
     setName(pin, name);
 }
 
@@ -40,14 +40,6 @@ const char* PinsManager::getModeString(uint8_t pin) const {
   }
 }
 
-void PinsManager::setValue(uint8_t pin, uint8_t value) {
-  if (isValid(pin))
-    pins_[pin].value = value;
-}
-
-uint8_t PinsManager::getValue(uint8_t pin) const {
-  return isValid(pin) ? pins_[pin].value : 0;
-}
 
 void PinsManager::setName(uint8_t pin, const char* name) {
   if (isValid(pin) && name) {
@@ -81,7 +73,5 @@ const char* PinsManager::getValueString(uint8_t pin) const {
   if (pins_[pin].value_string[0] != '\0')
     return pins_[pin].value_string;
 
-  static char buf[16];
-  snprintf(buf, sizeof(buf), "%d", getValue(pin));
-  return buf;
+  return "0";
 }
