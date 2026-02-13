@@ -33,9 +33,9 @@ WiFi Password:
 Dashboard Server IP: 192.168.178.75
 */
 
-constexpr const char* WIFI_SSID = "Marmor"; // AccessPi
-constexpr const char* WIFI_PASSWORD = "AhduSI!n1"; // PineCone1234
-constexpr const char* DASHBOARD_SERVER_IP = "192.168.178.113";  // e.g. 10.42.0.1
+constexpr const char* WIFI_SSID = "AccessPi"; // SSID
+constexpr const char* WIFI_PASSWORD = "PineCone1234"; // pw
+constexpr const char* DASHBOARD_SERVER_IP = "10.42.0.1";  // ip e.g. 10.42.0.1
 constexpr uint16_t DASHBOARD_SERVER_PORT = 80;
 
 
