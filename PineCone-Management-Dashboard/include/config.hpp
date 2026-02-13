@@ -17,8 +17,8 @@ LED Red	IO 17	JTAG → PWM
 constexpr uint8_t LED_PIN = 11;  // Blue
 
 // Timing Configuration
-constexpr float DASHBOARD_UPDATE_INTERVAL_SEC = 1.0f;
-constexpr float LED_BLINK_INTERVAL_SEC = 2.5f;
+constexpr float DASHBOARD_UPDATE_INTERVAL_SEC = 0.1f;
+constexpr float LED_BLINK_INTERVAL_SEC = 0.5f;
 
 // Network Configuration
 /*
@@ -33,9 +33,9 @@ WiFi Password:
 Dashboard Server IP: 192.168.178.75
 */
 
-constexpr const char* WIFI_SSID = "AccessPi";
-constexpr const char* WIFI_PASSWORD = "PineCone1234";
-constexpr const char* DASHBOARD_SERVER_IP = "10.42.0.1";  // e.g. 192.168.178.75
+constexpr const char* WIFI_SSID = "Marmor"; // AccessPi
+constexpr const char* WIFI_PASSWORD = "AhduSI!n1"; // PineCone1234
+constexpr const char* DASHBOARD_SERVER_IP = "192.168.178.113";  // e.g. 10.42.0.1
 constexpr uint16_t DASHBOARD_SERVER_PORT = 80;
 
 
