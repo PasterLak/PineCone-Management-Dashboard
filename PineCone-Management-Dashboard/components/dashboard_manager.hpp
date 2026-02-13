@@ -2,10 +2,11 @@
 
 #include "wifi_handler.hpp"
 #include "extentions/log.hpp"
+#include "components/pins_manager.hpp"
 // Manages dashboard communication and state
 class DashboardManager {
  public:
-  DashboardManager(WIFIHandler& wlan_handler, const char* server_ip,
+  DashboardManager(WIFIHandler& wlan_handler, PinsManager& pinsManager, const char* server_ip,
                    uint16_t server_port, float update_interval_sec);
 
   void setDebugEnabled(bool enabled) {
@@ -19,6 +20,7 @@ class DashboardManager {
 
  private:
     WIFIHandler& wlan;
+    PinsManager& _pinsManager;
   const char* server_ip;
   uint16_t server_port;
   float update_interval_sec;

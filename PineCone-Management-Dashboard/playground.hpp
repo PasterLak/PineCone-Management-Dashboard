@@ -1,5 +1,5 @@
 #include "extentions/log.hpp"
-#include "pins.h"
+#include "pins.hpp"
 #include "components/delta_time.hpp"
 #include "components/joystick.hpp"
 
