@@ -1,11 +1,12 @@
 #pragma once
 
 #include "blink.hpp"
+#include "components/pins_manager.hpp"
 
 // controls LED behavior based on connection state
-class LEDController {
+class LEDView {
  public:
-  LEDController(uint8_t pin, float blink_interval_sec);
+  LEDView(uint8_t pin, float blink_interval_sec, PinsManager& pinsManager);
 
   void initialize();
 
@@ -16,6 +17,7 @@ class LEDController {
   uint8_t pin;
   float blink_interval_sec;
   float blink_time;
+  PinsManager& _pinsManager;
 
   void setOff();
   void setSteadyOn();

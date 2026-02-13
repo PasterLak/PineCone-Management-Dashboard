@@ -11,6 +11,7 @@ class Blink {
   void off();
   void toggle();
   void blink(uint32_t interval_ms, uint8_t times);
+  bool isActive();
 
  private:
   uint8_t _pin;

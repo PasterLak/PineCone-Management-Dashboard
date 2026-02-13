@@ -1,8 +1,8 @@
 #include "joystick.hpp"
 
 extern "C" {
-#include "pins.h"
 }
+#include "pins.hpp"
 
 Joystick::Joystick(uint8_t pinX, uint8_t pinY, uint8_t pinBtn)
     : _pinX(pinX),

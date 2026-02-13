@@ -1,8 +1,9 @@
 #include "blink.hpp"
 
 extern "C" {
-#include "../pins.h"
 }
+
+#include "../pins.hpp"
 
 Blink::Blink(uint8_t pin) : _pin(pin) {
   pinMode(_pin, OUTPUT);
@@ -25,6 +26,11 @@ void Blink::toggle() {
   } else {
     on();
   }
+}
+
+bool Blink::isActive()
+{
+  return _state;
 }
 
 void Blink::blink(uint32_t interval_ms, uint8_t times) {

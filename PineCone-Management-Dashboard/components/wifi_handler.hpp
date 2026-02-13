@@ -9,6 +9,7 @@ extern "C" {
 #include <wifi_mgmr_ext.h>
 }
 
+#include "components/pins_manager.hpp"
 #include "http_client.hpp"
 #include "json_parser.hpp"
 #include "extentions/log.hpp"
@@ -45,7 +46,7 @@ public:
     bool isConnected();
     char* get_ip_address();
     HTTPClient& get_http_client() { return http_client; }
-    bool sendData(const char* server_ip, uint16_t port = 5000);
+    bool sendData(const char* server_ip, uint16_t port,  PinsManager& pinsManager);
 
     void setDebugEnabled(bool enabled) {
         debug_enabled = enabled;
