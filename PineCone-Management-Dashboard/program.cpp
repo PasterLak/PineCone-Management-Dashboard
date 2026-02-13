@@ -16,6 +16,8 @@ void* __dso_handle = nullptr;
 #include <etl/string.h>
 #include "playground.hpp"
 #include "components/dashboard_manager.hpp"
+#include "components/joystick.hpp"
+#include "components/joystick_view.hpp"
 #include "components/led_controller.hpp"
 #include "components/pins_manager.hpp"
 #include "components/wifi_handler.hpp"
@@ -34,6 +36,9 @@ LEDController ledController(Config::LED_PIN, Config::LED_BLINK_INTERVAL_SEC);
 DashboardManager dashboardManager(wifi, Config::DASHBOARD_SERVER_IP,
                                   Config::DASHBOARD_SERVER_PORT,
                                   Config::DASHBOARD_UPDATE_INTERVAL_SEC);
+
+Joystick joystick(4,5,6);   
+JoystickView joystickView(joystick);
 
 // Expose PinsManager to C code
 extern "C" {
@@ -61,6 +66,7 @@ void start() {
   Log::println("====== BUILD:", Config::BUILD_VERSION, "======");
 
   ledController.initialize();
+  joystickView.init();
   dashboardManager.setDebugEnabled(false);
   wifi.setDebugEnabled(false);
   wifi.start();
@@ -68,6 +74,7 @@ void start() {
 
 void loop() {
   deltaTime.update();
+  joystickView.update();
   float delta_sec = deltaTime.getSec();
 
   // Update dashboard communication

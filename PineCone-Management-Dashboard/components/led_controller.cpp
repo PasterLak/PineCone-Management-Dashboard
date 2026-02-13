@@ -17,12 +17,7 @@ void LEDController::initialize() {
   setPinName(pin, "LED");
   setPinValueString(pin, "Off");
 
-  pinMode((uint8_t)4, INPUT);
-  pinMode((uint8_t)5, INPUT);
-  setPinName((uint8_t)4, "X");
-  setPinValueString((uint8_t)4, "-1");
-  setPinName((uint8_t)5, "Y");
-  setPinValueString((uint8_t)5, "1");
+ 
 }
 
 void LEDController::update(bool is_connected, bool should_blink,

@@ -12,38 +12,7 @@
 
 static bool _adc_initialized = false;
 
-static void adc_init_safe(void) {
-    if (_adc_initialized) return;
 
-    GLB_Set_ADC_CLK(ENABLE, GLB_ADC_CLK_96M, 1);
-
-    ADC_CFG_Type adcCfg = {
-        .v18Sel = ADC_V18_SEL_1P82V,
-        .v11Sel = ADC_V11_SEL_1P1V,
-        .clkDiv = ADC_CLK_DIV_32,
-        .gain1 = ADC_PGA_GAIN_1,
-        .gain2 = ADC_PGA_GAIN_1,
-        .chopMode = ADC_CHOP_MOD_AZ_PGA_ON,
-        .biasSel = ADC_BIAS_SEL_MAIN_BANDGAP,
-        .vcm = ADC_PGA_VCM_1V,
-        .vref = ADC_VREF_3P2V,
-        .inputMode = ADC_INPUT_SINGLE_END,
-        .resWidth = ADC_DATA_WIDTH_16_WITH_64_AVERAGE,
-        .offsetCalibEn = DISABLE,
-        .offsetCalibVal = 0
-    };
-
-    ADC_Init(&adcCfg);
-
-    ADC_FIFO_Cfg_Type fifoCfg = {
-        .fifoThreshold = ADC_FIFO_THRESHOLD_1,
-        .dmaEn = DISABLE
-    };
-    ADC_FIFO_Cfg(&fifoCfg);
-
-    ADC_Enable();
-    _adc_initialized = true;
-}
 
 typedef struct PinsManager PinsManager;
 extern PinsManager* getPinsManager(void);
@@ -93,6 +62,41 @@ void digitalWrite(uint8_t pin, uint8_t value) {
 }
 
 int digitalRead(uint8_t pin) { return bl_gpio_input_get_value(pin); }
+
+
+static void adc_init_safe(void) {
+    if (_adc_initialized) return;
+
+    GLB_Set_ADC_CLK(ENABLE, GLB_ADC_CLK_96M, 1);
+
+    ADC_CFG_Type adcCfg = {
+        .v18Sel = ADC_V18_SEL_1P82V,
+        .v11Sel = ADC_V11_SEL_1P1V,
+        .clkDiv = ADC_CLK_DIV_32,
+        .gain1 = ADC_PGA_GAIN_NONE, 
+        
+        .gain2 = ADC_PGA_GAIN_NONE,
+        .chopMode = ADC_CHOP_MOD_AZ_PGA_ON,
+        .biasSel = ADC_BIAS_SEL_MAIN_BANDGAP,
+        .vcm = ADC_PGA_VCM_1V,
+        .vref = ADC_VREF_3P2V,
+        .inputMode = ADC_INPUT_SINGLE_END,
+        .resWidth = ADC_DATA_WIDTH_16_WITH_64_AVERAGE,
+        .offsetCalibEn = DISABLE,
+        .offsetCalibVal = 0
+    };
+
+    ADC_Init(&adcCfg);
+
+    ADC_FIFO_Cfg_Type fifoCfg = {
+        .fifoThreshold = ADC_FIFO_THRESHOLD_1,
+        .dmaEn = DISABLE
+    };
+    ADC_FIFO_Cfg(&fifoCfg);
+
+    ADC_Enable();
+    _adc_initialized = true;
+}
 
 int analogRead(uint8_t pin) {
     if (!_adc_initialized) adc_init_safe();
