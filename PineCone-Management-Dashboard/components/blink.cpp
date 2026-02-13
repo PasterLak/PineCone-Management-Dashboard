@@ -28,6 +28,11 @@ void Blink::toggle() {
   }
 }
 
+bool Blink::isActive()
+{
+  return _state;
+}
+
 void Blink::blink(uint32_t interval_ms, uint8_t times) {
   blinkPin(_pin, interval_ms, times);
 }

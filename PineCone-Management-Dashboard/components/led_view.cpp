@@ -53,6 +53,6 @@ void LEDView::updateBlinking() {
   blink_time = 0.0f;
   led.toggle();
   // LED is inverted: LOW (0) = On, HIGH (1) = Off
-  _pinsManager.setValueString(pin, _pinsManager.getValue(pin) ? "Off" : "On");
+  _pinsManager.setValueString(pin, led.isActive() ? "On" : "Off");
   printf("[LED] Toggle\r\n");
 }
