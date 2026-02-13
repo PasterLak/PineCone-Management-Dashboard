@@ -40,7 +40,8 @@ echo ""
 echo "STEP 2: Flashing firmware"
 echo "----------------------------------------"
 echo "Flashing firmware to device..."
-blflash flash "build_out/${project_name}.bin" --port "$port"
+echo "For VirtualBox users: add --baud-rate 230400 --initial-baud-rate 115200"
+blflash flash "build_out/${project_name}.bin" --port "$port" --baud-rate 230400 --initial-baud-rate 115200
 
 echo ""
 echo "STEP 3: Prepare for operation"

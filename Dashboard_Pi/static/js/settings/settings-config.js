@@ -4,8 +4,8 @@ class SettingsConfig {
   static FIELDS = {
     pollInterval: {
       id: 'pollIntervalInput',
-      min: 100,
-      default: 1000,
+      min: 10,
+      default: 50,
       name: 'Device Polling Interval',
       description: 'How often the dashboard fetches device data from the server (device table updates)'
     },

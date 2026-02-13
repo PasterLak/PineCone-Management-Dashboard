@@ -25,12 +25,16 @@ private:
     // Device info from server
     char node_id[64] = "";
     char description[128] = "";
+    char last_sent_description[128] = "";
+    char last_sent_pins_json[768] = "{}";
     bool should_blink = false;
+    bool force_full_sync_next = false;
+    bool startup_handshake_done = false;
     bool last_request_successful = false;
     bool debug_enabled = true;
 
     void initNodeIdFromMac();
-    void buildPinsJson(char* buffer, size_t buffer_size);
+    void buildPinsJson(PinsManager& pinsManager, char* buffer, size_t buffer_size);
     void parseServerResponse(const char* json);
 
     void log(const char* message) const {
