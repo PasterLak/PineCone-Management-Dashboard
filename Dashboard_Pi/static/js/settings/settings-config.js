@@ -5,7 +5,7 @@ class SettingsConfig {
     pollInterval: {
       id: 'pollIntervalInput',
       min: 10,
-      default: 10,
+      default: 50,
       name: 'Device Polling Interval',
       description: 'How often the dashboard fetches device data from the server (device table updates)'
     },
