@@ -26,6 +26,7 @@ __pycache__/
 
 Dashboard_Pi/data/devices.json
 Dashboard_Pi/__pycache__/
+Dashboard_Pi/dashboard/
 
 # VS Code - keep ALL config files, ignore only cache
 .vscode/*
@@ -92,5 +93,6 @@ dkms.conf
 
 install.sh
 
+PineCone-Management-Dashboard/include/config.hpp
 
 /.idea
