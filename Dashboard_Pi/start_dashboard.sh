@@ -5,18 +5,16 @@ APP_DIR="$(pwd)"
 
 echo -e "PineCone Dashboard Setup (Linux, Current Folder)"
 
-if ! command -v pyenv &> /dev/null; then
-  echo -e "Error: pyenv is not installed."
-  echo "pls install first: (https://github.com/pyenv/pyenv)."
-  exit 1
+# Create virtual environment if it doesn't exist
+if [ ! -d "dashboard" ]; then
+  echo -e "Creating Python virtual environment 'dashboard'..."
+  python3 -m venv dashboard
 fi
 
-if ! pyenv versions | grep -q "bl_venv"; then
-  echo -e "Erstelle pyenv-Environment 'bl_venv'..."
-  pyenv virtualenv 3.11.9 bl_venv
-fi
+# Activate virtual environment
+source ./dashboard/bin/activate
 
-pyenv local bl_venv
+# Upgrade pip and install flask
 pip install --upgrade pip
 pip install flask
 
@@ -24,6 +22,7 @@ APP_PY="$APP_DIR/app.py"
 
 if [ -f "$APP_PY" ]; then
   echo -e "Flask-App found: $APP_PY"
+  chmod +x "$APP_PY"
 else
   echo -e "Error: $APP_PY not found."
   exit 1
@@ -35,7 +34,4 @@ echo "open in Browser:"
 echo "  http://localhost:5000"
 echo "-----------------------------------------"
 
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
-pyenv activate bl_venv
-python app.py
+sudo ./dashboard/bin/python3 app.py
