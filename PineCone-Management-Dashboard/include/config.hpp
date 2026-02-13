@@ -17,7 +17,7 @@ LED Red	IO 17	JTAG → PWM
 constexpr uint8_t LED_PIN = 11;  // Blue
 
 // Timing Configuration
-constexpr float DASHBOARD_UPDATE_INTERVAL_SEC = 0.01f;
+constexpr float DASHBOARD_UPDATE_INTERVAL_SEC = 0.025f;
 constexpr float LED_BLINK_INTERVAL_SEC = 0.5f;
 
 // Network Configuration

@@ -3,8 +3,24 @@ Device API endpoints - handle device data, updates, and actions
 """
 from flask import request, jsonify
 from datetime import datetime
-import uuid
 import device_manager
+
+_force_full_sync_nodes = set()
+
+def _merge_pins(existing_pins, incoming_pins, full_sync=False):
+    if incoming_pins is None:
+        return existing_pins or {}
+
+    if full_sync:
+        return incoming_pins or {}
+
+    merged = dict(existing_pins or {})
+    for gpio, pin_data in (incoming_pins or {}).items():
+        if pin_data is None:
+            merged.pop(gpio, None)   # allow deleting a pin via partial update
+        else:
+            merged[gpio] = pin_data
+    return merged
 
 
 def register_device_routes(app):
@@ -14,26 +30,39 @@ def register_device_routes(app):
     def receive_data():
         """Main endpoint where BL602 devices POST their data"""
         data = request.json or {}
-        
+
         req_node_id = (data.get("node_id") or "").strip()
-        incoming_desc = (data.get("description") or "").strip()
-        incoming_pins = data.get("pins") or {}
-        
+        if not req_node_id:
+            return jsonify({"error": "node_id required"}), 400
+
+        has_desc = "description" in data
+        has_pins = "pins" in data
+        incoming_desc = (data.get("description") or "").strip() if has_desc else None
+        incoming_pins = data.get("pins") if has_pins else None
+        full_sync = bool(data.get("full_sync", False))
+
         existing_device = device_manager.get_device(req_node_id)
-        
-        # New device
-        if not req_node_id or not existing_device:
-            node_id = req_node_id or f"auto-{uuid.uuid4().hex[:8]}"
-            description = incoming_desc
-            pins = incoming_pins
+        node_id = req_node_id
+        force_full_sync = False
+
+        if not existing_device and not (full_sync and has_desc and has_pins):
+            _force_full_sync_nodes.add(node_id)
+            return jsonify({
+                "status": "ok",
+                "node_id": node_id,
+                "force_full_sync": True,
+            })
+
+        if not existing_device:
+            description = incoming_desc if has_desc else ""
+            pins = incoming_pins if has_pins else {}
             blink = False
-        # Existing device
         else:
             node_id = req_node_id
-            description = existing_device.get("description", "")
-            pins = incoming_pins
+            description = incoming_desc if has_desc else existing_device.get("description", "")
+            pins = _merge_pins(existing_device.get("pins", {}), incoming_pins, full_sync=full_sync)
             blink = existing_device.get("blink", False)
-        
+
         device_data = {
             "ip": request.remote_addr or "",
             "description": description,
@@ -41,20 +70,28 @@ def register_device_routes(app):
             "pins": pins,
             "blink": blink,
         }
-        
+
         device_manager.update_device(node_id, device_data)
-        
+
+        if node_id in _force_full_sync_nodes:
+            if full_sync and has_desc and has_pins:
+                _force_full_sync_nodes.discard(node_id)
+            else:
+                force_full_sync = True
+
         response = {
             "status": "ok",
             "node_id": node_id,
             "description": description,
         }
-        
+
         if blink:
             response["blink"] = True
-        
+        if force_full_sync:
+            response["force_full_sync"] = True
+
         return jsonify(response)
-    
+
     
     @app.route("/api/update_description", methods=["POST"])
     def update_description():
@@ -66,8 +103,9 @@ def register_device_routes(app):
         if not device:
             return jsonify({"error": "not found"}), 404
         
-        device["description"] = data.get("description", "") or ""
-        device_manager.update_device(node_id, device)
+        updated = dict(device)
+        updated["description"] = data.get("description", "") or ""
+        device_manager.update_device(node_id, updated)
         
         return jsonify({"status": "ok"})
     
@@ -82,12 +120,13 @@ def register_device_routes(app):
         if not device:
             return jsonify({"error": "not found"}), 404
         
-        device["blink"] = not device.get("blink", False)
-        device_manager.update_device(node_id, device)
+        updated = dict(device)
+        updated["blink"] = not device.get("blink", False)
+        device_manager.update_device(node_id, updated)
         
         return jsonify({
             "status": "ok",
-            "blink": device["blink"]
+            "blink": updated["blink"]
         })
     
     
@@ -99,9 +138,13 @@ def register_device_routes(app):
         
         if not device_manager.delete_device(node_id):
             return jsonify({"error": "not found"}), 404
+
+        # ask node to send one full payload after deletion
+        if node_id:
+            _force_full_sync_nodes.add(node_id)
         
         return jsonify({"status": "ok"})
-    
+
     
     @app.route("/api/devices", methods=["GET"])
     def get_devices():
