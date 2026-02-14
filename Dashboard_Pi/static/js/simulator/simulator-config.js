@@ -71,7 +71,18 @@ class SimulatorConfig {
         GPIO4: { name: "temp_sensor", mode: "input", value: "23" },
         GPIO5: { name: "motion_detect", mode: "pulldown", value: "0" }
       }
+    },
+    joystick: {
+      node_id: "PineCone_Joystick_001",
+      description: "Joystick Controller",
+      pins: {
+        GPIO11: { mode: "output", name: "LED", value: "On" },
+        GPIO4: { mode: "input", name: "X Axis", value: "0" },
+        GPIO5: { mode: "input", name: "Y Axis", value: "0" },
+        GPIO6: { mode: "input", name: "Joystick Button", value: "PRESSED" }
+      }
     }
+
   };
 
   // Get example by type
