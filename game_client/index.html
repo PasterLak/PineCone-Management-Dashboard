@@ -1,41 +1,35 @@
-<!doctype html>
-<html lang="de">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PineCone Realtime Client</title>
-  <link rel="stylesheet" href="./style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Space Squirrels</title>
+    <link rel="stylesheet" href="style.css?v=4">
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
 </head>
 <body>
-  <h2>PineCone Realtime Client</h2>
-  <div class="row">
-    <label class="field">
-      <span>API Base URL</span>
-      <input id="apiBase" value="http://192.168.178.76:80" />
-    </label>
+    <div id="ui-bar">
+        <div class="input-group">
+            <input id="apiBase" list="ip-history" placeholder="http://10.42.0.1:80" value="http://10.42.0.1:80">
+            <datalist id="ip-history"></datalist>
+            
+            <input id="ids" placeholder="Device IDs (comma sep)">
+            <input id="interval" type="number" value="10" min="10" max="2000" title="Poll (ms)">
+        </div>
+        <div class="control-group">
+            <span id="status" class="status-badge disconnected">Disconnected</span>
+            <button id="connectBtn" class="btn primary">Play</button>
+            <button id="disconnectBtn" class="btn danger" style="display:none;">Stop</button>
+        </div>
+    </div>
+    
+    <div id="game-container">
+        <div id="ui-layer"></div>
+        <canvas id="renderCanvas"></canvas>
+    </div>
 
-    <label class="field">
-      <span>Device IDs (comma separated)</span>
-      <input id="ids" placeholder="node_id1,node_id2 (empty = all)" />
-    </label>
-
-    <label class="field field--small">
-      <span>Stream Interval (ms)</span>
-      <input id="interval" type="number" value="10" min="10" max="2000" />
-    </label>
-
-    <label class="field field--small">
-      <span>Offline Threshold (ms)</span>
-      <input id="offlineThreshold" type="number" value="200" min="200" />
-    </label>
-
-    <button id="connectBtn">Connect</button>
-    <button id="disconnectBtn">Disconnect</button>
-    <button id="snapshotBtn">Snapshot</button>
-  </div>
-  <div>Status: <span id="status">disconnected</span></div>
-  <pre id="output">{}</pre>
-
-  <script src="./app.js"></script>
+    <script src="network.js"></script>
+    <script src="game.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>

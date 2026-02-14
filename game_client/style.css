@@ -1,45 +1,139 @@
-body {
-  font-family: Arial, sans-serif;
-  margin: 16px;
+:root {
+    --bg-color: #0f0f13;
+    --panel-bg: rgba(30, 30, 35, 0.95);
+    --text-color: #ffffff;
+    --primary-color: #00e676;
+    --danger-color: #ff1744;
+    --input-bg: #25252b;
+    --border-color: #3f3f46;
 }
 
-.row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-  align-items: flex-end;
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-color);
+    font-family: sans-serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#ui-bar {
+    flex: 0 0 auto;
+    background: var(--panel-bg);
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 20;
+}
+
+.input-group, .control-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
 
 input {
-  min-width: 280px;
-  padding: 6px;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+input:focus {
+    border-color: var(--primary-color);
 }
 
-.field span {
-  font-size: 12px;
-  color: #333;
+input#apiBase { width: 180px; }
+input#ids { width: 120px; }
+input#interval { width: 70px; }
+
+.btn {
+    padding: 8px 16px;
+    cursor: pointer;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: bold;
+    transition: filter 0.2s;
 }
 
-.field--small input {
-  min-width: 170px;
+.btn:hover { filter: brightness(1.1); }
+.btn.primary { background: var(--primary-color); }
+.btn.danger { background: var(--danger-color); color: #fff; }
+
+.status-badge {
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
 }
 
-button {
-  padding: 6px 10px;
+.status-badge.connected { background: rgba(0, 230, 118, 0.2); color: var(--primary-color); }
+.status-badge.disconnected { background: rgba(255, 255, 255, 0.1); color: #999; }
+
+#game-container {
+    flex: 1 1 auto;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
-pre {
-  background: #111;
-  color: #0f0;
-  padding: 12px;
-  border-radius: 8px;
-  overflow: auto;
-  max-height: 70vh;
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    outline: none;
+}
+
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.player-label {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    will-change: top, left;
+}
+
+.player-name {
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 2px 6px;
+    font-size: 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px black;
+}
+
+.player-score {
+    background: #ff9800;
+    color: #fff;
+    padding: 1px 5px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 8px;
+    min-width: 20px;
+    text-align: center;
 }
