@@ -9,29 +9,43 @@ import ipaddress
 LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
 
 
+def _is_private_ipv4(ip: str) -> bool:
+    try:
+        addr = ipaddress.ip_address(ip)
+    except ValueError:
+        return False
+
+    return (
+        isinstance(addr, ipaddress.IPv4Address)
+        and addr.is_private
+        and not addr.is_loopback
+        and not addr.is_link_local
+    )
+
+
 def _find_private_ip() -> str | None:
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("1.1.1.1", 80))
+            ip = s.getsockname()[0]
+            if ip and _is_private_ipv4(ip):
+                return ip
+    except OSError:
+        pass
+
     ips: set[str] = set()
 
     try:
         for info in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
             ip = info[4][0]
-            if not ip:
-                continue
+            if ip and _is_private_ipv4(ip):
+                ips.add(ip)
+    except OSError:
+        pass
 
-            try:
-                addr = ipaddress.ip_address(ip)
-            except ValueError:
-                continue
-
-            # RFC1918 private IPv4 ranges only
-            if (
-                isinstance(addr, ipaddress.IPv4Address)
-                and (
-                    ip.startswith("10.")
-                    or ip.startswith("192.168.")
-                    or (ip.startswith("172.") and 16 <= int(ip.split(".")[1]) <= 31)
-                )
-            ):
+    try:
+        for ip in socket.gethostbyname_ex(socket.gethostname())[2]:
+            if ip and _is_private_ipv4(ip):
                 ips.add(ip)
     except OSError:
         pass
