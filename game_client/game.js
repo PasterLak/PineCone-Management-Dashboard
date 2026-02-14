@@ -1,8 +1,8 @@
 class GameManager {
     constructor(canvas, uiLayer) {
-        this.SCORE_STORAGE_KEY = "pinecone_game_scores_v1";
         this.canvas = canvas;
         this.uiLayer = uiLayer;
+        this.leaderboardEl = document.getElementById('leaderboard');
         this.engine = new BABYLON.Engine(canvas, true);
         this.scene = null;
         this.camera = null;
@@ -38,23 +38,8 @@ class GameManager {
 
         this.lastSpawnTime = Date.now();
         this.gameHeight = 14; 
-        this.savedScores = this.loadScores();
         
         this.init();
-    }
-
-    loadScores() {
-        try {
-            const raw = localStorage.getItem(this.SCORE_STORAGE_KEY);
-            const parsed = JSON.parse(raw || "{}");
-            return (parsed && typeof parsed === "object") ? parsed : {};
-        } catch (_) {
-            return {};
-        }
-    }
-
-    persistScores() {
-        localStorage.setItem(this.SCORE_STORAGE_KEY, JSON.stringify(this.savedScores));
     }
 
     init() {
@@ -138,23 +123,39 @@ class GameManager {
         
         const scoreSpan = document.createElement("div");
         scoreSpan.className = "player-score";
-
-        const restoredScore = Number(this.savedScores[id]);
-        const initialScore = Number.isFinite(restoredScore) ? restoredScore : 0;
-        scoreSpan.innerText = String(initialScore);
+        scoreSpan.innerText = "0";
 
         const colorIndex = this.getUniqueColorIndex();
-        scoreSpan.style.backgroundColor = this.playerColors[colorIndex];
+        const playerColor = this.playerColors[colorIndex];
+        scoreSpan.style.backgroundColor = playerColor;
 
         labelDiv.appendChild(nameSpan);
         labelDiv.appendChild(scoreSpan);
         this.uiLayer.appendChild(labelDiv);
 
+        const lbEntry = document.createElement("div");
+        lbEntry.className = "lb-entry";
+        
+        const lbName = document.createElement("div");
+        lbName.className = "lb-name";
+        lbName.innerText = name;
+        lbName.style.color = playerColor;
+
+        const lbScore = document.createElement("div");
+        lbScore.className = "lb-score";
+        lbScore.innerText = "0";
+
+        lbEntry.appendChild(lbName);
+        lbEntry.appendChild(lbScore);
+        this.leaderboardEl.appendChild(lbEntry);
+
         this.players[id] = {
             mesh,
             ui: labelDiv,
             scoreUI: scoreSpan,
-            score: initialScore,
+            lbEntry: lbEntry,
+            lbScore: lbScore,
+            score: 0,
             targetX: 0,
             direction: 'right',
             isBot: isBot,
@@ -168,6 +169,9 @@ class GameManager {
             this.players[id].mesh.dispose();
             if(this.players[id].ui.parentNode) {
                 this.players[id].ui.parentNode.removeChild(this.players[id].ui);
+            }
+            if(this.players[id].lbEntry.parentNode) {
+                this.players[id].lbEntry.parentNode.removeChild(this.players[id].lbEntry);
             }
             delete this.players[id];
         }
@@ -211,6 +215,7 @@ class GameManager {
                         const nameEl = this.players[deviceId].ui.querySelector(".player-name");
                         if (nameEl.innerText !== displayName) {
                             nameEl.innerText = displayName;
+                            this.players[deviceId].lbEntry.querySelector(".lb-name").innerText = displayName;
                         }
                         this.players[deviceId].isBot = isBot;
                     }
@@ -340,12 +345,11 @@ class GameManager {
 
             let caught = false;
             
-            for (const [playerId, p] of Object.entries(this.players)) {
+            for (const p of Object.values(this.players)) {
                 if (c.intersectsMesh(p.mesh, false)) {
                     p.score++;
                     p.scoreUI.innerText = p.score;
-                    this.savedScores[playerId] = p.score;
-                    this.persistScores();
+                    p.lbScore.innerText = p.score;
                     caught = true;
                     break; 
                 }
@@ -356,6 +360,8 @@ class GameManager {
                 this.cones.splice(i, 1);
             }
         }
+        
+        this.updateLeaderboard();
     }
 
     updateUI(player) {
@@ -368,5 +374,17 @@ class GameManager {
 
         player.ui.style.left = `${pos.x}px`;
         player.ui.style.top = `${pos.y}px`;
+    }
+
+    updateLeaderboard() {
+        const sortedPlayers = Object.values(this.players).sort((a, b) => b.score - a.score);
+        const rowHeight = 26; 
+        const padding = 10;
+        
+        sortedPlayers.forEach((player, index) => {
+            player.lbEntry.style.top = `${padding + index * rowHeight}px`;
+        });
+        
+        this.leaderboardEl.style.height = `${padding * 2 + sortedPlayers.length * rowHeight}px`;
     }
 }
