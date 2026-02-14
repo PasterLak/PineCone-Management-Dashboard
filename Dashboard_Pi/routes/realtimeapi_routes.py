@@ -23,14 +23,6 @@ def _filtered_devices(ids_set):
     return {k: v for k, v in devices.items() if k in ids_set}
 
 
-def _parse_offline_threshold_ms(raw):
-    try:
-        value = int(raw)
-        return max(100, value)
-    except (TypeError, ValueError):
-        return DEFAULT_OFFLINE_THRESHOLD_MS
-
-
 def _is_online(device, offline_threshold_ms):
     # offline when (now - last_seen) > threshold
     last_seen = device.get("last_seen")
@@ -68,18 +60,14 @@ def register_realtimeapi_routes(app):
     @app.route("/api/realtime/snapshot", methods=["GET"])
     def realtime_snapshot():
         ids_set = _parse_ids(request.args.get("ids", ""))
-        offline_threshold_ms = _parse_offline_threshold_ms(
-            request.args.get("offlineThreshold")
-        )
+        offline_threshold_ms = DEFAULT_OFFLINE_THRESHOLD_MS
         return jsonify(_build_payload(ids_set, offline_threshold_ms))
 
     @app.route("/api/realtime/stream", methods=["GET"])
     def realtime_stream():
         ids_set = _parse_ids(request.args.get("ids", ""))
         interval_ms = max(50, min(2000, int(request.args.get("interval", "100"))))
-        offline_threshold_ms = _parse_offline_threshold_ms(
-            request.args.get("offlineThreshold")
-        )
+        offline_threshold_ms = DEFAULT_OFFLINE_THRESHOLD_MS
 
         def gen():
             last_data = None
