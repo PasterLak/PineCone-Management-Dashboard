@@ -2,6 +2,7 @@
 Device API endpoints - handle device data, updates, and actions
 """
 from flask import request, jsonify
+import simulator_manager
 from datetime import datetime
 import device_manager
 
@@ -106,6 +107,8 @@ def register_device_routes(app):
         updated = dict(device)
         updated["description"] = data.get("description", "") or ""
         device_manager.update_device(node_id, updated)
+
+        synced = simulator_manager.sync_simulator_descriptions(node_id, updated["description"])
         
         return jsonify({"status": "ok"})
     

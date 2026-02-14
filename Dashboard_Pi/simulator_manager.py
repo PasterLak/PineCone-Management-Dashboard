@@ -12,6 +12,65 @@ simulator_threads = {}
 simulator_stop_flags = {}
 simulator_configs = {}
 simulator_responses = {}
+simulator_config_lock = threading.Lock()
+simulator_pending_payloads = {}
+
+def sync_simulator_descriptions(node_id, description):
+    """Synchronize description into simulator payloads by node_id.
+
+    Only simulators with autoUpdate=True are synchronized.
+    """
+    if not node_id:
+        return 0
+
+    updated_sim_ids = []
+    new_description = str(description or "")
+
+    with simulator_config_lock:
+        for sim_id, cfg in simulator_configs.items():
+            if not cfg.get("autoUpdate", True):
+                continue
+
+            payload = cfg.get("currentPayload")
+            if not isinstance(payload, dict):
+                continue
+
+            normalized = _normalize_payload(sim_id, dict(payload))
+            if normalized.get("node_id") != node_id:
+                continue
+
+            normalized["description"] = new_description
+            cfg["currentPayload"] = normalized
+            cfg["payload"] = normalized
+            simulator_pending_payloads[sim_id] = normalized
+            updated_sim_ids.append(sim_id)
+
+    for sim_id in updated_sim_ids:
+        add_log(sim_id, f'Description synced from device UI: "{new_description}"')
+
+    return len(updated_sim_ids)
+
+def _normalize_payload(sim_id, payload):
+    """Ensure required payload shape for /api/data."""
+    if not isinstance(payload, dict):
+        payload = {}
+
+    node_id = str(payload.get("node_id", "")).strip()
+    if not node_id:
+        node_id = f"sim_{sim_id}"
+
+    description = payload.get("description", "")
+    if description is None:
+        description = ""
+
+    pins = payload.get("pins", {})
+    if not isinstance(pins, dict):
+        pins = {}
+
+    payload["node_id"] = node_id
+    payload["description"] = str(description)
+    payload["pins"] = pins
+    return payload
 
 
 def get_timestamp():
@@ -46,19 +105,20 @@ def simulator_worker(app, sim_id, interval_ms, payload_str, auto_update):
     
     # Parse initial payload
     try:
-        current_payload = json.loads(payload_str)
+        current_payload = _normalize_payload(sim_id, json.loads(payload_str))
     except:
-        current_payload = {"node_id": "", "description": ""}
-    
+        current_payload = _normalize_payload(sim_id, {})
+
     while not stop_flag["stop"]:
         try:
-            # Check current config
-            config = simulator_configs.get(sim_id, {})
-            should_auto_update = config.get("autoUpdate", auto_update)
-            
-            # Check if payload was manually updated
-            if "currentPayload" in config:
-                current_payload = config["currentPayload"]
+            with simulator_config_lock:
+                config = simulator_configs.get(sim_id, {})
+                should_auto_update = config.get("autoUpdate", auto_update)
+
+                if sim_id in simulator_pending_payloads:
+                    current_payload = _normalize_payload(sim_id, simulator_pending_payloads.pop(sim_id))
+                elif "currentPayload" in config:
+                    current_payload = _normalize_payload(sim_id, config["currentPayload"])
             
             # Send payload to API
             with app.test_client() as client:
@@ -68,17 +128,26 @@ def simulator_worker(app, sim_id, interval_ms, payload_str, auto_update):
                 # Log response
                 add_log(sim_id, json.dumps(result))
                 
+                if result and result.get("status") == "ok":
+                    if result.get("force_full_sync"):
+                        current_payload = _normalize_payload(sim_id, current_payload)
+                        current_payload["full_sync"] = True
+                        add_log(sim_id, "force_full_sync requested -> sending full payload next")
+                    else:
+                        current_payload.pop("full_sync", None)
+
+                    if should_auto_update:
+                        if "node_id" in result:
+                            current_payload["node_id"] = result["node_id"]
+                        if "description" in result:
+                            current_payload["description"] = result["description"]
+                        print(f"[Simulator {sim_id}] Updated payload: {current_payload}")
+
                 # Store current payload
-                config["currentPayload"] = current_payload
-                
-                # Auto-update if enabled
-                if should_auto_update and result and result.get("status") == "ok":
-                    if "node_id" in result:
-                        current_payload["node_id"] = result["node_id"]
-                    if "description" in result:
-                        current_payload["description"] = result["description"]
-                    config["currentPayload"] = current_payload
-                    print(f"[Simulator {sim_id}] Updated payload: {current_payload}")
+                with simulator_config_lock:
+                    config = simulator_configs.get(sim_id)
+                    if config is not None:
+                        config["currentPayload"] = current_payload
                 
             print(f"[Simulator {sim_id}] Sent: {current_payload}")
         
@@ -98,11 +167,19 @@ def start_simulator(app, sim_id, interval, payload, auto_update, max_responses):
     if sim_id in simulator_threads and simulator_threads[sim_id].is_alive():
         return {"error": "already running"}, 400
     
+    try:
+        initial_payload = _normalize_payload(sim_id, json.loads(payload))
+    except Exception:
+        initial_payload = _normalize_payload(sim_id, {})
+
     # Store config
-    simulator_configs[sim_id] = {
-        "autoUpdate": auto_update,
-        "maxResponses": max_responses
-    }
+    with simulator_config_lock:
+        simulator_configs[sim_id] = {
+            "autoUpdate": auto_update,
+            "maxResponses": max_responses,
+            "currentPayload": initial_payload,
+            "payload": initial_payload,
+        }
     
     add_log(sim_id, "Simulator started")
     
@@ -137,8 +214,10 @@ def stop_simulator(sim_id):
         del simulator_threads[sim_id]
     
     del simulator_stop_flags[sim_id]
-    if sim_id in simulator_configs:
-        del simulator_configs[sim_id]
+    with simulator_config_lock:
+        if sim_id in simulator_configs:
+            del simulator_configs[sim_id]
+        simulator_pending_payloads.pop(sim_id, None)
     
     return {"status": "stopped", "id": sim_id}, 200
 
@@ -173,19 +252,44 @@ def update_simulator_config(sim_id, auto_update):
     if sim_id not in simulator_configs:
         return {"error": "not found"}, 404
     
-    simulator_configs[sim_id]["autoUpdate"] = auto_update
+    with simulator_config_lock:
+        simulator_configs[sim_id]["autoUpdate"] = auto_update
     return {"status": "updated", "id": sim_id}, 200
 
 
-def update_simulator_payload(sim_id, payload_str):
+def update_simulator_payload(sim_id, payload_str, app=None):
     """Update simulator payload"""
     if sim_id not in simulator_configs:
         return {"error": "not found"}, 404
     
     try:
-        payload = json.loads(payload_str)
-        simulator_configs[sim_id]["currentPayload"] = payload
-        simulator_configs[sim_id]["payload"] = payload
+        payload = _normalize_payload(sim_id, json.loads(payload_str))
+        with simulator_config_lock:
+            simulator_configs[sim_id]["currentPayload"] = payload
+            simulator_configs[sim_id]["payload"] = payload
+            simulator_pending_payloads[sim_id] = payload
+
+        is_running = sim_id in simulator_threads and simulator_threads[sim_id].is_alive()
+        if app is not None and is_running:
+            with app.test_client() as client:
+                response = client.post("/api/data", json=payload)
+                result = response.get_json()
+
+                if result and result.get("force_full_sync"):
+                    retry_payload = dict(payload)
+                    retry_payload["full_sync"] = True
+                    retry_payload.setdefault("pins", {})
+                    retry_payload.setdefault("description", "")
+                    response = client.post("/api/data", json=retry_payload)
+                    result = response.get_json()
+                    payload = retry_payload
+
+                add_log(sim_id, f"Payload updated manually (applied): {json.dumps(result)}")
+
+                with simulator_config_lock:
+                    simulator_configs[sim_id]["currentPayload"] = payload
+                    simulator_pending_payloads[sim_id] = payload
+
         add_log(sim_id, "Payload updated manually")
         return {"status": "updated", "id": sim_id}, 200
     except json.JSONDecodeError as e:

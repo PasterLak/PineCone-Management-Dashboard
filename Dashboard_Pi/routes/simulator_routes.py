@@ -59,7 +59,7 @@ def register_simulator_routes(app):
         sim_id = data.get("id")
         payload_str = data.get("payload", "{}")
         
-        result, status = simulator_manager.update_simulator_payload(sim_id, payload_str)
+        result, status = simulator_manager.update_simulator_payload(sim_id, payload_str, app)
         return jsonify(result), status
     
     

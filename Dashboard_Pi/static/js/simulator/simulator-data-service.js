@@ -62,7 +62,7 @@ class SimulatorDataService {
       id,
       name: name || `Simulator ${id}`,
       interval: SimulatorConfig.DEFAULTS.INTERVAL,
-      json: JSON.stringify({ node_id: '', description: '' }, null, 2),
+      json: JSON.stringify({ node_id: '', description: '', pins: {} }, null, 2),
       running: false,
       autoUpdate: SimulatorConfig.DEFAULTS.AUTO_UPDATE,
       console: '',

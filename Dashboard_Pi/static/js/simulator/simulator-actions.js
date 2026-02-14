@@ -34,6 +34,11 @@ class SimulatorActions {
       }
       
       this.dataService.update(id, { running: true });
+
+        sim.originalJson = sim.json;
+        sim.hasUnsavedChanges = false;
+      }
+
       this.dataService.save();
       
       if (this.renderer) {
@@ -177,7 +182,10 @@ class SimulatorActions {
     }
     
     if (field === SimulatorConfig.FIELDS.JSON) {
-      if (sim.running && !sim.autoUpdate && sim.originalJson !== null) {
+      if (sim.running && !sim.autoUpdate) {
+        if (sim.originalJson === null) {
+          sim.originalJson = sim.json;
+        }
         sim.hasUnsavedChanges = (value !== sim.originalJson);
       }
     }
