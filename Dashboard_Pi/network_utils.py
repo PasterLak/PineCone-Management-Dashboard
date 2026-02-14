@@ -23,17 +23,33 @@ def _is_private_ipv4(ip: str) -> bool:
     )
 
 
+def _ip_priority(ip: str) -> tuple[int, str]:
+    """Lower number = better main address candidate."""
+    if ip.startswith("192.168."):
+        return (0, ip)
+
+    if ip.startswith("172."):
+        parts = ip.split(".")
+        if len(parts) > 1 and parts[1].isdigit() and 16 <= int(parts[1]) <= 31:
+            return (1, ip)
+
+    if ip.startswith("10."):
+        return (2, ip)
+
+    return (3, ip)
+
+
 def _find_private_ip() -> str | None:
+    ips: set[str] = set()
+
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
             s.connect(("1.1.1.1", 80))
             ip = s.getsockname()[0]
             if ip and _is_private_ipv4(ip):
-                return ip
+                ips.add(ip)
     except OSError:
         pass
-
-    ips: set[str] = set()
 
     try:
         for info in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
@@ -51,7 +67,7 @@ def _find_private_ip() -> str | None:
         pass
 
     if ips:
-        return sorted(ips)[0]
+        return sorted(ips, key=_ip_priority)[0]
 
     return None
 
