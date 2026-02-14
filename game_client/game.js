@@ -74,10 +74,12 @@ class GameManager {
         material.useAlphaFromDiffuseTexture = true;
     }
 
-    addPlayer(id, name) {
+    addPlayer(id, name, isBot) {
         const mesh = BABYLON.MeshBuilder.CreatePlane(id, { size: this.config.playerSize }, this.scene);
         mesh.position.z = 0;
         mesh.position.y = this.camera.orthoBottom + 2.5;
+
+        console.log(" id" + id + " isBot "+ isBot)
         
         const mat = new BABYLON.StandardMaterial(`mat_${id}`, this.scene);
         mat.emissiveColor = new BABYLON.Color3(1, 1, 1);
@@ -109,7 +111,9 @@ class GameManager {
             scoreUI: scoreSpan,
             score: 0,
             targetX: 0,
-            direction: 'right'
+            direction: 'right',
+            isBot: isBot,
+            nextBotUpdate: 0
         };
     }
 
@@ -153,15 +157,21 @@ class GameManager {
                         displayName = data.description;
                     }
 
+                    const isBot = (data.is_simulator === true || data.is_simulator === "true");
+
                     if (!this.players[deviceId]) {
-                        this.addPlayer(deviceId, displayName);
+                        this.addPlayer(deviceId, displayName, isBot);
                     } else {
                         const nameEl = this.players[deviceId].ui.querySelector(".player-name");
                         if (nameEl.innerText !== displayName) {
                             nameEl.innerText = displayName;
                         }
+                        this.players[deviceId].isBot = isBot;
                     }
-                    this.players[deviceId].targetX = xVal;
+                    
+                    if (!this.players[deviceId].isBot) {
+                        this.players[deviceId].targetX = xVal;
+                    }
                 }
             }
         }
@@ -219,9 +229,14 @@ class GameManager {
 
         const bottomY = this.camera.orthoBottom - 2;
         const playerY = this.camera.orthoBottom + 2.5;
-        const limit = this.config.width / 2 - 0.75;
+        const limit = this.config.width / 2;
 
         Object.values(this.players).forEach(p => {
+            if (p.isBot && now > p.nextBotUpdate) {
+                p.targetX = (Math.random() * 2) - 1; 
+                p.nextBotUpdate = now + (Math.random() * 900 + 100);
+            }
+
             if (p.targetX !== 0) {
                 if (p.targetX > 0 && p.direction !== 'right') {
                     p.direction = 'right';
@@ -232,8 +247,12 @@ class GameManager {
                 }
 
                 p.mesh.position.x += p.targetX * this.config.playerSpeed * (dt / 16);
-                if (p.mesh.position.x > limit) p.mesh.position.x = limit;
-                if (p.mesh.position.x < -limit) p.mesh.position.x = -limit;
+                
+                if (p.mesh.position.x > limit) {
+                    p.mesh.position.x = -limit;
+                } else if (p.mesh.position.x < -limit) {
+                    p.mesh.position.x = limit;
+                }
             }
             p.mesh.position.y = playerY;
             this.updateUI(p);
