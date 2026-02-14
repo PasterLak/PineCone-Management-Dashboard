@@ -72,15 +72,54 @@ def _find_private_ip() -> str | None:
     return None
 
 
-def resolve_current_endpoint(request_host: str, request_host_url: str, port: int) -> str:
+def _collect_private_ips() -> list[str]:
+    ips: set[str] = set()
+
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("1.1.1.1", 80))
+            ip = s.getsockname()[0]
+            if ip and _is_private_ipv4(ip):
+                ips.add(ip)
+    except OSError:
+        pass
+
+    try:
+        for info in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
+            ip = info[4][0]
+            if ip and _is_private_ipv4(ip):
+                ips.add(ip)
+    except OSError:
+        pass
+
+    try:
+        for ip in socket.gethostbyname_ex(socket.gethostname())[2]:
+            if ip and _is_private_ipv4(ip):
+                ips.add(ip)
+    except OSError:
+        pass
+
+    return sorted(ips, key=_ip_priority)
+
+
+def resolve_dashboard_endpoints(request_host: str, request_host_url: str, port: int) -> list[str]:
     host = (request_host or "").split(":")[0].strip().lower()
     current_endpoint = request_host_url.rstrip("/")
 
     if host in LOOPBACK_HOSTS:
-        private_ip = _find_private_ip()
-        if private_ip:
-            if port in (80, 443):
-                return f"http://{private_ip}"
-            return f"http://{private_ip}:{port}"
+        private_ips = _collect_private_ips()
+        if not private_ips:
+            return []
 
-    return current_endpoint
+        if port in (80, 443):
+            return [f"http://{ip}" for ip in private_ips]
+        return [f"http://{ip}:{port}" for ip in private_ips]
+
+    return [current_endpoint]
+
+
+def resolve_current_endpoint(request_host: str, request_host_url: str, port: int) -> str:
+    endpoints = resolve_dashboard_endpoints(request_host, request_host_url, port)
+    if endpoints:
+        return endpoints[0]
+    return request_host_url.rstrip("/")
