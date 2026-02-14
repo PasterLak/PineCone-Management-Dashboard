@@ -3,6 +3,7 @@ let es = null;
 const apiBaseEl = document.getElementById("apiBase");
 const idsEl = document.getElementById("ids");
 const intervalEl = document.getElementById("interval");
+const offlineThresholdEl = document.getElementById("offlineThreshold");
 const statusEl = document.getElementById("status");
 const outEl = document.getElementById("output");
 
@@ -23,7 +24,8 @@ function setConnectedUI(isConnected) {
 function buildQuery() {
   const ids = encodeURIComponent(idsEl.value.trim());
   const interval = Math.max(50, Math.min(2000, Number(intervalEl.value || 100)));
-  return `ids=${ids}&interval=${interval}`;
+  const offlineThreshold = Math.max(100, Number(offlineThresholdEl.value || 100));
+  return `ids=${ids}&interval=${interval}&offlineThreshold=${offlineThreshold}`;
 }
 
 async function fetchSnapshot() {
