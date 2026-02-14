@@ -22,9 +22,7 @@
         <span class="settings-hint">
           These links are the local IPv4 addresses that other devices on the same network can use to reach the dashboard.
         </span>
-        <span class="settings-hint">
-          Warning: Not every listed IP will always work from every device. Reachability depends on network routing, firewall rules, VPN/virtual adapters, and router settings (for example client/AP isolation).
-        </span>
+        
 
         {% if dashboard_endpoints %}
           <div class="endpoint-list" role="list">
@@ -53,6 +51,9 @@
         {% else %}
           <div class="endpoint-empty">No local IPv4 addresses found.</div>
         {% endif %}
+        <span class="settings-hint">
+          Warning: Not every listed IP will always work from every device. Reachability depends on network routing, firewall rules, VPN/virtual adapters, and router settings (for example client/AP isolation).
+        </span>
       </div>
     </div>
 
