@@ -76,6 +76,40 @@
     box-shadow: var(--focus-ring);
 }
 
+.endpoint-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.endpoint-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    max-width: 560px;
+}
+
+.endpoint-input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 1rem;
+}
+
+.endpoint-copy {
+    white-space: nowrap;
+}
+
+.endpoint-empty {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
 .settings-hint {
     font-size: 0.85rem;
     color: var(--text);
@@ -125,6 +159,10 @@
     }
 
     .settings-field input {
+        max-width: 100%;
+    }
+
+    .endpoint-input-row {
         max-width: 100%;
     }
 }

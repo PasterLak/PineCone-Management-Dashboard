@@ -12,6 +12,35 @@
 
   <div class="settings-container">
     <div class="settings-card">
+      <h2>System</h2>
+      <p class="settings-description">
+        Information about the device running the Flask backend.
+      </p>
+
+      <div class="settings-field">
+        <label>Open Dashboard on Network</label>
+        <span class="settings-hint">
+          This link is the local IPv4 address that other devices on the same network can use to reach the dashboard.
+        </span>
+
+        {% if dashboard_endpoint %}
+          <div class="endpoint-list" role="list">
+            <div class="endpoint-item" role="listitem">
+              <div class="endpoint-input-row">
+                <input class="endpoint-input" type="text" value="{{ dashboard_endpoint }}" readonly />
+                <button class="btn-secondary endpoint-copy" type="button" data-copy-text="{{ dashboard_endpoint }}">
+                  <span>Copy</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="endpoint-empty">No local IPv4 addresses found.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="settings-card mt-20">
       <h2>Polling & Update Intervals</h2>
       <p class="settings-description">
         Configure how often the dashboard fetches data from the server. Lower

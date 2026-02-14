@@ -3,10 +3,11 @@ PineCone Management Dashboard - Flask Backend
 Receives POST requests from PineCone BL602 IoT devices and serves a web dashboard.
 """
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from datetime import datetime
 
 from config import HOST, PORT, DEBUG
+from network_utils import resolve_current_endpoint
 
 import device_manager
 import console_logger
@@ -34,10 +35,12 @@ def add_cors_headers(resp):
 
 @app.route("/")
 def index():
+    current_endpoint = resolve_current_endpoint(request.host, request.host_url, PORT)
     return render_template(
         "index.html",
         devices=device_manager.get_all_devices(),
-        server_now_ms=int(datetime.now().timestamp() * 1000)
+        server_now_ms=int(datetime.now().timestamp() * 1000),
+        dashboard_endpoint=current_endpoint,
     )
 
 if __name__ == "__main__":

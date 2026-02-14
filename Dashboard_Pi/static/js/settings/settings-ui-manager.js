@@ -49,6 +49,36 @@ class SettingsUIManager {
 
     // Numeric validation
     this._setupNumericValidation();
+
+    // Endpoint copy buttons
+    this._setupEndpointCopyButtons();
+  }
+
+  // Sets up copy buttons for local dashboard endpoints
+  _setupEndpointCopyButtons() {
+    const copyButtons = document.querySelectorAll('.endpoint-copy');
+
+    copyButtons.forEach((button) => {
+      button.addEventListener('click', async () => {
+        const text = button.dataset.copyText;
+        if (!text || typeof ClipboardUtils === 'undefined') return;
+
+        const success = await ClipboardUtils.copy(text);
+        if (success) {
+          this.buttonFeedback.showTextFeedback(button, 'Copied!', {
+            bgColor: 'var(--color-success)',
+            duration: 1500,
+            resetBorder: true
+          });
+        } else {
+          this.buttonFeedback.showTextFeedback(button, 'Error', {
+            bgColor: 'var(--color-danger)',
+            duration: 1500,
+            resetBorder: true
+          });
+        }
+      });
+    });
   }
 
   // Sets up keyboard shortcuts
