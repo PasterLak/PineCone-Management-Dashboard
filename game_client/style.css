@@ -128,12 +128,14 @@ canvas {
 }
 
 .player-score {
-    background: #ff9800;
     color: #fff;
-    padding: 1px 5px;
+    padding: 2px 8px;
     font-size: 12px;
     font-weight: bold;
     border-radius: 8px;
-    min-width: 20px;
+    min-width: 24px;
     text-align: center;
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    text-shadow: 0 1px 1px rgba(0,0,0,0.5);
 }

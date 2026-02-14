@@ -22,6 +22,19 @@ class GameManager {
             uiOffset: 1.3
         };
 
+        this.playerColors = [
+            "#d32f2f", 
+            "#1976d2", 
+            "#388e3c", 
+            "#f57c00", 
+            "#7b1fa2", 
+            "#0097a7", 
+            "#c2185b", 
+            "#5d4037", 
+            "#455a64", 
+            "#afb42b"  
+        ];
+
         this.lastSpawnTime = Date.now();
         this.gameHeight = 14; 
         
@@ -74,12 +87,22 @@ class GameManager {
         material.useAlphaFromDiffuseTexture = true;
     }
 
+    getUniqueColorIndex() {
+        const usedIndices = new Set();
+        Object.values(this.players).forEach(p => usedIndices.add(p.colorIndex));
+        
+        for (let i = 0; i < this.playerColors.length; i++) {
+            if (!usedIndices.has(i)) {
+                return i;
+            }
+        }
+        return Object.keys(this.players).length % this.playerColors.length;
+    }
+
     addPlayer(id, name, isBot) {
         const mesh = BABYLON.MeshBuilder.CreatePlane(id, { size: this.config.playerSize }, this.scene);
         mesh.position.z = 0;
         mesh.position.y = this.camera.orthoBottom + 2.5;
-
-        console.log(" id" + id + " isBot "+ isBot)
         
         const mat = new BABYLON.StandardMaterial(`mat_${id}`, this.scene);
         mat.emissiveColor = new BABYLON.Color3(1, 1, 1);
@@ -101,6 +124,9 @@ class GameManager {
         scoreSpan.className = "player-score";
         scoreSpan.innerText = "0";
 
+        const colorIndex = this.getUniqueColorIndex();
+        scoreSpan.style.backgroundColor = this.playerColors[colorIndex];
+
         labelDiv.appendChild(nameSpan);
         labelDiv.appendChild(scoreSpan);
         this.uiLayer.appendChild(labelDiv);
@@ -113,7 +139,8 @@ class GameManager {
             targetX: 0,
             direction: 'right',
             isBot: isBot,
-            nextBotUpdate: 0
+            nextBotUpdate: 0,
+            colorIndex: colorIndex
         };
     }
 
@@ -233,8 +260,38 @@ class GameManager {
 
         Object.values(this.players).forEach(p => {
             if (p.isBot && now > p.nextBotUpdate) {
-                p.targetX = (Math.random() * 2) - 1; 
-                p.nextBotUpdate = now + (Math.random() * 900 + 100);
+                let foundCone = false;
+
+                if (Math.random() > 0.35 && this.cones.length > 0) {
+                    let closestCone = null;
+                    let minDistance = Infinity;
+
+                    for (const cone of this.cones) {
+                         if (cone.position.y > playerY) {
+                            const dist = BABYLON.Vector3.Distance(p.mesh.position, cone.position);
+                            if (dist < minDistance) {
+                                minDistance = dist;
+                                closestCone = cone;
+                            }
+                         }
+                    }
+
+                    if (closestCone) {
+                        const dx = closestCone.position.x - p.mesh.position.x;
+                        if (Math.abs(dx) > 0.5) {
+                             p.targetX = dx > 0 ? 1 : -1;
+                        } else {
+                             p.targetX = dx; 
+                        }
+                        foundCone = true;
+                        p.nextBotUpdate = now + 400; 
+                    }
+                }
+
+                if (!foundCone) {
+                    p.targetX = (Math.random() * 2) - 1; 
+                    p.nextBotUpdate = now + (Math.random() * 1000 + 500);
+                }
             }
 
             if (p.targetX !== 0) {
