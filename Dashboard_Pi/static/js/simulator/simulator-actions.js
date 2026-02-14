@@ -35,6 +35,7 @@ class SimulatorActions {
       
       this.dataService.update(id, { running: true });
 
+      if (!sim.autoUpdate && sim.originalJson === null) {
         sim.originalJson = sim.json;
         sim.hasUnsavedChanges = false;
       }
