@@ -7,13 +7,33 @@ class DeviceEventHandler {
     this.renderer = renderer;
     this.buttonFeedback = new ButtonFeedback();
     this.tooltip = null;
+    this.rowClickTimeout = null;
   }
 
   // Setup event listener
   setup() {
     document.addEventListener('click', (e) => this._handleClick(e));
+    document.addEventListener('dblclick', (e) => this._handleDoubleClick(e));
     this._setupClearTableButton();
     this._setupTooltip();
+  }
+
+  // Double-click handler (Description -> inline edit)
+  _handleDoubleClick(e) {
+    if (this.rowClickTimeout) {
+      clearTimeout(this.rowClickTimeout);
+      this.rowClickTimeout = null;
+    }
+
+    const descCell = e.target.closest('.desc-cell');
+    if (!descCell) return;
+    if (e.target.closest('input') || e.target.closest('button')) return;
+
+    const row = descCell.closest('tr');
+    const deviceId = descCell.dataset.id || row?.dataset.id;
+    if (!deviceId) return;
+
+    this.actions.startEdit(deviceId);
   }
 
   // Setup tooltip for action buttons
@@ -103,9 +123,20 @@ class DeviceEventHandler {
       return;
     } else if (row) {
       if (!e.target.closest('button') && !e.target.closest('input')) {
-        this._handleRowClick(row);
+        this._scheduleRowClick(row);
       }
     }
+  }
+
+  _scheduleRowClick(row) {
+    if (this.rowClickTimeout) {
+      clearTimeout(this.rowClickTimeout);
+    }
+
+    this.rowClickTimeout = setTimeout(() => {
+      this._handleRowClick(row);
+      this.rowClickTimeout = null;
+    }, 200);
   }
 
   // OK Button (Save)
