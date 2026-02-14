@@ -3,8 +3,8 @@
 class SimulatorConfig {
   // Default values
   static DEFAULTS = {
-    INTERVAL: 1000,
-    POLL_INTERVAL: 500,
+    INTERVAL: 10,
+    POLL_INTERVAL: 20,
     AUTO_UPDATE: true
   };
 
