@@ -1,5 +1,6 @@
 class GameManager {
     constructor(canvas, uiLayer) {
+        this.SCORE_STORAGE_KEY = "pinecone_game_scores_v1";
         this.canvas = canvas;
         this.uiLayer = uiLayer;
         this.engine = new BABYLON.Engine(canvas, true);
@@ -37,8 +38,23 @@ class GameManager {
 
         this.lastSpawnTime = Date.now();
         this.gameHeight = 14; 
+        this.savedScores = this.loadScores();
         
         this.init();
+    }
+
+    loadScores() {
+        try {
+            const raw = localStorage.getItem(this.SCORE_STORAGE_KEY);
+            const parsed = JSON.parse(raw || "{}");
+            return (parsed && typeof parsed === "object") ? parsed : {};
+        } catch (_) {
+            return {};
+        }
+    }
+
+    persistScores() {
+        localStorage.setItem(this.SCORE_STORAGE_KEY, JSON.stringify(this.savedScores));
     }
 
     init() {
@@ -122,7 +138,10 @@ class GameManager {
         
         const scoreSpan = document.createElement("div");
         scoreSpan.className = "player-score";
-        scoreSpan.innerText = "0";
+
+        const restoredScore = Number(this.savedScores[id]);
+        const initialScore = Number.isFinite(restoredScore) ? restoredScore : 0;
+        scoreSpan.innerText = String(initialScore);
 
         const colorIndex = this.getUniqueColorIndex();
         scoreSpan.style.backgroundColor = this.playerColors[colorIndex];
@@ -135,7 +154,7 @@ class GameManager {
             mesh,
             ui: labelDiv,
             scoreUI: scoreSpan,
-            score: 0,
+            score: initialScore,
             targetX: 0,
             direction: 'right',
             isBot: isBot,
@@ -321,10 +340,12 @@ class GameManager {
 
             let caught = false;
             
-            for (const p of Object.values(this.players)) {
+            for (const [playerId, p] of Object.entries(this.players)) {
                 if (c.intersectsMesh(p.mesh, false)) {
                     p.score++;
                     p.scoreUI.innerText = p.score;
+                    this.savedScores[playerId] = p.score;
+                    this.persistScores();
                     caught = true;
                     break; 
                 }
