@@ -73,13 +73,6 @@ def _normalize_payload(sim_id, payload):
     return payload
 
 
-def _simulator_request_payload(payload):
-    """Create API payload and mark it as simulator traffic."""
-    out = dict(payload or {})
-    out["is_simulator"] = True
-    return out
-
-
 def get_timestamp():
     """Returns current time as HH:MM:SS string"""
     return datetime.now().strftime("%H:%M:%S")
@@ -129,7 +122,7 @@ def simulator_worker(app, sim_id, interval_ms, payload_str, auto_update):
             
             # Send payload to API
             with app.test_client() as client:
-                response = client.post("/api/data", json=_simulator_request_payload(current_payload))
+                response = client.post("/api/data", json=current_payload)
                 result = response.get_json()
                 
                 # Log response
@@ -279,7 +272,7 @@ def update_simulator_payload(sim_id, payload_str, app=None):
         is_running = sim_id in simulator_threads and simulator_threads[sim_id].is_alive()
         if app is not None and is_running:
             with app.test_client() as client:
-                response = client.post("/api/data", json=_simulator_request_payload(payload))
+                response = client.post("/api/data", json=payload)
                 result = response.get_json()
 
                 if result and result.get("force_full_sync"):
@@ -287,7 +280,7 @@ def update_simulator_payload(sim_id, payload_str, app=None):
                     retry_payload["full_sync"] = True
                     retry_payload.setdefault("pins", {})
                     retry_payload.setdefault("description", "")
-                    response = client.post("/api/data", json=_simulator_request_payload(retry_payload))
+                    response = client.post("/api/data", json=retry_payload)
                     result = response.get_json()
                     payload = retry_payload
 
@@ -308,7 +301,7 @@ def send_payload_once(app, sim_id, payload_str):
     try:
         payload = json.loads(payload_str)
         with app.test_client() as client:
-            response = client.post("/api/data", json=_simulator_request_payload(payload))
+            response = client.post("/api/data", json=payload)
             result = response.get_json()
         
         if sim_id is not None:
