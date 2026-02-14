@@ -343,6 +343,16 @@ class GameManager {
             const p = this.players[id];
             p.targetPosX = nextX;
             p.targetPosY = nextY;
+            // Synchronisiere Farbe, falls der Server einen colorIndex sendet.
+            if (typeof pdata.colorIndex === 'number' && pdata.colorIndex !== p.colorIndex) {
+                p.colorIndex = pdata.colorIndex;
+                const playerColor = this.playerColors[p.colorIndex % this.playerColors.length];
+                if (p.scoreUI) p.scoreUI.style.backgroundColor = playerColor;
+                if (p.lbEntry) {
+                    const lbNameEl = p.lbEntry.querySelector('.lb-name');
+                    if (lbNameEl) lbNameEl.style.color = playerColor;
+                }
+            }
             if (isNewPlayer) {
                 // Setze die Startposition ebenfalls innerhalb der Grenzen
                 if (this.forceNoWrap || !this.worldWrap) {
