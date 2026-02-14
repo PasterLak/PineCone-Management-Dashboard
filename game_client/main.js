@@ -6,8 +6,10 @@ const ipComboEl = document.getElementById("ipCombo");
 const ipDropdownEl = document.getElementById("ipDropdown");
 const ipDropdownBtnEl = document.getElementById("ipDropdownBtn");
 
-const STORAGE_KEY = "pinecone_ip_history";
-const LAST_IP_KEY = "pinecone_last_ip";
+const STORAGE_KEY = "pinecone_game_api_history";
+const LAST_IP_KEY = "pinecone_game_api_last";
+const LEGACY_STORAGE_KEY = "pinecone_ip_history";
+const LEGACY_LAST_IP_KEY = "pinecone_last_ip";
 const MAX_IP_HISTORY = 20;
 
 let ipHistory = [];
@@ -21,17 +23,39 @@ const game = new GameManager(
 function loadIpHistory() {
     const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     const lastIp = localStorage.getItem(LAST_IP_KEY);
+    const legacyHistory = JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY) || "[]");
+    const legacyLastIp = localStorage.getItem(LEGACY_LAST_IP_KEY);
+
+    const normalizeGameApi = (value) => {
+        const v = (value || "").trim();
+        if (!v) return "";
+        if (v.endsWith(":80")) return `${v.slice(0, -3)}:8082`;
+        if (/^https?:\/\/[^/:]+$/.test(v)) return `${v}:8082`;
+        return v;
+    };
 
     ipHistory = Array.isArray(history)
         ? [...new Set(history.map(ip => (ip || "").trim()).filter(Boolean))]
         : [];
 
+    if (ipHistory.length === 0 && Array.isArray(legacyHistory)) {
+        ipHistory = [...new Set(legacyHistory.map(normalizeGameApi).filter(Boolean))].slice(0, MAX_IP_HISTORY);
+        if (ipHistory.length > 0) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(ipHistory));
+        }
+    }
+
     renderIpDropdown();
 
-    if (lastIp) {
-        apiBaseEl.value = lastIp;
+    const normalizedLastIp = normalizeGameApi(lastIp || legacyLastIp || "");
+
+    if (normalizedLastIp) {
+        apiBaseEl.value = normalizedLastIp;
+        localStorage.setItem(LAST_IP_KEY, normalizedLastIp);
     } else if (ipHistory.length > 0) {
         apiBaseEl.value = ipHistory[0];
+    } else {
+        apiBaseEl.value = "http://localhost:8082";
     }
 }
 
@@ -116,7 +140,16 @@ network.onStatus = (text, isConnected) => {
 };
 
 network.onData = (data) => {
-    game.syncPlayers(data);
+    game.applyState(data);
+};
+
+game.onScoreResetRequest = (playerId) => {
+    network.resetScore(playerId);
+};
+
+network.onConnectionLost = () => {
+    game.removeAllPlayers();
+    game.removeAllCones();
 };
 
 connectBtn.addEventListener("click", () => {
@@ -129,7 +162,8 @@ connectBtn.addEventListener("click", () => {
 
 disconnectBtn.addEventListener("click", () => {
     network.disconnect();
-    game.removeAllPlayers(); 
+    game.removeAllPlayers();
+    game.removeAllCones();
 });
 
 ipDropdownBtnEl.addEventListener("click", () => {
@@ -151,3 +185,25 @@ apiBaseEl.addEventListener("focus", () => {
 });
 
 loadIpHistory();
+
+// Set CSS variable for UI bar height so the game stage can size itself
+function updateUiBarHeightVar() {
+    const uiBar = document.getElementById('ui-bar');
+    if (!uiBar) return;
+    const h = uiBar.offsetHeight;
+    document.documentElement.style.setProperty('--ui-bar-height', `${h}px`);
+}
+
+// Observe size changes to the UI bar (e.g., when it wraps to 2 lines)
+const uiBarEl = document.getElementById('ui-bar');
+if (uiBarEl && window.ResizeObserver) {
+    const ro = new ResizeObserver(() => updateUiBarHeightVar());
+    ro.observe(uiBarEl);
+    // Also update initially
+    updateUiBarHeightVar();
+    // Update on window resize as well
+    window.addEventListener('resize', updateUiBarHeightVar);
+} else {
+    // Fallback: set a reasonable default
+    document.documentElement.style.setProperty('--ui-bar-height', '88px');
+}

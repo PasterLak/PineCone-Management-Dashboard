@@ -6,23 +6,31 @@ class GameManager {
         this.engine = new BABYLON.Engine(canvas, true);
         this.scene = null;
         this.camera = null;
-        
+        this.lastFrameTs = performance.now();
+        this.worldWrap = false;
+        this.onScoreResetRequest = null;
+
         this.players = {};
-        this.cones = [];
+        this.cones = {};
+        this.lastTick = -1;
         this.textures = {
             right: "squirrel_right.png",
             left: "squirrel_left.png"
         };
-        
+
         this.config = {
-            width: 20, 
-            playerSpeed: 0.2,
-            coneSpeed: 0.15,
-            spawnRate: 1000,
+            width: 20,
             playerSize: 2.0,
             uiOffset: 1.3
         };
 
+        // Optional: Erzwinge kein Wrap (wenn true, kommt man nicht auf die andere Seite)
+        this.forceNoWrap = true;
+
+        // Fixe Weltbreite (in Welt-Einheiten) - sorgt dafür, dass die Spielwelt
+        // auf allen Geräten dieselbe Breite hat. Die Höhe wird aus dem Viewport
+        // Seitenverhältnis berechnet.
+        this.config.worldWidth = 20;
         this.playerColors = [
             "#d32f2f", 
             "#1976d2", 
@@ -36,9 +44,8 @@ class GameManager {
             "#afb42b"  
         ];
 
-        this.lastSpawnTime = Date.now();
-        this.gameHeight = 14; 
-        
+        this.gameHeight = 14;
+
         this.init();
     }
 
@@ -49,12 +56,40 @@ class GameManager {
         this.camera = new BABYLON.FreeCamera("cam", new BABYLON.Vector3(0, 0, -10), this.scene);
         this.camera.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
         
-        const backgroundLayer = new BABYLON.Layer("bg", "images/background.jpg", this.scene, true);
+        new BABYLON.Layer("bg", "images/background.jpg", this.scene, true);
 
         this.updateCameraProjection();
 
         this.engine.runRenderLoop(() => {
-            this.gameLoop();
+            const now = performance.now();
+            const dt = Math.min(0.1, Math.max(0, (now - this.lastFrameTs) / 1000));
+            this.lastFrameTs = now;
+
+            const lerpAlpha = Math.min(1, dt * 14);
+
+            Object.values(this.players).forEach((p) => {
+                if (typeof p.targetPosX === "number") {
+                    if (this.worldWrap) {
+                        p.mesh.position.x = this.lerpWrappedX(p.mesh.position.x, p.targetPosX, lerpAlpha);
+                    } else {
+                        p.mesh.position.x = BABYLON.Scalar.Lerp(p.mesh.position.x, p.targetPosX, lerpAlpha);
+                    }
+                }
+                if (typeof p.targetPosY === "number") {
+                    p.mesh.position.y = BABYLON.Scalar.Lerp(p.mesh.position.y, p.targetPosY, lerpAlpha);
+                }
+                this.updateUI(p);
+            });
+
+            Object.values(this.cones).forEach((cone) => {
+                if (typeof cone.targetPosX === "number") {
+                    cone.position.x = BABYLON.Scalar.Lerp(cone.position.x, cone.targetPosX, lerpAlpha);
+                }
+                if (typeof cone.targetPosY === "number") {
+                    cone.position.y = BABYLON.Scalar.Lerp(cone.position.y, cone.targetPosY, lerpAlpha);
+                }
+            });
+
             this.scene.render();
         });
 
@@ -66,14 +101,54 @@ class GameManager {
 
     updateCameraProjection() {
         const ratio = this.canvas.clientWidth / this.canvas.clientHeight;
-        const width = this.gameHeight * ratio;
+
+        // Halte die Weltbreite konstant (config.worldWidth) damit das Spiel auf
+        // verschiedenen Geräten gleich skaliert aussieht. Die Höhe passt sich an.
+        const width = this.config.worldWidth;
+        const height = width / Math.max(0.0001, ratio);
 
         this.config.width = width;
-        
-        this.camera.orthoTop = this.gameHeight / 2;
-        this.camera.orthoBottom = -this.gameHeight / 2;
+        this.gameHeight = height;
+
         this.camera.orthoLeft = -width / 2;
         this.camera.orthoRight = width / 2;
+        this.camera.orthoTop = height / 2;
+        this.camera.orthoBottom = -height / 2;
+    }
+
+    wrapX(x) {
+        const limit = this.config.width / 2;
+        const worldWidth = this.config.width;
+        let nx = Number(x || 0);
+
+        while (nx > limit) nx -= worldWidth;
+        while (nx < -limit) nx += worldWidth;
+        return nx;
+    }
+
+    lerpWrappedX(currentX, targetX, alpha) {
+        const worldWidth = this.config.width;
+        const half = worldWidth / 2;
+
+        // Normiere beide Werte in den Bereich (-half, half]
+        const norm = (v) => {
+            let x = Number(v || 0);
+            // Bringe x in den Bereich (-half, half]
+            x = ((x + half) % worldWidth + worldWidth) % worldWidth - half;
+            return x;
+        };
+
+        const from = norm(currentX);
+        const to = norm(targetX);
+
+        // Kürzeste Distanz unter Berücksichtigung von Wrap-Around
+        let delta = ((to - from + half) % worldWidth + worldWidth) % worldWidth - half;
+
+        // Interpoliere entlang der kürzesten Strecke — alpha in [0,1]
+        const stepped = from + delta * alpha;
+
+        // Gib das Ergebnis in den sichtbaren Bereich zurück
+        return this.wrapX(stepped);
     }
 
     setMaterialTexture(material, textureName) {
@@ -100,7 +175,7 @@ class GameManager {
         return Object.keys(this.players).length % this.playerColors.length;
     }
 
-    addPlayer(id, name, isBot) {
+    addPlayer(id, name) {
         const mesh = BABYLON.MeshBuilder.CreatePlane(id, { size: this.config.playerSize }, this.scene);
         mesh.position.z = 0;
         mesh.position.y = this.camera.orthoBottom + 2.5;
@@ -149,6 +224,21 @@ class GameManager {
         lbEntry.appendChild(lbScore);
         this.leaderboardEl.appendChild(lbEntry);
 
+        lbName.title = "Klick: Score zurücksetzen";
+        const resetHandler = (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            // Fallback: Hole Player-ID aus DOM falls nicht direkt verfügbar
+            let pid = id;
+            if (!pid && event.target && event.target.classList.contains("lb-name")) {
+                pid = event.target.parentNode && event.target.parentNode.dataset && event.target.parentNode.dataset.playerId;
+            }
+            if (this.onScoreResetRequest) this.onScoreResetRequest(pid);
+        };
+        lbName.addEventListener("click", resetHandler);
+        lbEntry.addEventListener("click", resetHandler);
+        lbEntry.dataset.playerId = id;
+
         this.players[id] = {
             mesh,
             ui: labelDiv,
@@ -156,21 +246,20 @@ class GameManager {
             lbEntry: lbEntry,
             lbScore: lbScore,
             score: 0,
-            targetX: 0,
             direction: 'right',
-            isBot: isBot,
-            nextBotUpdate: 0,
-            colorIndex: colorIndex
+            colorIndex: colorIndex,
+            targetPosX: mesh.position.x,
+            targetPosY: mesh.position.y
         };
     }
 
     removePlayer(id) {
         if (this.players[id]) {
             this.players[id].mesh.dispose();
-            if(this.players[id].ui.parentNode) {
+            if (this.players[id].ui.parentNode) {
                 this.players[id].ui.parentNode.removeChild(this.players[id].ui);
             }
-            if(this.players[id].lbEntry.parentNode) {
+            if (this.players[id].lbEntry.parentNode) {
                 this.players[id].lbEntry.parentNode.removeChild(this.players[id].lbEntry);
             }
             delete this.players[id];
@@ -181,186 +270,137 @@ class GameManager {
         Object.keys(this.players).forEach(id => this.removePlayer(id));
     }
 
-    syncPlayers(devicesData) {
-        const currentIds = new Set();
+    addCone(id) {
+        const cone = BABYLON.MeshBuilder.CreatePlane(`cone_${id}`, { size: 0.8 }, this.scene);
+        cone.position.z = 0;
 
-        if (devicesData && devicesData.devices) {
-            for (const [deviceId, data] of Object.entries(devicesData.devices)) {
-                let hasX = false;
-                let xVal = 0;
-
-                if (data.pins) {
-                    for (const p of Object.values(data.pins)) {
-                        if (p.name === "X Axis") {
-                            hasX = true;
-                            xVal = parseFloat(p.value);
-                            break;
-                        }
-                    }
-                }
-
-                if (hasX) {
-                    currentIds.add(deviceId);
-                    
-                    let displayName = deviceId;
-                    if (data.description && data.description.trim().length > 0) {
-                        displayName = data.description;
-                    }
-
-                    const isBot = (data.is_simulator === true || data.is_simulator === "true");
-
-                    if (!this.players[deviceId]) {
-                        this.addPlayer(deviceId, displayName, isBot);
-                    } else {
-                        const nameEl = this.players[deviceId].ui.querySelector(".player-name");
-                        if (nameEl.innerText !== displayName) {
-                            nameEl.innerText = displayName;
-                            this.players[deviceId].lbEntry.querySelector(".lb-name").innerText = displayName;
-                        }
-                        this.players[deviceId].isBot = isBot;
-                    }
-                    
-                    if (!this.players[deviceId].isBot) {
-                        this.players[deviceId].targetX = xVal;
-                    }
-                }
-            }
-        }
-
-        Object.keys(this.players).forEach(id => {
-            if (!currentIds.has(id)) {
-                this.removePlayer(id);
-            }
-        });
-    }
-
-    spawnCone() {
-        if (Object.keys(this.players).length === 0) return;
-
-        const topY = this.camera.orthoTop + 2;
-        const margin = 1;
-        const x = Math.random() * (this.config.width - margin * 2) - (this.config.width / 2 - margin);
-        
-        const cone = BABYLON.MeshBuilder.CreatePlane("cone", { size: 0.8 }, this.scene);
-        cone.position.set(x, topY, 0);
-        
         const cMat = new BABYLON.StandardMaterial("cMat", this.scene);
         const texture = new BABYLON.Texture("images/cone.png", this.scene);
-        
+
         cMat.diffuseTexture = texture;
         cMat.diffuseTexture.hasAlpha = true;
         cMat.useAlphaFromDiffuseTexture = true;
-        
+
         cMat.emissiveColor = new BABYLON.Color3(1, 1, 1);
         cMat.specularColor = new BABYLON.Color3(0, 0, 0);
         cMat.disableLighting = true;
-        
+
         cone.material = cMat;
-        
-        this.cones.push(cone);
+        cone.targetPosX = 0;
+        cone.targetPosY = 0;
+
+        this.cones[id] = cone;
     }
 
-    gameLoop() {
-        const dt = this.engine.getDeltaTime();
-        const now = Date.now();
+    removeCone(id) {
+        const cone = this.cones[id];
+        if (!cone) return;
+        cone.dispose();
+        delete this.cones[id];
+    }
 
-        if (dt > 100 || dt <= 0) {
-            this.lastSpawnTime = now; 
+    removeAllCones() {
+        Object.keys(this.cones).forEach((id) => this.removeCone(id));
+    }
+
+    applyState(serverState) {
+        if (!serverState || typeof serverState.tick !== "number") {
             return;
         }
 
-        if (Object.keys(this.players).length > 0) {
-            if (now - this.lastSpawnTime > this.config.spawnRate) {
-                this.spawnCone();
-                this.lastSpawnTime = now;
-            }
-        } else {
-            this.lastSpawnTime = now;
+        if (typeof serverState.worldWrap === "boolean") {
+            this.worldWrap = serverState.worldWrap;
         }
 
-        const bottomY = this.camera.orthoBottom - 2;
-        const playerY = this.camera.orthoBottom + 2.5;
-        const limit = this.config.width / 2;
+        if (serverState.tick < this.lastTick) {
+            return;
+        }
+        this.lastTick = serverState.tick;
 
-        Object.values(this.players).forEach(p => {
-            if (p.isBot && now > p.nextBotUpdate) {
-                let foundCone = false;
+        const playersState = serverState.players || {};
+        const conesState = serverState.pinecones || {};
+        const activePlayerIds = new Set(Object.keys(playersState));
+        const activeConeIds = new Set(Object.keys(conesState));
 
-                if (Math.random() > 0.35 && this.cones.length > 0) {
-                    let closestCone = null;
-                    let minDistance = Infinity;
+        for (const [id, pdata] of Object.entries(playersState)) {
+            const displayName = (pdata.name || id).toString();
+            let nextX = Number(pdata.x || 0);
+            const nextY = Number(pdata.y || (this.camera.orthoBottom + 2.5));
+            // Wenn Wrap deaktiviert (oder erzwungen ausgeschaltet), dann
+            // clamp die Ziel-X-Position auf die sichtbaren Ränder, damit
+            // keine weiten Teleports auftreten.
+            if (this.forceNoWrap || !this.worldWrap) {
+                const limit = this.config.width / 2 - this.config.playerSize / 2;
+                nextX = Math.max(-limit, Math.min(limit, nextX));
+            }
+            let isNewPlayer = false;
 
-                    for (const cone of this.cones) {
-                         if (cone.position.y > playerY) {
-                            const dist = BABYLON.Vector3.Distance(p.mesh.position, cone.position);
-                            if (dist < minDistance) {
-                                minDistance = dist;
-                                closestCone = cone;
-                            }
-                         }
-                    }
-
-                    if (closestCone) {
-                        const dx = closestCone.position.x - p.mesh.position.x;
-                        if (Math.abs(dx) > 0.5) {
-                             p.targetX = dx > 0 ? 1 : -1;
-                        } else {
-                             p.targetX = dx; 
-                        }
-                        foundCone = true;
-                        p.nextBotUpdate = now + 400; 
-                    }
-                }
-
-                if (!foundCone) {
-                    p.targetX = (Math.random() * 2) - 1; 
-                    p.nextBotUpdate = now + (Math.random() * 1000 + 500);
-                }
+            if (!this.players[id]) {
+                this.addPlayer(id, displayName);
+                isNewPlayer = true;
             }
 
-            if (p.targetX !== 0) {
-                if (p.targetX > 0 && p.direction !== 'right') {
-                    p.direction = 'right';
-                    this.setMaterialTexture(p.mesh.material, this.textures.right);
-                } else if (p.targetX < 0 && p.direction !== 'left') {
-                    p.direction = 'left';
-                    this.setMaterialTexture(p.mesh.material, this.textures.left);
+            const p = this.players[id];
+            p.targetPosX = nextX;
+            p.targetPosY = nextY;
+            if (isNewPlayer) {
+                // Setze die Startposition ebenfalls innerhalb der Grenzen
+                if (this.forceNoWrap || !this.worldWrap) {
+                    const limit = this.config.width / 2 - this.config.playerSize / 2;
+                    p.mesh.position.x = Math.max(-limit, Math.min(limit, nextX));
+                } else {
+                    p.mesh.position.x = nextX;
                 }
-
-                p.mesh.position.x += p.targetX * this.config.playerSpeed * (dt / 16);
-                
-                if (p.mesh.position.x > limit) {
-                    p.mesh.position.x = -limit;
-                } else if (p.mesh.position.x < -limit) {
-                    p.mesh.position.x = limit;
-                }
+                p.mesh.position.y = nextY;
             }
-            p.mesh.position.y = playerY;
-            this.updateUI(p);
+
+            const score = Number(pdata.score || 0);
+            p.score = score;
+            p.scoreUI.innerText = String(score);
+            p.lbScore.innerText = String(score);
+
+            const direction = pdata.direction === "left" ? "left" : "right";
+            if (direction !== p.direction) {
+                p.direction = direction;
+                this.setMaterialTexture(p.mesh.material, this.textures[direction]);
+            }
+
+            const nameEl = p.ui.querySelector(".player-name");
+            if (nameEl && nameEl.innerText !== displayName) {
+                nameEl.innerText = displayName;
+                const lbNameEl = p.lbEntry.querySelector(".lb-name");
+                if (lbNameEl) lbNameEl.innerText = displayName;
+            }
+        }
+
+        Object.keys(this.players).forEach((id) => {
+            if (!activePlayerIds.has(id)) {
+                this.removePlayer(id);
+            }
         });
 
-        for (let i = this.cones.length - 1; i >= 0; i--) {
-            const c = this.cones[i];
-            c.position.y -= this.config.coneSpeed * (dt / 16);
-
-            let caught = false;
-            
-            for (const p of Object.values(this.players)) {
-                if (c.intersectsMesh(p.mesh, false)) {
-                    p.score++;
-                    p.scoreUI.innerText = p.score;
-                    p.lbScore.innerText = p.score;
-                    caught = true;
-                    break; 
-                }
+        for (const [id, cdata] of Object.entries(conesState)) {
+            const nextX = Number(cdata.x || 0);
+            const nextY = Number(cdata.y || 0);
+            let isNewCone = false;
+            if (!this.cones[id]) {
+                this.addCone(id);
+                isNewCone = true;
             }
-
-            if (caught || c.position.y < bottomY) {
-                c.dispose();
-                this.cones.splice(i, 1);
+            this.cones[id].targetPosX = nextX;
+            this.cones[id].targetPosY = nextY;
+            if (isNewCone) {
+                this.cones[id].position.x = nextX;
+                this.cones[id].position.y = nextY;
             }
         }
-        
+
+        Object.keys(this.cones).forEach((id) => {
+            if (!activeConeIds.has(id)) {
+                this.removeCone(id);
+            }
+        });
+
         this.updateLeaderboard();
     }
 
