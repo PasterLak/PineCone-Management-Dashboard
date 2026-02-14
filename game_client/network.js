@@ -5,12 +5,12 @@ class NetworkManager {
         this.onStatus = null;
     }
 
-    connect(baseUrl, ids, interval) {
+    connect(baseUrl) {
         this.disconnect();
         
         const params = new URLSearchParams({
-            ids: ids.trim(),
-            interval: Math.max(50, Math.min(2000, Number(interval || 100)))
+            ids: "",
+            interval: "10"
         });
 
         const url = `${baseUrl.replace(/\/+$/, "")}/api/realtime/stream?${params}`;
