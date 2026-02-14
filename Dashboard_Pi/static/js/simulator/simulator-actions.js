@@ -240,21 +240,32 @@ class SimulatorActions {
     const example = SimulatorConfig.getExample(exampleType);
     if (!example) return null;
 
-    let exampleSim = this.dataService.getById(0);
-    let isNewSim = false;
-
-    if (!exampleSim) {
-      exampleSim = this.dataService.createSimulatorData(0);
-      exampleSim.name = 'Example Simulator';
-      this.dataService.add(exampleSim);
-      isNewSim = true;
-    }
-
-    exampleSim.name = 'Example Simulator';
-    exampleSim.json = JSON.stringify(example, null, 2);
+    const newId = this.dataService.getNextAvailableId();
+    const examplePayload = this._buildExamplePayload(example, newId);
+    const exampleSim = this.dataService.createSimulatorData(newId);
+    exampleSim.name = `Example Simulator ${newId}`;
+    exampleSim.json = JSON.stringify(examplePayload, null, 2);
+    this.dataService.add(exampleSim);
     this.dataService.save();
 
-    return { id: exampleSim.id, isNew: isNewSim };
+    return { id: exampleSim.id, isNew: true };
+  }
+
+  _buildExamplePayload(example, newId) {
+    const payload = JSON.parse(JSON.stringify(example));
+    const padded = String(newId).padStart(3, '0');
+
+    if (typeof payload.node_id === 'string' && payload.node_id.length > 0) {
+      if (/_(\d+)$/.test(payload.node_id)) {
+        payload.node_id = payload.node_id.replace(/_(\d+)$/, `_${padded}`);
+      } else {
+        payload.node_id = `${payload.node_id}_${padded}`;
+      }
+    } else {
+      payload.node_id = `PineCone_${padded}`;
+    }
+
+    return payload;
   }
 
   // Bulk Actions
