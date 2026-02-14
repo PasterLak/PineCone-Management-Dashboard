@@ -40,8 +40,10 @@ def register_device_routes(app):
 
         has_desc = "description" in data
         has_pins = "pins" in data
+        has_is_simulator = "is_simulator" in data
         incoming_desc = (data.get("description") or "").strip() if has_desc else None
         incoming_pins = data.get("pins") if has_pins else None
+        incoming_is_simulator = bool(data.get("is_simulator")) if has_is_simulator else None
         full_sync = bool(data.get("full_sync", False))
 
         existing_device = device_manager.get_device(req_node_id)
@@ -73,6 +75,12 @@ def register_device_routes(app):
             "pins": pins,
             "blink": blink,
         }
+
+        # Keep optional simulator marker in stored device data so realtime payload can expose it.
+        if incoming_is_simulator is True:
+            device_data["is_simulator"] = True
+        elif existing_device and existing_device.get("is_simulator") is True:
+            device_data["is_simulator"] = True
 
         device_manager.update_device(node_id, device_data)
 
