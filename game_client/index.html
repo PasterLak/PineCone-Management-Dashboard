@@ -10,11 +10,13 @@
 <body>
     <div id="ui-bar">
         <div class="input-group">
-            <input id="apiBase" list="ip-history" placeholder="http://" value="http://192.168.178.76:80">
-            <datalist id="ip-history"></datalist>
-            
-            <input id="ids" placeholder="Device IDs (comma sep)">
-            <input id="interval" type="number" value="10" min="10" max="2000" title="Poll (ms)">
+            <div id="ipCombo" class="ip-combo">
+                <div class="ip-input-row">
+                    <input id="apiBase" placeholder="http://" value="http://192.168.178.76:80" type="text" autocomplete="off">
+                    <button id="ipDropdownBtn" class="ip-dropdown-btn" type="button" aria-label="IP Verlauf anzeigen">▾</button>
+                </div>
+                <div id="ipDropdown" class="ip-dropdown hidden"></div>
+            </div>
         </div>
         <div class="control-group">
             <span id="status" class="status-badge disconnected">Disconnected</span>

@@ -38,6 +38,17 @@ html, body {
     align-items: center;
 }
 
+.ip-combo {
+    position: relative;
+    min-width: 260px;
+}
+
+.ip-input-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 input {
     padding: 8px;
     border: 1px solid var(--border-color);
@@ -52,9 +63,93 @@ input:focus {
     border-color: var(--primary-color);
 }
 
-input#apiBase { width: 180px; }
-input#ids { width: 120px; }
-input#interval { width: 70px; }
+input#apiBase {
+    width: 220px;
+}
+
+.ip-dropdown-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+}
+
+.ip-dropdown-btn:hover {
+    border-color: var(--primary-color);
+}
+
+.ip-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 100%;
+    background: #1b1b22;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+    z-index: 30;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+}
+
+.ip-dropdown.hidden {
+    display: none;
+}
+
+.ip-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ip-item:last-child {
+    border-bottom: none;
+}
+
+.ip-item-select,
+.ip-item-remove {
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.ip-item-select {
+    flex: 1;
+    text-align: left;
+    padding: 10px;
+    font-size: 13px;
+}
+
+.ip-item-select:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.ip-item-remove {
+    width: 32px;
+    height: 32px;
+    margin-right: 6px;
+    border-radius: 4px;
+    font-size: 18px;
+    line-height: 1;
+    color: #bbb;
+}
+
+.ip-item-remove:hover {
+    background: rgba(255, 23, 68, 0.2);
+    color: #fff;
+}
+
+.ip-empty {
+    padding: 10px;
+    color: #888;
+    font-size: 12px;
+}
 
 .btn {
     padding: 8px 16px;

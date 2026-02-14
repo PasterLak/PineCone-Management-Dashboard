@@ -1,13 +1,16 @@
 const connectBtn = document.getElementById("connectBtn");
 const disconnectBtn = document.getElementById("disconnectBtn");
 const apiBaseEl = document.getElementById("apiBase");
-const idsEl = document.getElementById("ids");
-const intervalEl = document.getElementById("interval");
 const statusEl = document.getElementById("status");
-const ipListEl = document.getElementById("ip-history");
+const ipComboEl = document.getElementById("ipCombo");
+const ipDropdownEl = document.getElementById("ipDropdown");
+const ipDropdownBtnEl = document.getElementById("ipDropdownBtn");
 
 const STORAGE_KEY = "pinecone_ip_history";
 const LAST_IP_KEY = "pinecone_last_ip";
+const MAX_IP_HISTORY = 20;
+
+let ipHistory = [];
 
 const network = new NetworkManager();
 const game = new GameManager(
@@ -18,33 +21,91 @@ const game = new GameManager(
 function loadIpHistory() {
     const history = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     const lastIp = localStorage.getItem(LAST_IP_KEY);
-    
-    ipListEl.innerHTML = "";
-    history.forEach(ip => {
-        const option = document.createElement("option");
-        option.value = ip;
-        ipListEl.appendChild(option);
-    });
+
+    ipHistory = Array.isArray(history)
+        ? [...new Set(history.map(ip => (ip || "").trim()).filter(Boolean))]
+        : [];
+
+    renderIpDropdown();
 
     if (lastIp) {
         apiBaseEl.value = lastIp;
+    } else if (ipHistory.length > 0) {
+        apiBaseEl.value = ipHistory[0];
     }
 }
 
-function saveIp(ip) {
-    if (!ip) return;
-    let history = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    
-    if (!history.includes(ip)) {
-        history.push(ip);
-        if (history.length > 5) history.shift();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-        
-        const option = document.createElement("option");
-        option.value = ip;
-        ipListEl.appendChild(option);
+function persistHistory() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(ipHistory));
+}
+
+function hideIpDropdown() {
+    ipDropdownEl.classList.add("hidden");
+}
+
+function showIpDropdown() {
+    ipDropdownEl.classList.remove("hidden");
+}
+
+function renderIpDropdown() {
+    ipDropdownEl.innerHTML = "";
+
+    if (ipHistory.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "ip-empty";
+        empty.textContent = "Keine gespeicherten IPs";
+        ipDropdownEl.appendChild(empty);
+        return;
     }
-    localStorage.setItem(LAST_IP_KEY, ip);
+
+    ipHistory.forEach((ip) => {
+        const row = document.createElement("div");
+        row.className = "ip-item";
+
+        const selectBtn = document.createElement("button");
+        selectBtn.type = "button";
+        selectBtn.className = "ip-item-select";
+        selectBtn.textContent = ip;
+        selectBtn.addEventListener("click", () => {
+            apiBaseEl.value = ip;
+            hideIpDropdown();
+            apiBaseEl.focus();
+        });
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "ip-item-remove";
+        removeBtn.setAttribute("aria-label", `IP löschen: ${ip}`);
+        removeBtn.textContent = "×";
+        removeBtn.addEventListener("click", () => {
+            ipHistory = ipHistory.filter((entry) => entry !== ip);
+            persistHistory();
+
+            if (localStorage.getItem(LAST_IP_KEY) === ip) {
+                if (ipHistory.length > 0) {
+                    localStorage.setItem(LAST_IP_KEY, ipHistory[0]);
+                } else {
+                    localStorage.removeItem(LAST_IP_KEY);
+                }
+            }
+
+            renderIpDropdown();
+        });
+
+        row.appendChild(selectBtn);
+        row.appendChild(removeBtn);
+        ipDropdownEl.appendChild(row);
+    });
+}
+
+function saveIp(ip) {
+    const normalizedIp = (ip || "").trim();
+    if (!normalizedIp) return;
+
+    ipHistory = [normalizedIp, ...ipHistory.filter(entry => entry !== normalizedIp)].slice(0, MAX_IP_HISTORY);
+    persistHistory();
+    localStorage.setItem(LAST_IP_KEY, normalizedIp);
+    renderIpDropdown();
 }
 
 network.onStatus = (text, isConnected) => {
@@ -62,13 +123,31 @@ connectBtn.addEventListener("click", () => {
     const ip = apiBaseEl.value.trim();
     if (ip) {
         saveIp(ip);
-        network.connect(ip, idsEl.value, intervalEl.value);
+        network.connect(ip);
     }
 });
 
 disconnectBtn.addEventListener("click", () => {
     network.disconnect();
     game.removeAllPlayers(); 
+});
+
+ipDropdownBtnEl.addEventListener("click", () => {
+    if (ipDropdownEl.classList.contains("hidden")) {
+        showIpDropdown();
+        return;
+    }
+    hideIpDropdown();
+});
+
+document.addEventListener("click", (event) => {
+    if (!ipComboEl.contains(event.target)) {
+        hideIpDropdown();
+    }
+});
+
+apiBaseEl.addEventListener("focus", () => {
+    showIpDropdown();
 });
 
 loadIpHistory();
