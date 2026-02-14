@@ -20,10 +20,24 @@
       <div class="settings-field">
         <label>Open Dashboard on Network</label>
         <span class="settings-hint">
-          This link is the local IPv4 address that other devices on the same network can use to reach the dashboard.
+          These links are the local IPv4 addresses that other devices on the same network can use to reach the dashboard.
         </span>
+        
 
-        {% if dashboard_endpoint %}
+        {% if dashboard_endpoints %}
+          <div class="endpoint-list" role="list">
+            {% for ep in dashboard_endpoints %}
+              <div class="endpoint-item" role="listitem">
+                <div class="endpoint-input-row">
+                  <input class="endpoint-input" type="text" value="{{ ep }}" readonly />
+                  <button class="btn-secondary endpoint-copy" type="button" data-copy-text="{{ ep }}">
+                    <span>Copy</span>
+                  </button>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% elif dashboard_endpoint %}
           <div class="endpoint-list" role="list">
             <div class="endpoint-item" role="listitem">
               <div class="endpoint-input-row">
@@ -37,6 +51,9 @@
         {% else %}
           <div class="endpoint-empty">No local IPv4 addresses found.</div>
         {% endif %}
+        <span class="settings-hint">
+          Warning: Not every listed IP will always work from every device. Reachability depends on network routing, firewall rules, VPN/virtual adapters, and router settings (for example client/AP isolation).
+        </span>
       </div>
     </div>
 
