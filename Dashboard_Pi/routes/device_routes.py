@@ -4,9 +4,11 @@ Device API endpoints - handle device data, updates, and actions
 from flask import request, jsonify
 import simulator_manager
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import device_manager
 
 _force_full_sync_nodes = set()
+BERLIN_TZ = ZoneInfo("Europe/Berlin")
 
 def _merge_pins(existing_pins, incoming_pins, full_sync=False):
     if incoming_pins is None:
@@ -67,7 +69,7 @@ def register_device_routes(app):
         device_data = {
             "ip": request.remote_addr or "",
             "description": description,
-            "last_seen": datetime.now().isoformat(timespec="seconds"),
+            "last_seen": datetime.now(BERLIN_TZ).isoformat(timespec="milliseconds"),
             "pins": pins,
             "blink": blink,
         }

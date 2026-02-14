@@ -24,7 +24,7 @@ function setConnectedUI(isConnected) {
 function buildQuery() {
   const ids = encodeURIComponent(idsEl.value.trim());
   const interval = Math.max(50, Math.min(2000, Number(intervalEl.value || 100)));
-  const offlineThreshold = Math.max(100, Number(offlineThresholdEl.value || 100));
+  const offlineThreshold = Math.max(100, Number(offlineThresholdEl.value || 200));
   return `ids=${ids}&interval=${interval}&offlineThreshold=${offlineThreshold}`;
 }
 

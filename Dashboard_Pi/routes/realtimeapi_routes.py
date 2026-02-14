@@ -1,11 +1,13 @@
 from flask import request, jsonify, Response, stream_with_context
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 import json
 import time
 import device_manager
 
 
-DEFAULT_OFFLINE_THRESHOLD_MS = 100
+DEFAULT_OFFLINE_THRESHOLD_MS = 200
+BERLIN_TZ = ZoneInfo("Europe/Berlin")
 
 
 def _parse_ids(raw):
@@ -40,7 +42,11 @@ def _is_online(device, offline_threshold_ms):
     except (TypeError, ValueError):
         return False
 
-    now = datetime.now()
+    # Backward compatibility: old records may be naive timestamps
+    if ts.tzinfo is None:
+        ts = ts.replace(tzinfo=BERLIN_TZ)
+
+    now = datetime.now(BERLIN_TZ)
     return (now - ts).total_seconds() * 1000 <= offline_threshold_ms
 
 
@@ -53,7 +59,7 @@ def _build_payload(ids_set, offline_threshold_ms):
     }
 
     return {
-        "server_time": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+        "server_time": datetime.now(BERLIN_TZ).isoformat(timespec="milliseconds"),
         "devices": online_devices,
     }
 
