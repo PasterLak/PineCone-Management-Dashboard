@@ -23,7 +23,7 @@ class NetworkManager {
             }
             normalizedBase = parsed.origin;
         } catch (e) {
-            // keep user input if URL parsing fails
+           
         }
 
         try {

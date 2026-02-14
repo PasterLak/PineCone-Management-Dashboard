@@ -5,12 +5,12 @@ import os
 import random
 import time
 from threading import Lock
-from typing import Dict, Any
+from typing import Dict, Any, List
 from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
@@ -31,6 +31,7 @@ TELEMETRY_STALE_MS = 3000
 PLAYER_STALE_MS = 3000
 WORLD_WRAP = True
 REALTIME_BASE_URL = os.getenv("REALTIME_BASE_URL", "http://localhost:80").rstrip("/")
+PLAYER_COLORS_COUNT = 10
 
 state_lock = Lock()
 
@@ -135,6 +136,12 @@ def _is_truthy(value: Any) -> bool:
         return value.strip().lower() in {"1", "true", "yes", "on"}
     return False
 
+def _get_unique_color_index(players: Dict[str, Any]) -> int:
+    used_indices = {p.get("colorIndex", -1) for p in players.values()}
+    for i in range(PLAYER_COLORS_COUNT):
+        if i not in used_indices:
+            return i
+    return len(players) % PLAYER_COLORS_COUNT
 
 def _upsert_players_from_devices(payload: Dict[str, Any]) -> None:
     devices = payload.get("devices") if isinstance(payload, dict) else None
@@ -152,6 +159,7 @@ def _upsert_players_from_devices(payload: Dict[str, Any]) -> None:
         player = state["players"].get(str(device_id))
 
         if player is None:
+            color_index = _get_unique_color_index(state["players"])
             player = {
                 "id": str(device_id),
                 "name": display_name[:24],
@@ -163,6 +171,7 @@ def _upsert_players_from_devices(payload: Dict[str, Any]) -> None:
                 "isBot": bool(is_bot),
                 "nextBotUpdateMs": 0,
                 "lastSeenMs": 0,
+                "colorIndex": color_index,
             }
             state["players"][str(device_id)] = player
 
@@ -274,11 +283,6 @@ def _advance_game(dt_s: float) -> None:
         pinecones.pop(cone_id, None)
 
     state["tick"] += 1
-
-
-@app.route("/health")
-def health() -> Any:
-    return jsonify({"ok": True, "players": len(state["players"])})
 
 
 @socketio.on("connect")

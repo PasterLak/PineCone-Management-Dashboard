@@ -186,7 +186,6 @@ apiBaseEl.addEventListener("focus", () => {
 
 loadIpHistory();
 
-// Set CSS variable for UI bar height so the game stage can size itself
 function updateUiBarHeightVar() {
     const uiBar = document.getElementById('ui-bar');
     if (!uiBar) return;
@@ -194,16 +193,15 @@ function updateUiBarHeightVar() {
     document.documentElement.style.setProperty('--ui-bar-height', `${h}px`);
 }
 
-// Observe size changes to the UI bar (e.g., when it wraps to 2 lines)
 const uiBarEl = document.getElementById('ui-bar');
 if (uiBarEl && window.ResizeObserver) {
     const ro = new ResizeObserver(() => updateUiBarHeightVar());
     ro.observe(uiBarEl);
-    // Also update initially
+  
     updateUiBarHeightVar();
-    // Update on window resize as well
+  
     window.addEventListener('resize', updateUiBarHeightVar);
 } else {
-    // Fallback: set a reasonable default
+   
     document.documentElement.style.setProperty('--ui-bar-height', '88px');
 }

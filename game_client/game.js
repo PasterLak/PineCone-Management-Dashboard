@@ -3,6 +3,7 @@ class GameManager {
         this.canvas = canvas;
         this.uiLayer = uiLayer;
         this.leaderboardEl = document.getElementById('leaderboard');
+        this.uiBar = document.getElementById('ui-bar');
         this.engine = new BABYLON.Engine(canvas, true);
         this.scene = null;
         this.camera = null;
@@ -24,24 +25,12 @@ class GameManager {
             uiOffset: 1.3
         };
 
-        // Optional: Erzwinge kein Wrap (wenn true, kommt man nicht auf die andere Seite)
         this.forceNoWrap = true;
-
-        // Fixe Weltbreite (in Welt-Einheiten) - sorgt dafür, dass die Spielwelt
-        // auf allen Geräten dieselbe Breite hat. Die Höhe wird aus dem Viewport
-        // Seitenverhältnis berechnet.
         this.config.worldWidth = 20;
+        
         this.playerColors = [
-            "#d32f2f", 
-            "#1976d2", 
-            "#388e3c", 
-            "#f57c00", 
-            "#7b1fa2", 
-            "#0097a7", 
-            "#c2185b", 
-            "#5d4037", 
-            "#455a64", 
-            "#afb42b"  
+            "#d32f2f", "#1976d2", "#388e3c", "#f57c00", "#7b1fa2", 
+            "#0097a7", "#c2185b", "#5d4037", "#455a64", "#afb42b"  
         ];
 
         this.gameHeight = 14;
@@ -50,6 +39,8 @@ class GameManager {
     }
 
     init() {
+        this.updateUiBarHeight();
+        
         this.scene = new BABYLON.Scene(this.engine);
         this.scene.clearColor = new BABYLON.Color4(0.08, 0.08, 0.1, 1);
 
@@ -64,7 +55,6 @@ class GameManager {
             const now = performance.now();
             const dt = Math.min(0.1, Math.max(0, (now - this.lastFrameTs) / 1000));
             this.lastFrameTs = now;
-
             const lerpAlpha = Math.min(1, dt * 14);
 
             Object.values(this.players).forEach((p) => {
@@ -94,16 +84,22 @@ class GameManager {
         });
 
         window.addEventListener("resize", () => {
+            this.updateUiBarHeight();
             this.engine.resize();
             this.updateCameraProjection();
+            this.updateLeaderboard();
         });
+    }
+
+    updateUiBarHeight() {
+        if (this.uiBar) {
+            const height = this.uiBar.offsetHeight;
+            document.documentElement.style.setProperty('--ui-bar-height', `${height}px`);
+        }
     }
 
     updateCameraProjection() {
         const ratio = this.canvas.clientWidth / this.canvas.clientHeight;
-
-        // Halte die Weltbreite konstant (config.worldWidth) damit das Spiel auf
-        // verschiedenen Geräten gleich skaliert aussieht. Die Höhe passt sich an.
         const width = this.config.worldWidth;
         const height = width / Math.max(0.0001, ratio);
 
@@ -129,25 +125,18 @@ class GameManager {
     lerpWrappedX(currentX, targetX, alpha) {
         const worldWidth = this.config.width;
         const half = worldWidth / 2;
-
-        // Normiere beide Werte in den Bereich (-half, half]
+        
         const norm = (v) => {
             let x = Number(v || 0);
-            // Bringe x in den Bereich (-half, half]
             x = ((x + half) % worldWidth + worldWidth) % worldWidth - half;
             return x;
         };
 
         const from = norm(currentX);
         const to = norm(targetX);
-
-        // Kürzeste Distanz unter Berücksichtigung von Wrap-Around
         let delta = ((to - from + half) % worldWidth + worldWidth) % worldWidth - half;
-
-        // Interpoliere entlang der kürzesten Strecke — alpha in [0,1]
         const stepped = from + delta * alpha;
 
-        // Gib das Ergebnis in den sichtbaren Bereich zurück
         return this.wrapX(stepped);
     }
 
@@ -175,7 +164,7 @@ class GameManager {
         return Object.keys(this.players).length % this.playerColors.length;
     }
 
-    addPlayer(id, name) {
+    addPlayer(id, name, colorIndex = -1) {
         const mesh = BABYLON.MeshBuilder.CreatePlane(id, { size: this.config.playerSize }, this.scene);
         mesh.position.z = 0;
         mesh.position.y = this.camera.orthoBottom + 2.5;
@@ -186,7 +175,6 @@ class GameManager {
         mat.disableLighting = true;
         
         this.setMaterialTexture(mat, this.textures.right);
-        
         mesh.material = mat;
 
         const labelDiv = document.createElement("div");
@@ -200,8 +188,8 @@ class GameManager {
         scoreSpan.className = "player-score";
         scoreSpan.innerText = "0";
 
-        const colorIndex = this.getUniqueColorIndex();
-        const playerColor = this.playerColors[colorIndex];
+        const idx = (colorIndex >= 0) ? colorIndex : this.getUniqueColorIndex();
+        const playerColor = this.playerColors[idx % this.playerColors.length];
         scoreSpan.style.backgroundColor = playerColor;
 
         labelDiv.appendChild(nameSpan);
@@ -228,7 +216,6 @@ class GameManager {
         const resetHandler = (event) => {
             event.preventDefault();
             event.stopPropagation();
-            // Fallback: Hole Player-ID aus DOM falls nicht direkt verfügbar
             let pid = id;
             if (!pid && event.target && event.target.classList.contains("lb-name")) {
                 pid = event.target.parentNode && event.target.parentNode.dataset && event.target.parentNode.dataset.playerId;
@@ -247,7 +234,7 @@ class GameManager {
             lbScore: lbScore,
             score: 0,
             direction: 'right',
-            colorIndex: colorIndex,
+            colorIndex: idx,
             targetPosX: mesh.position.x,
             targetPosY: mesh.position.y
         };
@@ -280,7 +267,6 @@ class GameManager {
         cMat.diffuseTexture = texture;
         cMat.diffuseTexture.hasAlpha = true;
         cMat.useAlphaFromDiffuseTexture = true;
-
         cMat.emissiveColor = new BABYLON.Color3(1, 1, 1);
         cMat.specularColor = new BABYLON.Color3(0, 0, 0);
         cMat.disableLighting = true;
@@ -326,9 +312,7 @@ class GameManager {
             const displayName = (pdata.name || id).toString();
             let nextX = Number(pdata.x || 0);
             const nextY = Number(pdata.y || (this.camera.orthoBottom + 2.5));
-            // Wenn Wrap deaktiviert (oder erzwungen ausgeschaltet), dann
-            // clamp die Ziel-X-Position auf die sichtbaren Ränder, damit
-            // keine weiten Teleports auftreten.
+
             if (this.forceNoWrap || !this.worldWrap) {
                 const limit = this.config.width / 2 - this.config.playerSize / 2;
                 nextX = Math.max(-limit, Math.min(limit, nextX));
@@ -336,14 +320,15 @@ class GameManager {
             let isNewPlayer = false;
 
             if (!this.players[id]) {
-                this.addPlayer(id, displayName);
+                const sColorIndex = (typeof pdata.colorIndex === 'number') ? pdata.colorIndex : -1;
+                this.addPlayer(id, displayName, sColorIndex);
                 isNewPlayer = true;
             }
 
             const p = this.players[id];
             p.targetPosX = nextX;
             p.targetPosY = nextY;
-            // Synchronisiere Farbe, falls der Server einen colorIndex sendet.
+
             if (typeof pdata.colorIndex === 'number' && pdata.colorIndex !== p.colorIndex) {
                 p.colorIndex = pdata.colorIndex;
                 const playerColor = this.playerColors[p.colorIndex % this.playerColors.length];
@@ -354,7 +339,6 @@ class GameManager {
                 }
             }
             if (isNewPlayer) {
-                // Setze die Startposition ebenfalls innerhalb der Grenzen
                 if (this.forceNoWrap || !this.worldWrap) {
                     const limit = this.config.width / 2 - this.config.playerSize / 2;
                     p.mesh.position.x = Math.max(-limit, Math.min(limit, nextX));
@@ -428,8 +412,9 @@ class GameManager {
 
     updateLeaderboard() {
         const sortedPlayers = Object.values(this.players).sort((a, b) => b.score - a.score);
-        const rowHeight = 26; 
-        const padding = 10;
+        const isSmall = window.innerWidth < 600;
+        const rowHeight = isSmall ? 20 : 26;
+        const padding = isSmall ? 5 : 10;
         
         sortedPlayers.forEach((player, index) => {
             player.lbEntry.style.top = `${padding + index * rowHeight}px`;
