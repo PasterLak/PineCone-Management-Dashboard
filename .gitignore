@@ -93,6 +93,6 @@ dkms.conf
 
 install.sh
 
-PineCone-Management-Dashboard/include/config.hpp
+PineCone-Management-Dashboard/include/private_config.hpp
 
 /.idea
