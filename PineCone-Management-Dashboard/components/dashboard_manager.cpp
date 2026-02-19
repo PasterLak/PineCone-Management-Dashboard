@@ -1,8 +1,8 @@
 #include "dashboard_manager.hpp"
 
 #include "../extentions/log.hpp"
-#include "components/json_pins_formatter.hpp"
-#include "components/pins_serializer.hpp"
+#include "json_pins_formatter.hpp"
+#include "pins_serializer.hpp"
 
 extern "C" {
 #include <stdio.h>
@@ -57,7 +57,7 @@ bool DashboardManager::shouldBlink() const {
   return connected && wlan.is_blinking();
 }
 
-void DashboardManagerp::sendDataToDashboard() {
+void DashboardManager::sendDataToDashboard() {
   if (!server_ip || server_ip[0] == '\0' || server_port == 0) {
     return;
   }

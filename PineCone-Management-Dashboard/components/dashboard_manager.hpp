@@ -2,7 +2,7 @@
 
 #include "wifi_handler.hpp"
 #include "extentions/log.hpp"
-#include "components/pins_manager.hpp"
+#include "pins_manager.hpp"
 // Manages dashboard communication and state
 class DashboardManager {
  public:
