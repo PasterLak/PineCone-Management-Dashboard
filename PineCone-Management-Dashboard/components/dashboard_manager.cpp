@@ -1,9 +1,12 @@
+#include "dashboard_manager.hpp"
+
+#include "../extentions/log.hpp"
+#include "components/json_pins_formatter.hpp"
+#include "components/pins_serializer.hpp"
 
 extern "C" {
 #include <stdio.h>
 }
-#include "../extentions/log.hpp"
-#include "dashboard_manager.hpp"
 
 DashboardManager::DashboardManager(WIFIHandler& wlan_handler,
                                    PinsManager& pinsManager,
@@ -30,7 +33,6 @@ bool DashboardManager::update(float delta_time_sec) {
   time_accumulator -= update_interval_sec;
 
   const bool wifi_connected = wlan.isConnected();
-  log("[DashboardManager] WiFi Connected:", wifi_connected);
 
   if (!wifi_connected) {
     connected = false;
@@ -40,7 +42,6 @@ bool DashboardManager::update(float delta_time_sec) {
   sendDataToDashboard();
 
   connected = wlan.is_dashboard_connected();
-  log("[DashboardManager] Dashboard Connected:", connected);
 
   if (connected) {
     logDashboardInfo();
@@ -58,8 +59,13 @@ void DashboardManager::sendDataToDashboard() {
     return;
   }
 
-  log("[DashboardManager] Sending data to dashboard...");
-  wlan.sendData(server_ip, server_port, _pinsManager);
+  JsonPinsFormatter jsonFormatter;
+  PinsSerializer serializer(jsonFormatter);
+
+  char pins_json[768];
+  serializer.serialize(_pinsManager, pins_json, sizeof(pins_json));
+
+  wlan.sendData(server_ip, server_port, pins_json);
 }
 
 void DashboardManager::logDashboardInfo() {
@@ -68,14 +74,8 @@ void DashboardManager::logDashboardInfo() {
     return;
   }
 
-  log("[DashboardManager] Node ID:", node_id);
-
   const char* desc = wlan.get_description();
   if (desc && desc[0] != '\0') {
-    log("[DashboardManager] Description:", desc);
-  }
-
-  if (wlan.is_blinking()) {
-    log("[DashboardManager] Blinking: true");
+    (void)desc; 
   }
 }

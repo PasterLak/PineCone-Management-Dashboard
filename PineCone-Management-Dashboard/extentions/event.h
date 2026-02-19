@@ -21,9 +21,9 @@ void onBalance(int amount) {}
 Event<int> moneyEvent;
 
 void app() {
-    moneyEvent += onBalance;
+    moneyEvent.addHandler(onBalance);
     moneyEvent.invoke(100);
-    moneyEvent -= onBalance;
+    moneyEvent.removehandler(onBalance);
 }
 
 */
@@ -39,6 +39,16 @@ class Event {
   using HandlerType = void (*)(Args...);
   
   static constexpr size_t MAX_LISTENERS = 8;
+
+
+  void addHandler(HandlerType handler)
+  {
+    this += handler;
+  }
+   void removeHandler(HandlerType handler)
+  {
+    this -= handler;
+  }
 
   // add a handler
   void operator+=(HandlerType handler) {
