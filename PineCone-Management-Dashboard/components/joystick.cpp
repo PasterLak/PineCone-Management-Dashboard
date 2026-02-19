@@ -1,7 +1,6 @@
 #include "joystick.hpp"
 
-extern "C" {
-}
+extern "C" {}
 #include "pins.hpp"
 
 Joystick::Joystick(uint8_t pinX, uint8_t pinY, uint8_t pinBtn)
@@ -17,9 +16,7 @@ Joystick::Joystick(uint8_t pinX, uint8_t pinY, uint8_t pinBtn)
   pinMode(pinX, INPUT);
   pinMode(pinY, INPUT);
 
-  if (_pinBtn != 255) {
-    pinMode(_pinBtn, INPUT_PULLUP);
-  }
+  pinMode(_pinBtn, INPUT_PULLUP);
 }
 
 int8_t Joystick::mapAxis(uint16_t raw, const AxisCalibration& cal) {
@@ -31,17 +28,17 @@ int8_t Joystick::mapAxis(uint16_t raw, const AxisCalibration& cal) {
 }
 
 void Joystick::update() {
-  uint16_t rawX = (uint16_t)analogRead(_pinX);
-  uint16_t rawY = (uint16_t)analogRead(_pinY);
+  _valXRaw = (uint16_t)analogRead(_pinX);
+  _valYRaw = (uint16_t)analogRead(_pinY);
 
-  _valX = mapAxis(rawX, _calX);
-  _valY = mapAxis(rawY, _calY);
+  _valX = mapAxis(_valXRaw, _calX);
+  _valY = mapAxis(_valYRaw, _calY);
 
-  if (_pinBtn != 255) {
-    _btnState = (digitalRead(_pinBtn) == LOW);
-  }
+  _btnState = (digitalRead(_pinBtn) == LOW);
 }
 
 int8_t Joystick::getX() const { return _valX; }
 int8_t Joystick::getY() const { return _valY; }
+uint16_t Joystick::getXRaw() const { return _valXRaw; }
+uint16_t Joystick::getYRaw() const { return _valYRaw; }
 bool Joystick::isPressed() const { return _btnState; }

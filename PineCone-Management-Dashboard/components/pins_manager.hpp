@@ -13,7 +13,7 @@ class PinsManager {
   PinsManager();
 
   
-  void registerPin(uint8_t pin, const char* name, uint8_t mode = INPUT);
+  void registerPin(uint8_t pin, const char* name, uint8_t mode);
 
   uint8_t getMode(uint8_t pin) const;
   bool isConfigured(uint8_t pin) const;

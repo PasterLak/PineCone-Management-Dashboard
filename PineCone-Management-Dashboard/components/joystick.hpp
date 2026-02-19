@@ -15,6 +15,8 @@ class Joystick {
 
   int8_t getX() const;
   int8_t getY() const;
+  uint16_t getXRaw() const;
+  uint16_t getYRaw() const;
   bool isPressed() const;
 
   uint8_t getPinX() const { return _pinX; }
@@ -31,6 +33,8 @@ class Joystick {
 
   int8_t _valX;
   int8_t _valY;
+  uint16_t _valXRaw;
+  uint16_t _valYRaw;
   bool _btnState;
 
   int8_t mapAxis(uint16_t raw, const AxisCalibration& cal);

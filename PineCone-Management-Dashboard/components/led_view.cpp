@@ -2,9 +2,9 @@
 
 extern "C" {
 #include <stdio.h>
-#include "../pins.hpp"
 }
 
+#include "../pins.hpp"
 
 LEDView::LEDView(uint8_t pin, float blink_interval_sec,
                  PinsManager& pinsManager)
@@ -12,18 +12,18 @@ LEDView::LEDView(uint8_t pin, float blink_interval_sec,
       pin(pin),
       blink_interval_sec(blink_interval_sec),
       blink_time(0.0f),
-      _pinsManager(pinsManager) {}
+      _pinsManager(pinsManager),
+      _cachedState(false) {}
 
 void LEDView::initialize() {
-  led.off();
+  _cachedState = false;
   _pinsManager.registerPin(pin, "LED", OUTPUT);
-  _pinsManager.setValueString(pin, "Off");
 }
 
 void LEDView::update(bool is_connected, bool should_blink,
                      float delta_time_sec) {
   if (!is_connected) {
-    setOff();
+    setState(false);
     return;
   }
 
@@ -33,26 +33,34 @@ void LEDView::update(bool is_connected, bool should_blink,
       updateBlinking();
     }
   } else {
-    setSteadyOn();
+    setState(true);
   }
 }
 
-void LEDView::setOff() {
-  led.off();
-  _pinsManager.setValueString(pin, "Off");
-  blink_time = 0.0f;
-}
+void LEDView::setState(bool state) {
+  if (_cachedState == state)
+    return;
 
-void LEDView::setSteadyOn() {
-  led.on();
-  _pinsManager.setValueString(pin, "On");
+  if (state) {
+    led.on();
+    _pinsManager.setValueString(pin, "On");
+  } else {
+    led.off();
+    _pinsManager.setValueString(pin, "Off");
+  }
+
+  _cachedState = state;
   blink_time = 0.0f;
 }
 
 void LEDView::updateBlinking() {
   blink_time = 0.0f;
   led.toggle();
-  // LED is inverted: LOW (0) = On, HIGH (1) = Off
-  _pinsManager.setValueString(pin, led.isActive() ? "On" : "Off");
-  printf("[LED] Toggle\r\n");
+
+  if (_cachedState != led.isActive()) {
+    // LED is inverted: LOW (0) = On, HIGH (1) = Off
+    _pinsManager.setValueString(pin, _cachedState ? "On" : "Off");
+    _cachedState = !_cachedState;
+    printf("[LED] Toggle\r\n");
+  }
 }
