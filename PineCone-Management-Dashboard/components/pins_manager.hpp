@@ -25,6 +25,8 @@ class PinsManager {
   void setValueString(uint8_t pin, const char* value);
   const char* getValueString(uint8_t pin) const;
 
+  uint32_t getVersion() const;
+
  private:
   struct PinState {
     uint8_t mode;
@@ -34,5 +36,7 @@ class PinsManager {
   };
 
   PinState pins_[MAX_PINS_REGISTRY];
+  uint32_t version_ = 0;
+  
   bool isValid(uint8_t pin) const { return pin < MAX_PINS_REGISTRY; }
 };

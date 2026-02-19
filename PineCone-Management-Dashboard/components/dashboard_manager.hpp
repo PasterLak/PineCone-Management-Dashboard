@@ -28,6 +28,9 @@ class DashboardManager {
   bool connected;
   bool debug_enabled = true;
 
+  uint32_t last_pins_version;
+  char cached_pins_json[768];
+
   template <typename... Args>
   void log(const char* fmt, Args... args) const {
       if (debug_enabled) {

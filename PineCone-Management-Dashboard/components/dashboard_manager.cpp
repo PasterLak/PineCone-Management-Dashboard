@@ -18,7 +18,10 @@ DashboardManager::DashboardManager(WIFIHandler& wlan_handler,
       server_port(server_port),
       update_interval_sec(update_interval_sec),
       time_accumulator(0.0f),
-      connected(false) {}
+      connected(false),
+      last_pins_version(0xFFFFFFFF) {
+  cached_pins_json[0] = '\0';
+}
 
 bool DashboardManager::update(float delta_time_sec) {
   if (delta_time_sec <= 0.0f) {
@@ -54,18 +57,22 @@ bool DashboardManager::shouldBlink() const {
   return connected && wlan.is_blinking();
 }
 
-void DashboardManager::sendDataToDashboard() {
+void DashboardManagerp::sendDataToDashboard() {
   if (!server_ip || server_ip[0] == '\0' || server_port == 0) {
     return;
   }
 
-  JsonPinsFormatter jsonFormatter;
-  PinsSerializer serializer(jsonFormatter);
+  uint32_t current_version = _pinsManager.getVersion();
 
-  char pins_json[768];
-  serializer.serialize(_pinsManager, pins_json, sizeof(pins_json));
+  if (current_version != last_pins_version) {
+    JsonPinsFormatter jsonFormatter;
+    PinsSerializer serializer(jsonFormatter);
 
-  wlan.sendData(server_ip, server_port, pins_json);
+    serializer.serialize(_pinsManager, cached_pins_json, sizeof(cached_pins_json));
+    last_pins_version = current_version;
+  }
+
+  wlan.sendData(server_ip, server_port, cached_pins_json);
 }
 
 void DashboardManager::logDashboardInfo() {

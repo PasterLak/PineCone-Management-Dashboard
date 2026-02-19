@@ -9,6 +9,10 @@ PinsManager::PinsManager() {
   }
 }
 
+uint32_t PinsManager::getVersion() const {
+  return version_;
+}
+
 void PinsManager::registerPin(uint8_t pin, const char* name, uint8_t mode) {
   if (!isValid(pin)) return;
 
@@ -17,6 +21,7 @@ void PinsManager::registerPin(uint8_t pin, const char* name, uint8_t mode) {
     pinMode(pin,mode);
 
     setName(pin, name);
+    version_++;
 }
 
 uint8_t PinsManager::getMode(uint8_t pin) const {
@@ -46,8 +51,11 @@ const char* PinsManager::getModeString(uint8_t pin) const {
 
 void PinsManager::setName(uint8_t pin, const char* name) {
   if (isValid(pin) && name) {
-    strncpy(pins_[pin].name, name, sizeof(pins_[pin].name) - 1);
-    pins_[pin].name[sizeof(pins_[pin].name) - 1] = '\0';
+    if (strncmp(pins_[pin].name, name, sizeof(pins_[pin].name)) != 0) {
+      strncpy(pins_[pin].name, name, sizeof(pins_[pin].name) - 1);
+      pins_[pin].name[sizeof(pins_[pin].name) - 1] = '\0';
+      version_++;
+    }
   }
 }
 
@@ -64,17 +72,17 @@ const char* PinsManager::getName(uint8_t pin) const {
 
 void PinsManager::setValueString(uint8_t pin, const char* value) {
   if (isValid(pin) && value) {
-    strncpy(pins_[pin].value_string, value,
-            sizeof(pins_[pin].value_string) - 1);
-    pins_[pin].value_string[sizeof(pins_[pin].value_string) - 1] = '\0';
+    if (strncmp(pins_[pin].value_string, value, sizeof(pins_[pin].value_string)) != 0) {
+      strncpy(pins_[pin].value_string, value, sizeof(pins_[pin].value_string) - 1);
+      pins_[pin].value_string[sizeof(pins_[pin].value_string) - 1] = '\0';
+      version_++;
+    }
   }
 }
 
 const char* PinsManager::getValueString(uint8_t pin) const {
-  if (!isValid(pin))
-    return "0";
-  if (pins_[pin].value_string[0] != '\0')
-    return pins_[pin].value_string;
+  if (!isValid(pin)) return "0";
+  if (pins_[pin].value_string[0] != '\0') return pins_[pin].value_string;
 
   return "0";
 }
