@@ -37,6 +37,7 @@ class DashboardManager {
   bool force_full_sync_next = false;
   bool should_blink_state = false;
   bool debug_enabled = true;
+  
 
   void initNodeIdFromMac();
   void sendDataToDashboard();

@@ -1,3 +1,59 @@
+/*
+
+
+void turnOnGreenLed()
+{
+    Log::println("Hardware: Green LED is ON");
+}
+
+class NetworkManager
+{
+public:
+    void fetchUpdates()
+    {
+        Log::println("System: Checking for updates over WiFi");
+    }
+};
+
+void displayDamage(int amount)
+{
+    Log::println("UI: -{} HP", amount);
+}
+
+class Player
+{
+public:
+    void applyDamage(int amount)
+    {
+        Log::println("Player: Health decreased by {}", amount);
+    }
+};
+
+void runExamples()
+{
+    Event onConnected(2);
+    NetworkManager network;
+
+    onConnected += turnOnGreenLed;
+    onConnected += {&network, &NetworkManager::fetchUpdates};
+
+    onConnected.invoke();
+
+    onConnected -= turnOnGreenLed;
+
+
+    Event<int> onHit(2);
+    Player player;
+
+    onHit += displayDamage;
+    onHit += {&player, &Player::applyDamage};
+
+    onHit.invoke(45);
+}
+
+*/
+
+
 #pragma once
 
 #include <stddef.h>
