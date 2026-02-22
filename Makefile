@@ -43,6 +43,10 @@ INCLUDE_COMPONENTS += $(COMPONENTS_VFS)
 INCLUDE_COMPONENTS += $(PROJECT_NAME)
 INCLUDE_COMPONENTS += $(PROJECT_NAME)/components
 INCLUDE_COMPONENTS += $(PROJECT_NAME)/extensions
+INCLUDE_COMPONENTS += $(PROJECT_NAME)/views
+INCLUDE_COMPONENTS += $(PROJECT_NAME)/networking
+INCLUDE_COMPONENTS += $(PROJECT_NAME)/data
+
 
 #Only for me necessary because I use another directory: (Timkroe21)
 #ALTERNATIVE_PROJECT_DIR = /home/tim-kroeckel/Dokumente/Iot_Project/PineCone-Management-Dashboard/

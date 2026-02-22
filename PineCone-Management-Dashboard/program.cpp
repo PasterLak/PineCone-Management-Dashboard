@@ -7,8 +7,6 @@ extern "C" {
 #include <stdio.h>
 #include <task.h>
 
-
-// Fix for missing __dso_handle symbol with global C++ objects
 void* __dso_handle = nullptr;
 }
 
@@ -16,34 +14,31 @@ void* __dso_handle = nullptr;
 #include <etl/string.h>
 #include "playground.hpp"
 #include "components/dashboard_manager.hpp"
+#include "networking/http_dashboard_client.hpp"
 #include "components/joystick.hpp"
-#include "components/joystick_view.hpp"
-#include "components/led_view.hpp"
+#include "views/joystick_view.hpp"
+#include "views/led_view.hpp"
 #include "components/pins_manager.hpp"
-#include "components/wifi_handler.hpp"
+#include "networking/wifi_handler.hpp"
 #include "components/delta_time.hpp"
 #include "extentions/log.hpp"
 #include "include/config.hpp"
 
-// ============================================================================
-// Application Components
-// ============================================================================
 
 DeltaTime deltaTime;
-PinsManager pinsManager;  // Global pin state manager
+PinsManager pinsManager;  
 WIFIHandler wifi(Config::WIFI_SSID, Config::WIFI_PASSWORD);
+
+HttpDashboardClient httpClient;
+
 LEDView ledController(Config::LED_PIN, Config::LED_BLINK_INTERVAL_SEC, pinsManager);
-DashboardManager dashboardManager(wifi,pinsManager, Config::DASHBOARD_SERVER_IP,
+DashboardManager dashboardManager(wifi, httpClient, pinsManager, 
+                                  Config::DASHBOARD_SERVER_IP,
                                   Config::DASHBOARD_SERVER_PORT,
                                   Config::DASHBOARD_UPDATE_INTERVAL_SEC);
 
 Joystick joystick(4,5,6);   
 JoystickView joystickView(joystick, pinsManager);
-
-
-// ============================================================================
-// Application Lifecycle
-// ============================================================================
 
 void task_app_wrapper(void* pvParameters) {
   (void)pvParameters;
@@ -63,8 +58,10 @@ void start() {
 
   ledController.initialize();
   joystickView.init();
-  dashboardManager.setDebugEnabled(false);
+  
   wifi.setDebugEnabled(false);
+  dashboardManager.setDebugEnabled(false);
+  
   wifi.start();
 }
 
@@ -73,10 +70,8 @@ void loop() {
   joystickView.update();
   float delta_sec = deltaTime.getSec();
 
-  // Update dashboard communication
   bool is_connected = dashboardManager.update(delta_sec);
   bool should_blink = dashboardManager.shouldBlink();
 
-  // Update LED based on connection state
   ledController.update(is_connected, should_blink, delta_sec);
 }
