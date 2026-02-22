@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dashboard_client.hpp"
+#include "i_dashboard_client.hpp"
 #include "pins_manager.hpp"
 #include "../networking/wifi_handler.hpp"
 
