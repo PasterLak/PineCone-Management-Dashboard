@@ -10,7 +10,6 @@ extern "C" {
 }
 
 #include "http_client.hpp"
-#include "json_parser.hpp"
 #include "extentions/log.hpp"
 
 class WIFIHandler {

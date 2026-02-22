@@ -5,7 +5,9 @@ extern "C" {
 #include <event_device.h>
 #include <hal_wifi.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <vfs.h>
+#include <cJSON.h>
 }
 
 WIFIHandler::WIFIHandler(const char* mySsid, const char* myPassword)
@@ -78,26 +80,39 @@ bool WIFIHandler::sendData(const char* server_ip, uint16_t port,
   const bool send_desc = !send_only_node_id && (sending_full_sync || desc_changed);
   const bool send_pins = !send_only_node_id && (sending_full_sync || pins_changed);
 
-  char payload[1200];
-  int pos = 0;
+  cJSON* root = cJSON_CreateObject();
+  if (!root) {
+    return false;
+  }
 
-  pos += snprintf(payload + pos, sizeof(payload) - pos, "{\"node_id\":\"%s\"", node_id);
+  cJSON_AddStringToObject(root, "node_id", node_id);
 
   if (sending_full_sync) {
-    pos += snprintf(payload + pos, sizeof(payload) - pos, ",\"full_sync\":true");
+    cJSON_AddTrueToObject(root, "full_sync");
   }
 
   if (send_desc) {
-    pos += snprintf(payload + pos, sizeof(payload) - pos, ",\"description\":\"%s\"", description);
+    cJSON_AddStringToObject(root, "description", description);
   }
 
   if (send_pins) {
-    pos += snprintf(payload + pos, sizeof(payload) - pos, ",\"pins\":%s", pins_json);
+    cJSON* pins_obj = cJSON_Parse(pins_json);
+    if (pins_obj) {
+      cJSON_AddItemToObject(root, "pins", pins_obj);
+    }
   }
 
-  pos += snprintf(payload + pos, sizeof(payload) - pos, "}");
+  char* payload = cJSON_PrintUnformatted(root);
+  cJSON_Delete(root);
 
-  if (!http_client.post(server_ip, port, "/api/data", payload)) {
+  if (!payload) {
+    return false;
+  }
+
+  bool post_result = http_client.post(server_ip, port, "/api/data", payload);
+  cJSON_free(payload);
+
+  if (!post_result) {
     last_request_successful = false;
     return false;
   }
@@ -130,25 +145,34 @@ bool WIFIHandler::sendData(const char* server_ip, uint16_t port,
 }
 
 void WIFIHandler::parseServerResponse(const char* json) {
-  if (!JSONParser::isStatusOk(json)) {
+  cJSON* root = cJSON_Parse(json);
+  if (!root) {
     return;
   }
 
-  char parsed_node_id[64];
-  if (JSONParser::getString(json, "node_id", parsed_node_id, sizeof(parsed_node_id))) {
-    snprintf(node_id, sizeof(node_id), "%s", parsed_node_id);
+  cJSON* status = cJSON_GetObjectItem(root, "status");
+  if (!status || status->type != cJSON_String || strcmp(status->valuestring, "ok") != 0) {
+    cJSON_Delete(root);
+    return;
   }
 
-  char parsed_description[128];
-  if (JSONParser::getString(json, "description", parsed_description, sizeof(parsed_description))) {
-    snprintf(description, sizeof(description), "%s", parsed_description);
+  cJSON* parsed_node_id = cJSON_GetObjectItem(root, "node_id");
+  if (parsed_node_id && parsed_node_id->type == cJSON_String) {
+    snprintf(node_id, sizeof(node_id), "%s", parsed_node_id->valuestring);
+  }
+
+  cJSON* parsed_description = cJSON_GetObjectItem(root, "description");
+  if (parsed_description && parsed_description->type == cJSON_String) {
+    snprintf(description, sizeof(description), "%s", parsed_description->valuestring);
   }
   
-  JSONParser::getBool(json, "blink", should_blink);
+  cJSON* blink = cJSON_GetObjectItem(root, "blink");
+  should_blink = (blink && blink->type == cJSON_True);
 
-  bool force_full_sync = false;
-  JSONParser::getBool(json, "force_full_sync", force_full_sync);
-  if (force_full_sync) {
+  cJSON* force_full_sync = cJSON_GetObjectItem(root, "force_full_sync");
+  if (force_full_sync && force_full_sync->type == cJSON_True) {
     force_full_sync_next = true;
   }
+
+  cJSON_Delete(root);
 }

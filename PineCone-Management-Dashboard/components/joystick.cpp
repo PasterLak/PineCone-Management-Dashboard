@@ -2,6 +2,7 @@
 
 extern "C" {}
 #include "pins.hpp"
+#include "../extentions/log.hpp"
 
 Joystick::Joystick(uint8_t pinX, uint8_t pinY, uint8_t pinBtn)
     : _pinX(pinX),
@@ -10,8 +11,8 @@ Joystick::Joystick(uint8_t pinX, uint8_t pinY, uint8_t pinBtn)
       _valX(0),
       _valY(0),
       _btnState(false) {
-  _calX = {1500, 100, false};
-  _calY = {1500, 100, false};
+  _calX = {1500, 200, false};
+  _calY = {1500, 200, false};
 
   pinMode(pinX, INPUT);
   pinMode(pinY, INPUT);
@@ -30,6 +31,10 @@ int8_t Joystick::mapAxis(uint16_t raw, const AxisCalibration& cal) {
 void Joystick::update() {
   _valXRaw = (uint16_t)analogRead(_pinX);
   _valYRaw = (uint16_t)analogRead(_pinY);
+
+  //Log::println("X ", _valXRaw);
+  //Log::println("Y ", _valYRaw);
+
 
   _valX = mapAxis(_valXRaw, _calX);
   _valY = mapAxis(_valYRaw, _calY);
