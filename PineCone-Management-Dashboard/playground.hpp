@@ -2,6 +2,7 @@
 #include "pins.hpp"
 #include "components/delta_time.hpp"
 #include "components/joystick.hpp"
+#include "tests/event_test.hpp"
 
 
 void testJoystick(DeltaTime dt)
@@ -9,6 +10,8 @@ void testJoystick(DeltaTime dt)
 
   float time = 0;
   Joystick joystick(4,5,6);
+
+  runEventTests();
 
 
   while (true) {
