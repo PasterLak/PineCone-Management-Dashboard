@@ -2,39 +2,59 @@
 set -euo pipefail
 
 CERT_DIR="${1:-}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Default: wenn mqtt_certs existiert, nimm den als Quelle, sonst Script-Ordner
+DEFAULT_SRC="$SCRIPT_DIR/mqtt_certs"
+SRC_DIR="${2:-$DEFAULT_SRC}"
+if [[ ! -d "$SRC_DIR" ]]; then
+  SRC_DIR="$SCRIPT_DIR"
+fi
+
 if [[ -z "$CERT_DIR" ]]; then
-  echo "Usage: $0 <cert-dir>"
+  echo "Usage: $0 <target-cert-dir> [source-dir]"
+  echo "Example: $0 /etc/mosquitto/certs $SCRIPT_DIR/mqtt_certs"
   exit 1
 fi
 
-# Create dir
+CA_SRC="$SRC_DIR/ca.crt"
+CERT_SRC="$SRC_DIR/mosquitto.crt"
+KEY_SRC="$SRC_DIR/mosquitto.key"
+
+# Ziel-Dateinamen (wie dein listeners.conf erwartet)
+CA_DST="$CERT_DIR/ca.pem"
+CERT_DST="$CERT_DIR/server.pem"
+KEY_DST="$CERT_DIR/server.key"
+
+for f in "$CA_SRC" "$CERT_SRC" "$KEY_SRC"; do
+  [[ -s "$f" ]] || { echo "Error: missing or empty file: $f"; exit 1; }
+done
+
 mkdir -p "$CERT_DIR"
-cd "$CERT_DIR"
 
-echo "Generating CA key and certificate..."
-openssl genrsa -out ca.key 4096
-openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 \
-  -out ca.pem -subj "/CN=Local Mosquitto CA"
+# Copy + set perms (key streng)
+install -m 0644 "$CA_SRC"   "$CA_DST"
+install -m 0644 "$CERT_SRC" "$CERT_DST"
+install -m 0600 "$KEY_SRC"  "$KEY_DST"
 
-echo "Generating server key and CSR..."
-openssl genrsa -out server.key 2048
-openssl req -new -key server.key -out server.csr -subj "/CN=localhost"
+# Quick validation: PEM parse?
+openssl x509 -in "$CA_DST"   -noout >/dev/null
+openssl x509 -in "$CERT_DST" -noout >/dev/null
+openssl pkey -in "$KEY_DST"  -noout >/dev/null
 
-cat > server-ext.cnf <<'EOF'
-subjectAltName = @alt_names
-extendedKeyUsage = serverAuth
+# Verify cert matches key
+cert_md5="$(openssl x509 -in "$CERT_DST" -noout -modulus | openssl md5)"
+key_md5="$(openssl pkey -in "$KEY_DST" -noout -modulus | openssl md5)"
+if [[ "$cert_md5" != "$key_md5" ]]; then
+  echo "ERROR: server.pem and server.key do not match!"
+  exit 1
+fi
 
-[alt_names]
-DNS.1 = localhost
-IP.1 = 127.0.0.1
-EOF
+# Optional: warn if no SAN
+if ! openssl x509 -in "$CERT_DST" -noout -text | grep -q "Subject Alternative Name"; then
+  echo "WARNING: server certificate has no SAN (Subject Alternative Name)."
+  echo "         Some TLS clients may fail hostname verification unless they disable it."
+fi
 
-echo "Signing server certificate with SAN..."
-openssl x509 -req -in server.csr -CA ca.pem -CAkey ca.key -CAcreateserial \
-  -out server.pem -days 825 -sha256 -extfile server-ext.cnf
-
-echo "Cleaning up..."
-rm -f server.csr server-ext.cnf ca.srl 2>/dev/null || true
-
-echo "Done. Files in $CERT_DIR:"
-ls -l
+echo "Installed MQTT TLS files:"
+ls -l "$CERT_DIR"

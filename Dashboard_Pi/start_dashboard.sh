@@ -9,6 +9,7 @@ GAME_SERVER_DIR="$PROJECT_ROOT/game_server"
 echo "PineCone Dashboard Setup (Linux)"
 
 CERT_DIR="${1:-/etc/mosquitto/certs}"
+CERT_SRC_DIR="$APP_DIR/mqtt_certs"   # <--- HIER: dein Ordner mit ca.crt/mosquitto.crt/mosquitto.key
 SESSION="pinecone_dashboard"
 MOSQUITTO_LISTENERS_CONF="/etc/mosquitto/conf.d/listeners.conf"
 MQTT_USER="flask"
@@ -65,7 +66,7 @@ if ! grep -qE '^\s*include_dir\s+/etc/mosquitto/conf\.d\s*$' /etc/mosquitto/mosq
   echo "include_dir /etc/mosquitto/conf.d" | sudo tee -a /etc/mosquitto/mosquitto.conf >/dev/null
 fi
 
-# --- Generate MQTT TLS certificates if missing (robust exists-check) ---
+# --- Install/copy MQTT TLS certificates if missing ---
 need_certs=0
 for f in "$CA_FILE" "$CERT_FILE" "$KEY_FILE"; do
   if [[ ! -s "$f" ]]; then
@@ -75,17 +76,17 @@ for f in "$CA_FILE" "$CERT_FILE" "$KEY_FILE"; do
 done
 
 if (( need_certs )); then
-  echo "Generating MQTT TLS certificates in $CERT_DIR..."
+  echo "Installing MQTT TLS certificates into $CERT_DIR from $CERT_SRC_DIR..."
   if [[ "$CERT_DIR" == /etc/* ]]; then
-    sudo "$APP_DIR/gen_mqtt_certs.sh" "$CERT_DIR"
+    sudo "$APP_DIR/gen_mqtt_certs.sh" "$CERT_DIR" "$CERT_SRC_DIR"
   else
-    "$APP_DIR/gen_mqtt_certs.sh" "$CERT_DIR"
+    "$APP_DIR/gen_mqtt_certs.sh" "$CERT_DIR" "$CERT_SRC_DIR"
   fi
 else
   echo "TLS certs already exist: $CA_FILE, $CERT_FILE, $KEY_FILE"
 fi
 
-# --- Fix permissions for Mosquitto TLS key/certs (important on fresh Ubuntu) ---
+# --- Fix permissions for Mosquitto TLS key/certs ---
 if [[ "$CERT_DIR" == /etc/* ]]; then
   [[ -f "$KEY_FILE"  ]] && sudo chown mosquitto:mosquitto "$KEY_FILE"  && sudo chmod 600 "$KEY_FILE"
   [[ -f "$CA_FILE"   ]] && sudo chown mosquitto:mosquitto "$CA_FILE"   && sudo chmod 644 "$CA_FILE"
@@ -138,7 +139,6 @@ EOF
 echo "Restarting Mosquitto..."
 restart_mosquitto
 
-# --- Verify Mosquitto is listening on both ports ---
 echo "Checking Mosquitto listeners..."
 sudo ss -ltnp | grep -E ':(1883|8883)\b' || { echo "Error: Mosquitto is not listening on 1883/8883"; sudo journalctl -u mosquitto -e --no-pager; exit 1; }
 
