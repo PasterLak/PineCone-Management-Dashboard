@@ -97,3 +97,4 @@ PineCone-Management-Dashboard/include/private_config.hpp
 
 /.idea
 Dashboard_Pi/routes/__pycache__/
+Dashboard_Pi/routes/__pycache__
