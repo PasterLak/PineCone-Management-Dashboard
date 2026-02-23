@@ -67,6 +67,10 @@ fi
 SESSION="pinecone_dashboard"
 MOSQUITTO_LISTENERS_CONF="/etc/mosquitto/conf.d/listeners.conf"
 
+if [ ! -d "/etc/mosquitto/conf.d" ]; then
+  sudo mkdir -p /etc/mosquitto/conf.d
+fi
+
 if [ ! -f "$MOSQUITTO_LISTENERS_CONF" ]; then
   echo "Creating Mosquitto listeners.conf at $MOSQUITTO_LISTENERS_CONF..."
   sudo bash -c "cat > $MOSQUITTO_LISTENERS_CONF <<EOF
