@@ -140,7 +140,7 @@ fi
 echo "-----------------------------------------"
 echo "Dashboard: http://localhost:80"
 echo "-----------------------------------------"
-echo "Starting Flask dashboard (foreground)..."
+echo "Starting Flask dashboard..."
 echo "Press CTRL+C to stop."
 echo
 
