@@ -89,4 +89,4 @@ def start_mqtt():
 start_mqtt()
 
 if __name__ == "__main__":
-    app.run(host=HOST, port=PORT, debug=DEBUG, threaded=True)
+    app.run(host="0.0.0.0", port=PORT, debug=DEBUG, threaded=True)
