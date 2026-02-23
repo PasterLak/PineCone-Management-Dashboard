@@ -18,64 +18,50 @@ fi
 source ./dashboard/bin/activate
 
 pip install --upgrade pip
-pip install flask
-pip install flask-socketio
+pip install flask flask-socketio paho-mqtt
 
 APP_PY="$APP_DIR/app.py"
 
-if [ -f "$APP_PY" ]; then
-  echo -e "Flask-App found: $APP_PY"
-  chmod +x "$APP_PY"
-else
-  echo -e "Error: $APP_PY not found."
+if [ ! -f "$APP_PY" ]; then
+  echo "Error: $APP_PY not found."
   exit 1
 fi
 
 if [ ! -d "$GAME_DIR" ]; then
-  echo -e "Error: $GAME_DIR not found."
+  echo "Error: $GAME_DIR not found."
   exit 1
 fi
 
 if [ ! -d "$GAME_SERVER_DIR" ]; then
-  echo -e "Error: $GAME_SERVER_DIR not found."
+  echo "Error: $GAME_SERVER_DIR not found."
   exit 1
 fi
 
-kill_port_if_used() {
-  local port="$1"
-  local pids
-  pids=$(lsof -ti tcp:"$port" 2>/dev/null || true)
-  if [ -n "$pids" ]; then
-    echo "Stopping existing process on port $port..."
-    kill $pids 2>/dev/null || true
-    sleep 0.5
-    pids=$(lsof -ti tcp:"$port" 2>/dev/null || true)
-    if [ -n "$pids" ]; then
-      kill -9 $pids 2>/dev/null || true
-    fi
-  fi
-}
+if ! command -v tmux >/dev/null 2>&1; then
+  echo "tmux is getting installed..."
+  sudo apt-get update
+  sudo apt-get install -y tmux
+fi
 
-kill_port_if_used 8081
-kill_port_if_used 8082
+SESSION="pinecone_dashboard"
 
-(cd "$GAME_DIR" && python3 -m http.server 8081 >/tmp/game_client.log 2>&1) &
-GAME_PID=$!
+# Kill old session if exists
+tmux kill-session -t $SESSION 2>/dev/null || true
 
-(cd "$GAME_SERVER_DIR" && "$APP_DIR"/dashboard/bin/python3 app.py >/tmp/game_server.log 2>&1) &
-GAME_SERVER_PID=$!
+# Tab 0: Flask Dashboard (Port 80, sudo required)
+tmux new-session -d -s $SESSION -n 'Flask' "cd $APP_DIR && sudo ./dashboard/bin/python3 app.py"
 
-cleanup() {
-  kill "$GAME_PID" 2>/dev/null || true
-  kill "$GAME_SERVER_PID" 2>/dev/null || true
-}
-trap cleanup EXIT INT TERM
+# Tab 1: GameServer (Port 8082)
+tmux new-window -t $SESSION:1 -n 'GameServer' "cd $GAME_SERVER_DIR && $APP_DIR/dashboard/bin/python3 app.py"
 
-echo -e "Setup completed!"
+tmux select-window -t $SESSION:0
+
 echo "-----------------------------------------"
 echo "Dashboard: http://localhost:80"
 echo "Game:      http://localhost:8081/index.html"
 echo "Game API:  http://localhost:8082"
 echo "-----------------------------------------"
-
-sudo ./dashboard/bin/python3 app.py
+echo "Start tmux-Session '$SESSION' (Flask+MQTT, GameServer)..."
+echo "To kill session: tmux kill-session -t $SESSION"
+echo "Press Strg+b and 0/1 or n to switch windows."
+tmux attach-session -t $SESSION
