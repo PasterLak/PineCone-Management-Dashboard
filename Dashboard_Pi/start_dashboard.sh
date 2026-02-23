@@ -48,7 +48,7 @@ for f in "$CERT_SRC_DIR/ca.crt" "$CERT_SRC_DIR/mosquitto.crt" "$CERT_SRC_DIR/mos
   [[ -s "$f" ]] || { echo "Error: missing/empty cert file: $f"; exit 1; }
 done
 
-# Make sure sudo is ready (prevents weird prompting behavior)
+# Make sure sudo is ready
 sudo -v
 
 echo "Installing required packages..."
@@ -74,7 +74,7 @@ done
 
 if (( need_certs )); then
   echo "Installing MQTT TLS certificates into $CERT_DIR from $CERT_SRC_DIR..."
-  sudo "$APP_DIR/gen_mqtt_certs.sh" "$CERT_DIR" "$CERT_SRC_DIR"
+  sudo "$APP_DIR/manage_mqtt_certs.sh" "$CERT_DIR" "$CERT_SRC_DIR"
 else
   echo "TLS certs already exist: $CA_FILE, $CERT_FILE, $KEY_FILE"
 fi
@@ -144,5 +144,4 @@ echo "Starting Flask dashboard..."
 echo "Press CTRL+C to stop."
 echo
 
-# Important: run from APP_DIR even under sudo
 exec sudo bash -lc "exec '$VENV_PY' '$APP_PY'"

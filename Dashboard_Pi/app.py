@@ -60,7 +60,6 @@ def on_message(client, userdata, msg):
         resp, code = process_device_data(data, "mqtt")
         print(f"[{userdata}] processed: {resp}")
 
-        # --- MQTT Response-Topic-Logik ---
         response_topic = data.get("response_topic")
         node_id = data.get("node_id")
         if not response_topic and node_id:
@@ -71,11 +70,9 @@ def on_message(client, userdata, msg):
                 "node_id": resp.get("node_id"),
                 "description": resp.get("description"),
             }
-            # optionale Felder wie blink, force_full_sync etc. übernehmen
             for key in ("blink", "force_full_sync", "error"):
                 if key in resp:
                     response_payload[key] = resp[key]
-            # HTTP-like: code (Statuscode) mitgeben
             response_payload["http_code"] = code
             client.publish(response_topic, json.dumps(response_payload), qos=1)
             print(f"[{userdata}] MQTT response sent to {response_topic}: {response_payload}")

@@ -11,7 +11,7 @@ if [[ ! -d "$GAME_SERVER_DIR" ]]; then
   exit 1
 fi
 if [[ ! -x "$VENV" ]]; then
-  echo "Error: Python venv not found at $VENV. Run ./start_dashboard.sh first."
+  echo "Error: Python venv not found at $VENV."
   exit 1
 fi
 cd "$GAME_SERVER_DIR"
