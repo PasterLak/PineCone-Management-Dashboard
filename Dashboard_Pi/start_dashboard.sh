@@ -145,4 +145,4 @@ echo "Press CTRL+C to stop."
 echo
 
 # Important: run from APP_DIR even under sudo
-exec sudo bash -lc "cd '$APP_DIR' && exec '$VENV_PY' '$APP_PY'"
+exec sudo bash -lc "exec '$VENV_PY' '$APP_PY'"
