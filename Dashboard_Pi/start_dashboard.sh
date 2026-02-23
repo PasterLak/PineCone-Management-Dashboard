@@ -69,8 +69,10 @@ MOSQUITTO_LISTENERS_CONF="/etc/mosquitto/conf.d/listeners.conf"
 
 if [ ! -f "$MOSQUITTO_LISTENERS_CONF" ]; then
   echo "Creating Mosquitto listeners.conf at $MOSQUITTO_LISTENERS_CONF..."
-  sudo tee "$MOSQUITTO_LISTENERS_CONF" > /dev/null <<EOF
-# Plain MQTT (without ath)
+  sudo bash -c "cat > $MOSQUITTO_LISTENERS_CONF <<EOF
+per_listener_settings true
+
+# Plain MQTT (without auth)
 listener 1883 127.0.0.1
 allow_anonymous true
 
@@ -81,15 +83,14 @@ certfile $CERT_DIR/server.crt
 keyfile $CERT_DIR/server.key
 allow_anonymous false
 password_file /etc/mosquitto/passwd
-EOF
+EOF"
   echo "Restarting Mosquitto..."
   sudo systemctl restart mosquitto || sudo service mosquitto restart
 fi
-MOSQUITTO_CONF="/etc/mosquitto/conf.d/ssl.conf"
 
-if [ ! -f "$MOSQUITTO_CONF" ]; then
-  echo "Creating Mosquitto TLS config at $MOSQUITTO_CONF..."
-  sudo tee "$MOSQUITTO_CONF" > /dev/null <<EOF
+if [ ! -f "$MOSQUITTO_LISTENERS_CONF" ]; then
+  echo "Creating Mosquitto TLS config at $MOSQUITTO_LISTENERS_CONF..."
+  sudo tee "$MOSQUITTO_LISTENERS_CONF" > /dev/null <<EOF
 listener 8883
 cafile $CERT_DIR/ca.pem
 certfile $CERT_DIR/server.crt
