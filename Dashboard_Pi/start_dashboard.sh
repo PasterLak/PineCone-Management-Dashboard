@@ -10,13 +10,11 @@ CERT_DIR="${1:-/etc/mosquitto/certs}"
 CERT_SRC_DIR="${2:-$APP_DIR/mqtt_certs}"
 
 MOSQUITTO_LISTENERS_CONF="/etc/mosquitto/conf.d/listeners.conf"
-MQTT_USER="flask"
-MQTT_PASS="root"
-MQTT_PASSWD_FILE="/etc/mosquitto/passwd"
 
-CA_FILE="$CERT_DIR/ca.pem"
-CERT_FILE="$CERT_DIR/server.pem"
-KEY_FILE="$CERT_DIR/server.key"
+# --- We keep the same filenames everywhere (no renaming) ---
+CA_FILE="$CERT_DIR/ca.crt"
+CERT_FILE="$CERT_DIR/mosquitto.crt"
+KEY_FILE="$CERT_DIR/mosquitto.key"
 
 VENV_DIR="$APP_DIR/dashboard"
 VENV_PY="$VENV_DIR/bin/python3"
@@ -86,30 +84,27 @@ if [[ "$CERT_DIR" == /etc/* ]]; then
   [[ -f "$CERT_FILE" ]] && sudo chown mosquitto:mosquitto "$CERT_FILE" && sudo chmod 644 "$CERT_FILE"
 fi
 
-# --- Create Mosquitto user/password if missing ---
-if [[ ! -f "$MQTT_PASSWD_FILE" ]]; then
-  echo "Creating Mosquitto user/password..."
-  sudo mosquitto_passwd -c -b "$MQTT_PASSWD_FILE" "$MQTT_USER" "$MQTT_PASS"
-  sudo chown mosquitto:mosquitto "$MQTT_PASSWD_FILE"
-  sudo chmod 640 "$MQTT_PASSWD_FILE"
-else
-  echo "Mosquitto password file exists: $MQTT_PASSWD_FILE"
-fi
-
-# --- Write listeners.conf ---
+# --- Write listeners.conf (mTLS on 8883) ---
 echo "Writing Mosquitto listeners.conf to $MOSQUITTO_LISTENERS_CONF..."
 sudo tee "$MOSQUITTO_LISTENERS_CONF" >/dev/null <<EOF
 per_listener_settings true
 
+# Plain MQTT (local only)
 listener 1883 127.0.0.1
 allow_anonymous true
 
+# TLS MQTT (local only) with client-certificate required (mTLS)
 listener 8883 127.0.0.1
 cafile $CA_FILE
 certfile $CERT_FILE
 keyfile $KEY_FILE
-allow_anonymous false
-password_file $MQTT_PASSWD_FILE
+
+# Require a client certificate signed by cafile:
+require_certificate true
+use_identity_as_username true
+
+# No username/password (auth is via client certificate)
+allow_anonymous true
 EOF
 
 echo "Restarting Mosquitto..."
@@ -144,4 +139,5 @@ echo "Starting Flask dashboard..."
 echo "Press CTRL+C to stop."
 echo
 
-exec sudo -E "$VENV_PY" "$APP_PY"
+# Start Flask app (sudo because you may bind to port 80)
+exec sudo "$VENV_PY" "$APP_PY"
