@@ -1,10 +1,10 @@
-#include "http_client.hpp"
+#include "http.hpp"
 #include <string.h>
 #include <stdio.h>
 
 
 
-bool HTTPClient::connectToServer(const char* server_ip, uint16_t port) {
+bool HTTP::connectToServer(const char* server_ip, uint16_t port) {
     log("[HTTP] Creating socket...");
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     log("[HTTP] Socket fd: {}", socket_fd);
@@ -34,7 +34,7 @@ bool HTTPClient::connectToServer(const char* server_ip, uint16_t port) {
     return true;
 }
 
-bool HTTPClient::sendRequest(const char* method, const char* path,
+bool HTTP::sendRequest(const char* method, const char* path,
                              const char* host, uint16_t port,
                              const char* body) {
     char request[768];
@@ -68,7 +68,7 @@ bool HTTPClient::sendRequest(const char* method, const char* path,
     return true;
 }
 
-bool HTTPClient::receiveResponse() {
+bool HTTP::receiveResponse() {
     int total_bytes = 0;
     int bytes;
 
@@ -89,14 +89,14 @@ bool HTTPClient::receiveResponse() {
     return true;
 }
 
-void HTTPClient::closeConnection() {
+void HTTP::closeConnection() {
     if (socket_fd >= 0) {
         close(socket_fd);
         socket_fd = -1;
     }
 }
 
-bool HTTPClient::post(const char* server_ip, uint16_t port, const char* path,
+bool HTTP::post(const char* server_ip, uint16_t port, const char* path,
                       const char* json_payload) {
     if (!connectToServer(server_ip, port)) {
         return false;
@@ -116,7 +116,7 @@ bool HTTPClient::post(const char* server_ip, uint16_t port, const char* path,
     return true;
 }
 
-const char* HTTPClient::getResponseBody() {
+const char* HTTP::getResponseBody() {
     // Find JSON body (after \r\n\r\n)
     const char* body = strstr(response_buffer, "\r\n\r\n");
     if (body) {

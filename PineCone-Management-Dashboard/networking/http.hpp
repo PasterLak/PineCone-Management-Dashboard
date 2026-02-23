@@ -11,7 +11,7 @@ extern "C" {
 
 #include "extentions/log.hpp"
 
-class HTTPClient {
+class HTTP {
 private:
     int socket_fd = -1;
     char response_buffer[1024];
@@ -31,8 +31,8 @@ private:
     }
 
 public:
-    HTTPClient() = default;
-    ~HTTPClient() = default;
+    HTTP() = default;
+    ~HTTP() = default;
 
     void setDebugEnabled(bool enabled) { debug_enabled = enabled; }
 

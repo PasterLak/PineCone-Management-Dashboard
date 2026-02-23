@@ -1,7 +1,7 @@
 #pragma once
 
 #include "i_dashboard_client.hpp"
-#include "http_client.hpp"
+#include "http.hpp"
 
 class HttpDashboardClient : public IDashboardClient {
  public:
@@ -11,6 +11,6 @@ class HttpDashboardClient : public IDashboardClient {
   void setDebugEnabled(bool enabled) override;
 
  private:
-  HTTPClient http_client;
+  HTTP http_client;
   void parseServerResponse(const char* json, ServerCommand& response);
 };
