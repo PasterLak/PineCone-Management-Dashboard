@@ -20,10 +20,10 @@ CA_SRC="$SRC_DIR/ca.crt"
 CERT_SRC="$SRC_DIR/mosquitto.crt"
 KEY_SRC="$SRC_DIR/mosquitto.key"
 
-# filenames in target dir
-CA_DST="$CERT_DIR/ca.pem"
-CERT_DST="$CERT_DIR/server.pem"
-KEY_DST="$CERT_DIR/server.key"
+# Keep the same filenames in target dir
+CA_DST="$CERT_DIR/ca.crt"
+CERT_DST="$CERT_DIR/mosquitto.crt"
+KEY_DST="$CERT_DIR/mosquitto.key"
 
 for f in "$CA_SRC" "$CERT_SRC" "$KEY_SRC"; do
   [[ -s "$f" ]] || { echo "Error: missing or empty file: $f"; exit 1; }
@@ -31,12 +31,11 @@ done
 
 mkdir -p "$CERT_DIR"
 
-# Copy + set perms (key streng)
 install -m 0644 "$CA_SRC"   "$CA_DST"
 install -m 0644 "$CERT_SRC" "$CERT_DST"
 install -m 0600 "$KEY_SRC"  "$KEY_DST"
 
-# Quick validation: PEM parse?
+# Validate parse
 openssl x509 -in "$CA_DST"   -noout >/dev/null
 openssl x509 -in "$CERT_DST" -noout >/dev/null
 openssl pkey -in "$KEY_DST"  -noout >/dev/null
@@ -45,14 +44,14 @@ openssl pkey -in "$KEY_DST"  -noout >/dev/null
 cert_md5="$(openssl x509 -in "$CERT_DST" -noout -modulus | openssl md5)"
 key_md5="$(openssl pkey -in "$KEY_DST" -noout -modulus | openssl md5)"
 if [[ "$cert_md5" != "$key_md5" ]]; then
-  echo "ERROR: server.pem and server.key do not match!"
+  echo "ERROR: mosquitto.crt and mosquitto.key do not match!"
   exit 1
 fi
 
-# warn if no SAN
+# SAN warning (optional)
 if ! openssl x509 -in "$CERT_DST" -noout -text | grep -q "Subject Alternative Name"; then
-  echo "WARNING: server certificate has no SAN (Subject Alternative Name)."
-  echo "         Some TLS clients may fail hostname verification unless they disable it."
+  echo "WARNING: certificate has no SAN (Subject Alternative Name)."
+  echo "         If clients do hostname/IP verification, they may fail unless tls_insecure_set(True) is used."
 fi
 
 echo "Installed MQTT TLS files:"
