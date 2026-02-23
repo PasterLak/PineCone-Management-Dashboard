@@ -14,6 +14,9 @@ export PROJECT_PATH PROJECT_BOARD
 NETWORK_FLAGS := -DLWIP_HTTPD_CUSTOM_FILES=1 \
 	-DLWIP_HTTPD_DYNAMIC_HEADERS=1
 
+NETWORK_FLAGS += -DLWIP_ALTCP_TLS_MBEDTLS
+NETWORK_FLAGS += -DWITH_SNIFFER
+
 CFLAGS += $(NETWORK_FLAGS)
 CPPFLAGS += $(NETWORK_FLAGS)
 CXXFLAGS += $(NETWORK_FLAGS)
@@ -26,7 +29,7 @@ $(info ****** Trying SDK PATH [$(BL60X_SDK_PATH)])
 endif
 
 
-COMPONENTS_NETWORK := sntp dns_server
+COMPONENTS_NETWORK := sntp dns_server lwip_dhcpd lwip mbedtls-bl602 sniffer
 COMPONENTS_BLSYS   := bltime blfdt blmtd blota bloop loopadc looprt loopset
 COMPONENTS_VFS     := romfs
 
@@ -35,8 +38,8 @@ INCLUDE_COMPONENTS += bl602_adc bl602_glb bl602_common
 INCLUDE_COMPONENTS += freertos bl602 bl602_std bl_sys hal_drv bl_gpio hal_gpio
 INCLUDE_COMPONENTS += bl602_wifidrv bl602_wifi lwip
 INCLUDE_COMPONENTS += yloop vfs utils netutils blog blog_testc cli
-INCLUDE_COMPONENTS += httpc lwip_dhcpd mbedtls-bl602 cjson
-INCLUDE_COMPONENTS += easyflash4 etl rfparam_adapter_tmp
+INCLUDE_COMPONENTS += httpc lwip_dhcpd mbedtls-bl602 cjson sniffer
+INCLUDE_COMPONENTS += easyflash4 etl rfparam_adapter_tmp mqtt lwip_app
 INCLUDE_COMPONENTS += $(COMPONENTS_NETWORK)
 INCLUDE_COMPONENTS += $(COMPONENTS_BLSYS)
 INCLUDE_COMPONENTS += $(COMPONENTS_VFS)

@@ -15,6 +15,7 @@ void* __dso_handle = nullptr;
 #include "playground.hpp"
 #include "components/dashboard_manager.hpp"
 #include "networking/http_dashboard_client.hpp"
+#include "networking/mqtt_dashboard_client.hpp"
 #include "components/joystick.hpp"
 #include "views/joystick_view.hpp"
 #include "views/led_view.hpp"
@@ -24,15 +25,20 @@ void* __dso_handle = nullptr;
 #include "extentions/log.hpp"
 #include "include/config.hpp"
 
+#define USE_MQTT 0
 
 DeltaTime deltaTime;
 PinsManager pinsManager;  
 WIFIHandler wifi(Config::WIFI_SSID, Config::WIFI_PASSWORD);
 
-HttpDashboardClient httpClient;
+#if USE_MQTT
+MqttDashboardClient dashboardClient(nullptr, nullptr, "device/sync", "device/command");
+#else
+HttpDashboardClient dashboardClient;
+#endif
 
 LEDView ledController(Config::LED_PIN, Config::LED_BLINK_INTERVAL_SEC, pinsManager);
-DashboardManager dashboardManager(wifi, httpClient, pinsManager, 
+DashboardManager dashboardManager(wifi, dashboardClient, pinsManager, 
                                   Config::DASHBOARD_SERVER_IP,
                                   Config::DASHBOARD_SERVER_PORT,
                                   Config::DASHBOARD_UPDATE_INTERVAL_SEC);
