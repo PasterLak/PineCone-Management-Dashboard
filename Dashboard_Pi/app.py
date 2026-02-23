@@ -80,7 +80,7 @@ def start_mqtt():
     client_tls = mqtt.Client(client_id="flask-tls", protocol=mqtt.MQTTv311, userdata="tls")
     client_tls.username_pw_set(TLS_USERNAME, TLS_PASSWORD)
     client_tls.tls_set(ca_certs=TLS_CA_FILE, tls_version=ssl.PROTOCOL_TLS_CLIENT)
-    client_tls.tls_insecure_set(False)
+    client_tls.tls_insecure_set(True)
     client_tls.on_message = on_message
     client_tls.connect(MQTT_HOST, MQTT_TLS_PORT, 60)
     client_tls.subscribe(MQTT_TOPIC)

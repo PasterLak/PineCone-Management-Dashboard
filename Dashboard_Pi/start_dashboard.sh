@@ -8,19 +8,40 @@ GAME_SERVER_DIR="$PROJECT_ROOT/game_server"
 
 echo -e "PineCone Dashboard Setup (Linux)"
 
+
+CERT_DIR="${1:-/etc/mosquitto/certs}"
+
 cd "$APP_DIR"
 
-if [ ! -d "dashboard" ]; then
-  echo -e "Creating Python virtual environment 'dashboard'..."
-  python3 -m venv dashboard
+if [ ! -f "$CERT_DIR/ca.pem" ] || [ ! -f "$CERT_DIR/server.crt" ] || [ ! -f "$CERT_DIR/server.key" ]; then
+  echo "Generating MQTT TLS certificates in $CERT_DIR..."
+  if [[ "$CERT_DIR" == /etc/* ]]; then
+    sudo "$APP_DIR/gen_mqtt_certs.sh" "$CERT_DIR"
+  else
+    "$APP_DIR/gen_mqtt_certs.sh" "$CERT_DIR"
+  fi
 fi
 
-source ./dashboard/bin/activate
-
+if [ ! -d "dashboard" ]; then
 pip install --upgrade pip
-pip install flask flask-socketio paho-mqtt
+
+if [ "$PORT" = "80" ]; then
+  echo -e "Creating Python virtual environment 'dashboard' as root..."
+  sudo python3 -m venv dashboard
+  sudo ./dashboard/bin/pip install --upgrade pip
+  sudo ./dashboard/bin/pip install flask flask-socketio paho-mqtt
+else
+  echo -e "Creating Python virtual environment 'dashboard'..."
+  python3 -m venv dashboard
+  source ./dashboard/bin/activate
+  pip install --upgrade pip
+  pip install flask flask-socketio paho-mqtt
+fi
+fi
 
 APP_PY="$APP_DIR/app.py"
+
+export MQTT_CERT_DIR="$CERT_DIR"
 
 if [ ! -f "$APP_PY" ]; then
   echo "Error: $APP_PY not found."
@@ -44,12 +65,56 @@ if ! command -v tmux >/dev/null 2>&1; then
 fi
 
 SESSION="pinecone_dashboard"
+MOSQUITTO_LISTENERS_CONF="/etc/mosquitto/conf.d/listeners.conf"
 
-# Kill old session if exists
+if [ ! -f "$MOSQUITTO_LISTENERS_CONF" ]; then
+  echo "Creating Mosquitto listeners.conf at $MOSQUITTO_LISTENERS_CONF..."
+  sudo tee "$MOSQUITTO_LISTENERS_CONF" > /dev/null <<EOF
+# Plain MQTT (without ath)
+listener 1883 127.0.0.1
+allow_anonymous true
+
+# TLS MQTT (with auth)
+listener 8883 127.0.0.1
+cafile $CERT_DIR/ca.pem
+certfile $CERT_DIR/server.crt
+keyfile $CERT_DIR/server.key
+allow_anonymous false
+password_file /etc/mosquitto/passwd
+EOF
+  echo "Restarting Mosquitto..."
+  sudo systemctl restart mosquitto || sudo service mosquitto restart
+fi
+MOSQUITTO_CONF="/etc/mosquitto/conf.d/ssl.conf"
+
+if [ ! -f "$MOSQUITTO_CONF" ]; then
+  echo "Creating Mosquitto TLS config at $MOSQUITTO_CONF..."
+  sudo tee "$MOSQUITTO_CONF" > /dev/null <<EOF
+listener 8883
+cafile $CERT_DIR/ca.pem
+certfile $CERT_DIR/server.crt
+keyfile $CERT_DIR/server.key
+require_certificate false
+EOF
+  echo "Restarting Mosquitto..."
+  sudo systemctl restart mosquitto || sudo service mosquitto restart
+fi
+
+MQTT_USER="flask"
+MQTT_PASS="root"
+MQTT_PASSWD_FILE="/etc/mosquitto/passwd"
+if [ ! -f "$MQTT_PASSWD_FILE" ]; then
+  echo "Creating Mosquitto user/password..."
+  sudo mosquitto_passwd -c -b "$MQTT_PASSWD_FILE" "$MQTT_USER" "$MQTT_PASS"
+  sudo chown mosquitto:mosquitto "$MQTT_PASSWD_FILE"
+  sudo chmod 640 "$MQTT_PASSWD_FILE"
+  sudo systemctl restart mosquitto || sudo service mosquitto restart
+fi
+
 tmux kill-session -t $SESSION 2>/dev/null || true
 
 # Tab 0: Flask Dashboard (Port 80, sudo required)
-tmux new-session -d -s $SESSION -n 'Flask' "cd $APP_DIR && sudo ./dashboard/bin/python3 app.py"
+tmux new-session -d -s $SESSION -n 'Flask' "cd $APP_DIR && sudo bash -c 'source ./dashboard/bin/activate && ./dashboard/bin/python3 app.py'"
 
 # Tab 1: GameServer (Port 8082)
 tmux new-window -t $SESSION:1 -n 'GameServer' "cd $GAME_SERVER_DIR && $APP_DIR/dashboard/bin/python3 app.py"
