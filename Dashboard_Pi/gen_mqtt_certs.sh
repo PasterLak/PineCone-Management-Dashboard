@@ -4,7 +4,6 @@ set -euo pipefail
 CERT_DIR="${1:-}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Default: wenn mqtt_certs existiert, nimm den als Quelle, sonst Script-Ordner
 DEFAULT_SRC="$SCRIPT_DIR/mqtt_certs"
 SRC_DIR="${2:-$DEFAULT_SRC}"
 if [[ ! -d "$SRC_DIR" ]]; then
@@ -21,7 +20,7 @@ CA_SRC="$SRC_DIR/ca.crt"
 CERT_SRC="$SRC_DIR/mosquitto.crt"
 KEY_SRC="$SRC_DIR/mosquitto.key"
 
-# Ziel-Dateinamen (wie dein listeners.conf erwartet)
+# filenames in target dir
 CA_DST="$CERT_DIR/ca.pem"
 CERT_DST="$CERT_DIR/server.pem"
 KEY_DST="$CERT_DIR/server.key"
@@ -50,7 +49,7 @@ if [[ "$cert_md5" != "$key_md5" ]]; then
   exit 1
 fi
 
-# Optional: warn if no SAN
+# warn if no SAN
 if ! openssl x509 -in "$CERT_DST" -noout -text | grep -q "Subject Alternative Name"; then
   echo "WARNING: server certificate has no SAN (Subject Alternative Name)."
   echo "         Some TLS clients may fail hostname verification unless they disable it."

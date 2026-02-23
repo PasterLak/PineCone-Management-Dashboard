@@ -9,7 +9,7 @@ GAME_SERVER_DIR="$PROJECT_ROOT/game_server"
 echo "PineCone Dashboard Setup (Linux)"
 
 CERT_DIR="${1:-/etc/mosquitto/certs}"
-CERT_SRC_DIR="$APP_DIR/mqtt_certs"   # <--- HIER: dein Ordner mit ca.crt/mosquitto.crt/mosquitto.key
+CERT_SRC_DIR="$APP_DIR/mqtt_certs" 
 SESSION="pinecone_dashboard"
 MOSQUITTO_LISTENERS_CONF="/etc/mosquitto/conf.d/listeners.conf"
 MQTT_USER="flask"
