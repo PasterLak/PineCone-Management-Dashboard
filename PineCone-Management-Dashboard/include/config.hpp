@@ -23,29 +23,28 @@ constexpr uint8_t LED_PIN = 11;  // Blue
 constexpr float DASHBOARD_UPDATE_INTERVAL_SEC = 0.025f;
 constexpr float LED_BLINK_INTERVAL_SEC = 0.5f;
 
+namespace MQTT {
+constexpr const char* USER = "flask";
+constexpr const char* PASSWORD = "root";
+constexpr const char* PUB_TOPIC = "/api/data/response";
+constexpr const char* SUB_TOPIC = "/api/data";
+}  // namespace MQTT
 
-
-namespace MQTT
-{
-    constexpr const char* USER = "flask"; 
-    constexpr const char* PASSWORD = "root";
-    constexpr const char* PUB_TOPIC = "/api/data";
-    constexpr const char* SUB_TOPIC = "/api/data/response";
-}
-
-
+namespace WIFI {
 
 #ifdef PRIVATE_WIFI_SSID
-constexpr const char* WIFI_SSID = PRIVATE_WIFI_SSID;
+constexpr const char* SSID = PRIVATE_WIFI_SSID;
 #else
-constexpr const char* WIFI_SSID = "wifi_name";
+constexpr const char* SSID = "wifi_name";
 #endif
 
 #ifdef PRIVATE_WIFI_PASSWORD
-constexpr const char* WIFI_PASSWORD = PRIVATE_WIFI_PASSWORD;
+constexpr const char* PASSWORD = PRIVATE_WIFI_PASSWORD;
 #else
-constexpr const char* WIFI_PASSWORD = "wifi_password";
+constexpr const char* PASSWORD = "wifi_password";
 #endif
+
+}  // namespace WIFI
 
 #ifdef PRIVATE_DASHBOARD_SERVER_IP
 constexpr const char* DASHBOARD_SERVER_IP = PRIVATE_DASHBOARD_SERVER_IP;
@@ -53,7 +52,6 @@ constexpr const char* DASHBOARD_SERVER_IP = PRIVATE_DASHBOARD_SERVER_IP;
 constexpr const char* DASHBOARD_SERVER_IP = "192.168.0.1";
 #endif
 
-
 constexpr uint16_t DASHBOARD_SERVER_PORT = 80;
 
-} 
+}  // namespace Config

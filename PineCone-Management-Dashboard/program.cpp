@@ -29,7 +29,7 @@ void* __dso_handle = nullptr;
 
 DeltaTime deltaTime;
 PinsManager pinsManager;  
-WIFIHandler wifi(Config::WIFI_SSID, Config::WIFI_PASSWORD);
+WIFIHandler wifi(Config::WIFI::SSID, Config::WIFI::PASSWORD);
 
 #if USE_MQTT
 MqttDashboardClient dashboardClient( Config::MQTT::USER ,Config::MQTT::PASSWORD  ,
