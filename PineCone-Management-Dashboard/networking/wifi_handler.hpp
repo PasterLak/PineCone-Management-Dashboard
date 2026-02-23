@@ -19,6 +19,8 @@ class WIFIHandler {
   char* get_ip_address();
   void get_mac_address(uint8_t mac[6]);
 
+  char* getMacAdressAsString();
+
   void setDebugEnabled(bool enabled) {
     debug_enabled = enabled;
   }

@@ -25,6 +25,16 @@ constexpr float LED_BLINK_INTERVAL_SEC = 0.5f;
 
 
 
+namespace MQTT
+{
+    constexpr const char* USER = "flask"; 
+    constexpr const char* PASSWORD = "root";
+    constexpr const char* PUB_TOPIC = "/api/data";
+    constexpr const char* SUB_TOPIC = "/api/data/response";
+}
+
+
+
 #ifdef PRIVATE_WIFI_SSID
 constexpr const char* WIFI_SSID = PRIVATE_WIFI_SSID;
 #else

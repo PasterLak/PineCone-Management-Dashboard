@@ -25,14 +25,15 @@ void* __dso_handle = nullptr;
 #include "extentions/log.hpp"
 #include "include/config.hpp"
 
-#define USE_MQTT 0
+#define USE_MQTT 1
 
 DeltaTime deltaTime;
 PinsManager pinsManager;  
 WIFIHandler wifi(Config::WIFI_SSID, Config::WIFI_PASSWORD);
 
 #if USE_MQTT
-MqttDashboardClient dashboardClient(nullptr, nullptr, "device/sync", "device/command");
+MqttDashboardClient dashboardClient( Config::MQTT::USER ,Config::MQTT::PASSWORD  ,
+  Config::MQTT::PUB_TOPIC , Config::MQTT::SUB_TOPIC);
 #else
 HttpDashboardClient dashboardClient;
 #endif
