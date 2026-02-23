@@ -54,6 +54,9 @@ tmux new-session -d -s $SESSION -n 'Flask' "cd $APP_DIR && sudo ./dashboard/bin/
 # Tab 1: GameServer (Port 8082)
 tmux new-window -t $SESSION:1 -n 'GameServer' "cd $GAME_SERVER_DIR && $APP_DIR/dashboard/bin/python3 app.py"
 
+# Tab 2: GameClient Static Server (Port 8081)
+tmux new-window -t $SESSION:2 -n 'GameClient' "cd $GAME_DIR && python3 -m http.server 8081"
+
 tmux select-window -t $SESSION:0
 
 echo "-----------------------------------------"
@@ -61,7 +64,7 @@ echo "Dashboard: http://localhost:80"
 echo "Game:      http://localhost:8081/index.html"
 echo "Game API:  http://localhost:8082"
 echo "-----------------------------------------"
-echo "Start tmux-Session '$SESSION' (Flask+MQTT, GameServer)..."
+echo "Start tmux-Session '$SESSION' (Flask+MQTT, GameServer, GameClient)..."
 echo "To kill session: tmux kill-session -t $SESSION"
-echo "Press Strg+b and 0/1 or n to switch windows."
+echo "Press Strg+b and 0/1/2 or n to switch windows."
 tmux attach-session -t $SESSION
