@@ -144,4 +144,4 @@ echo "Starting Flask dashboard..."
 echo "Press CTRL+C to stop."
 echo
 
-exec sudo bash -lc "exec '$VENV_PY' '$APP_PY'"
+exec sudo -E "$VENV_PY" "$APP_PY"

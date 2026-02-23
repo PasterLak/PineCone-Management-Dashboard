@@ -63,7 +63,7 @@ def on_message(client, userdata, msg):
         response_topic = data.get("response_topic")
         node_id = data.get("node_id")
         if not response_topic and node_id:
-            response_topic = f"/api/data/response/{node_id}"
+            response_topic = f"/api/data/response"
         if response_topic:
             response_payload = {
                 "status": resp.get("status", "ok"),
