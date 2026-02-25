@@ -20,12 +20,13 @@ LED Red	IO 17	JTAG → PWM
 constexpr uint8_t LED_PIN = 11;  // Blue
 
 // Timing Configuration
-constexpr float DASHBOARD_UPDATE_INTERVAL_SEC = 0.025f;
+//constexpr float DASHBOARD_UPDATE_INTERVAL_SEC = 0.025f;
+constexpr float DASHBOARD_UPDATE_INTERVAL_SEC = 0.25f;
 constexpr float LED_BLINK_INTERVAL_SEC = 0.5f;
 
 namespace MQTT {
-constexpr const char* USER = "flask";
-constexpr const char* PASSWORD = "root";
+constexpr const char* USER = "suas";
+constexpr const char* PASSWORD = "J4auBDJYzcrL8s9TEZJt";
 constexpr const char* PUB_TOPIC = "/api/data/response";
 constexpr const char* SUB_TOPIC = "/api/data";
 }  // namespace MQTT

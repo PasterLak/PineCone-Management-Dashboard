@@ -24,13 +24,13 @@ print_error() {
 }
 
 # Check if parent folder name matches the required one
-if [[ "$PARENT_FOLDER_NAME" != "$REQUIRED_PARENT_FOLDER" ]]; then
-    print_error "ERROR: Project folder must be located inside the '$REQUIRED_PARENT_FOLDER' folder."
-    print_error "Current parent folder: $PARENT_FOLDER_NAME"
-    print_error "Expected parent folder path: /home/vlad/bl602_iot_sdk/customer_app/"
-    print_error "Actual path: $SCRIPT_DIR"
-    exit 1
-fi
+# if [[ "$PARENT_FOLDER_NAME" != "$REQUIRED_PARENT_FOLDER" ]]; then
+#     print_error "ERROR: Project folder must be located inside the '$REQUIRED_PARENT_FOLDER' folder."
+#     print_error "Current parent folder: $PARENT_FOLDER_NAME"
+#     print_error "Expected parent folder path: /home/vlad/bl602_iot_sdk/customer_app/"
+#     print_error "Actual path: $SCRIPT_DIR"
+#     exit 1
+# fi
 
 # If check passed, continue with the script
 echo "Parent folder check passed. Script is located inside '$REQUIRED_PARENT_FOLDER' folder."

@@ -5,14 +5,16 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <FreeRTOS.h>
+#include <task.h>
 }
 
 MqttDashboardClient::MqttDashboardClient(const char* user, const char* password,
                                          const char* pub_topic,
                                          const char* sub_topic)
-    : mqtt(user, password, sub_topic),
+    : mqtt(user, password, pub_topic),
       debug_enabled(false),
-      publish_topic(pub_topic) {}
+      sublish_topic(sub_topic) {}
 
 void MqttDashboardClient::setDebugEnabled(bool enabled) {
   debug_enabled = enabled;
@@ -30,46 +32,51 @@ bool MqttDashboardClient::sync(const char* server_ip, uint16_t port,
   response.force_full_sync = false;
 
   if (!mqtt.isConnected()) {
-    mqtt.connectToIP(server_ip);
+    if (!isConnecting) {
+      printf("Starting MQTT connection...\n");
+      mqtt.connectToIP(server_ip);
+      isConnecting = true;
+    }
     return false;
   }
+
+  isConnecting = false;
 
   cJSON* root = cJSON_CreateObject();
-  if (!root) {
-    return false;
-  }
-
-  cJSON_AddStringToObject(root, "node_id", state.node_id);
-
-  if (state.send_full_sync) {
-    cJSON_AddTrueToObject(root, "full_sync");
-  }
-
-  if (state.send_desc) {
-    cJSON_AddStringToObject(root, "description", state.description);
-  }
-
-  if (state.send_pins && state.pins_json) {
-    cJSON* pins_obj = cJSON_Parse(state.pins_json);
-    if (pins_obj) {
-      cJSON_AddItemToObject(root, "pins", pins_obj);
+  if (root) {
+    if (state.node_id != nullptr) {
+      cJSON_AddStringToObject(root, "node_id", state.node_id);
     }
+
+    if (state.send_full_sync) {
+      cJSON_AddTrueToObject(root, "full_sync");
+    }
+
+    if (state.send_desc && state.description != nullptr) {
+      cJSON_AddStringToObject(root, "description", state.description);
+    }
+
+    if (state.send_pins && state.pins_json != nullptr) {
+      cJSON* pins_obj = cJSON_Parse(state.pins_json);
+      if (pins_obj) {
+        cJSON_AddItemToObject(root, "pins", pins_obj);
+      }
+    }
+
+    static char payload_buffer[1024]; 
+    if (cJSON_PrintPreallocated(root, payload_buffer, sizeof(payload_buffer), 0)) {
+      mqtt.publish(sublish_topic, payload_buffer);
+    }
+    
+    cJSON_Delete(root);
   }
-
-  char* payload = cJSON_PrintUnformatted(root);
-  cJSON_Delete(root);
-
-  if (!payload) {
-    return false;
-  }
-
-  mqtt.publish(publish_topic, payload);
-  cJSON_free(payload);
 
   if (mqtt.hasNewMessage()) {
     const char* msg = mqtt.getNextMessage();
-    parseServerResponse(msg, response);
-    return response.status_ok;
+    if (msg != nullptr && strlen(msg) > 0) {
+      parseServerResponse(msg, response);
+      return response.status_ok;
+    }
   }
 
   return true;
