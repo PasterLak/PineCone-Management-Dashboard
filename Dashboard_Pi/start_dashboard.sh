@@ -90,11 +90,11 @@ sudo tee "$MOSQUITTO_LISTENERS_CONF" >/dev/null <<EOF
 per_listener_settings true
 
 # Plain MQTT (local only)
-listener 1883 127.0.0.1
+listener 1883
 allow_anonymous true
 
 # TLS MQTT (local only) with client-certificate required (mTLS)
-listener 8883 127.0.0.1
+listener 8883
 cafile $CA_FILE
 certfile $CERT_FILE
 keyfile $KEY_FILE
