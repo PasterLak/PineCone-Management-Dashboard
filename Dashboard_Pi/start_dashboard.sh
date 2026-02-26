@@ -7,7 +7,7 @@ echo "PineCone Dashboard Setup + Start (Linux)"
 cd "$APP_DIR"
 
 CERT_DIR="${1:-/etc/mosquitto/certs}"
-CERT_SRC_DIR="${2:-$APP_DIR/keys}" # <--- search in folder keys
+CERT_SRC_DIR="${2:-$APP_DIR/keys}" # <--- GEÄNDERT: Sucht jetzt im Ordner "keys"
 
 MOSQUITTO_LISTENERS_CONF="/etc/mosquitto/conf.d/listeners.conf"
 
@@ -71,8 +71,11 @@ for f in "$CA_FILE" "$CERT_FILE" "$KEY_FILE"; do
 done
 
 if (( need_certs )); then
-  echo "Installing MQTT TLS certificates into $CERT_DIR from $CERT_SRC_DIR..."
-  sudo "$APP_DIR/manage_mqtt_certs.sh" "$CERT_DIR" "$CERT_SRC_DIR"
+  echo "Copying MQTT TLS certificates directly from $CERT_SRC_DIR to $CERT_DIR..."
+  sudo mkdir -p "$CERT_DIR"
+  sudo cp "$CERT_SRC_DIR/ca.crt" "$CERT_DIR/ca.crt"
+  sudo cp "$CERT_SRC_DIR/mosquitto.crt" "$CERT_DIR/mosquitto.crt"
+  sudo cp "$CERT_SRC_DIR/mosquitto.key" "$CERT_DIR/mosquitto.key"
 else
   echo "TLS certs already exist: $CA_FILE, $CERT_FILE, $KEY_FILE"
 fi
@@ -92,7 +95,7 @@ listener 1883 127.0.0.1
 allow_anonymous true
 
 # TLS MQTT (local only) with client-certificate required (mTLS)
-listener 8883 127.0.0.1
+listener 8883 0.0.0.0
 cafile $CA_FILE
 certfile $CERT_FILE
 keyfile $KEY_FILE
