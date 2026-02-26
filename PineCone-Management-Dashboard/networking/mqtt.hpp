@@ -31,7 +31,7 @@ private:
     
     etl::string<32> clientIdStr;
     etl::string<64> subscribedTopic;
-    etl::string<128> lastMessage;
+    etl::string<512> lastMessage;
     
     const char* user;
     const char* password;

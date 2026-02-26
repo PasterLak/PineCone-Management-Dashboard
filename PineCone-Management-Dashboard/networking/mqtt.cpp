@@ -45,7 +45,8 @@ const char* MQTT::getNextMessage() {
 }
 
 void MQTT::publish_cb(void *arg, err_t result) {
-    (void)arg;
+    (void) arg;
+
     if (result == ERR_OK) {
         printf("[%s] Published message\r\n", "publish_cb");
     } else {
@@ -56,26 +57,23 @@ void MQTT::publish_cb(void *arg, err_t result) {
 void MQTT::publish(const char* topic, const char* payloadStr) {
     if (!mqttConnected) {
         printf("[%s] Not connected\r\n", "publish");
-    } else {
-        auto payload = etl::string_view(payloadStr);
+        return;
+    } 
 
-        u8_t qos = 0; 
-        u8_t retain = 0;
+    auto payload = etl::string_view(payloadStr);
 
-        auto err = mqtt_publish(&mqttClient, topic, payload.data(),
-                                payload.length(), qos, retain,
-                                MQTT::publish_cb, 0);
-
-        if (err != ERR_OK) {
-            printf("[%s] Error: %d\r\n", "publish", err);
-
-            // Disconnect immediately so the main loop can trigger a clean reconnect.
-            if (err == -3 || err == -4) { 
+    auto err = mqtt_publish(&mqttClient, topic, payload.data(),
+                            payload.length(), 0, 0,
+                            MQTT::publish_cb, 0);
+    if (err != ERR_OK) {
+        printf("[%s] Error: %d\r\n", "publish", err);
+        // Disconnect immediately so the main loop can trigger a clean reconnect.
+        if (err == -3 || err == -4) {
             printf("[%s] Fatal network error, forcing disconnect...\r\n", "publish");
             this->disconnect();
-        }
-        }
     }
+    }
+    
 }
 
 void MQTT::incoming_topic_cb(void *arg, const char *topic, u32_t total_len) {
@@ -91,11 +89,12 @@ void MQTT::incoming_topic_cb(void *arg, const char *topic, u32_t total_len) {
     }
 }
 
-void MQTT::incoming_payload_cb(void *arg, const u8_t *data, u16_t len, u8_t flags) {
+void MQTT::incoming_payload_cb([[gnu::unused]] void *arg, const u8_t *data, u16_t len, u8_t flags) {
     MQTT* self = static_cast<MQTT*>(arg);
     if (flags & MQTT_DATA_FLAG_LAST && self->topicNr == 0) {
         self->lastMessage.assign(reinterpret_cast<const char*>(data), len);
         self->newMessageReceived = true;
+        printf("Received message: %s\r\n", self->lastMessage.c_str());
     }
 }
 

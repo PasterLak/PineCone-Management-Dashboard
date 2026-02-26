@@ -7,7 +7,7 @@ echo "PineCone Dashboard Setup + Start (Linux)"
 cd "$APP_DIR"
 
 CERT_DIR="${1:-/etc/mosquitto/certs}"
-CERT_SRC_DIR="${2:-$APP_DIR/keys}" # <--- GEÄNDERT: Sucht jetzt im Ordner "keys"
+CERT_SRC_DIR="${2:-$APP_DIR/keys}"
 
 MOSQUITTO_LISTENERS_CONF="/etc/mosquitto/conf.d/listeners.conf"
 

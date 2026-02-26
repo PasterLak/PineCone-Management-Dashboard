@@ -62,26 +62,26 @@ def on_message(client, userdata, msg):
         print(f"[{userdata}] processed: {resp}")
 
         response_topic = data.get("response_topic")
-        node_id = data.get("node_id")
+        node_id = data.get("id")
         if not response_topic and node_id:
             response_topic = f"/api/data/response"
         if response_topic:
             response_payload = {
-                "status": resp.get("status", "ok"),
-                "node_id": resp.get("node_id"),
-                "description": resp.get("description"),
+                "s": resp.get("s", "ok"),
+                "id": resp.get("id"),
+                "d": resp.get("d"),
             }
-            for key in ("blink", "force_full_sync", "error"):
+            for key in ("b", "ffs", "error"):
                 if key in resp:
                     response_payload[key] = resp[key]
             response_payload["http_code"] = code
             client.publish(response_topic, json.dumps(response_payload), qos=1)
-            print(f"[{userdata}] MQTT response sent to {response_topic}: {response_payload}")
+            #print(f"[{userdata}] MQTT response sent to {response_topic}: {response_payload}")
 
     except Exception as e:
         print(f"[{userdata}] ERROR processing MQTT data: {e}")
 
-def start_mqtt():
+def start_mqtt(tls :bool = True):
     MQTT_HOST = "127.0.0.1"
     MQTT_PLAIN_PORT = 1883
     MQTT_TLS_PORT = 8883
@@ -93,48 +93,49 @@ def start_mqtt():
     CLIENT_KEY = "./keys/mosquitto.key"
 
     # --- Plain MQTT client ---
-    try:
-        client_plain = mqtt.Client(
-            callback_api_version=CallbackAPIVersion.VERSION1,
-            client_id="flask-plain", 
-            protocol=mqtt.MQTTv311, 
-            userdata="plain"
+    if (not tls):
+        try:
+            client_plain = mqtt.Client(
+                callback_api_version=CallbackAPIVersion.VERSION1,
+                client_id="flask-plain", 
+                protocol=mqtt.MQTTv311, 
+                userdata="plain"
+                )
+            client_plain.on_message = on_message
+            client_plain.connect(MQTT_HOST, MQTT_PLAIN_PORT, 60)
+            client_plain.subscribe(MQTT_TOPIC)
+            threading.Thread(target=client_plain.loop_forever, daemon=True).start()
+            print("[plain] MQTT connected (1883)")
+        except Exception as e:
+            print(f"[plain] MQTT FAILED on 1883: {e}")
+
+    if tls:
+        try:
+            client_tls = mqtt.Client(
+                callback_api_version=CallbackAPIVersion.VERSION1,
+                client_id="flask-tls", 
+                protocol=mqtt.MQTTv311, 
+                userdata="tls"
+                )
+            client_tls.on_message = on_message
+
+            client_tls.tls_set(
+                ca_certs=CA_CERT,
+                certfile=CLIENT_CERT,
+                keyfile=CLIENT_KEY,
+                tls_version=ssl.PROTOCOL_TLSv1_2,
+                cert_reqs=ssl.CERT_REQUIRED,
             )
-        client_plain.on_message = on_message
-        client_plain.connect(MQTT_HOST, MQTT_PLAIN_PORT, 60)
-        client_plain.subscribe(MQTT_TOPIC)
-        threading.Thread(target=client_plain.loop_forever, daemon=True).start()
-        print("[plain] MQTT connected (1883)")
-    except Exception as e:
-        print(f"[plain] MQTT FAILED on 1883: {e}")
 
-    # --- TLS (mTLS) MQTT client ---
-    try:
-        client_tls = mqtt.Client(
-            callback_api_version=CallbackAPIVersion.VERSION1,
-            client_id="flask-tls", 
-            protocol=mqtt.MQTTv311, 
-            userdata="tls"
-            )
-        client_tls.on_message = on_message
+            # Bypass SAN/hostname mismatch (because your cert has no SAN)
+            client_tls.tls_insecure_set(True)
 
-        client_tls.tls_set(
-            ca_certs=CA_CERT,
-            certfile=CLIENT_CERT,
-            keyfile=CLIENT_KEY,
-            tls_version=ssl.PROTOCOL_TLSv1_2,
-            cert_reqs=ssl.CERT_REQUIRED,
-        )
-
-        # Bypass SAN/hostname mismatch (because your cert has no SAN)
-        client_tls.tls_insecure_set(True)
-
-        client_tls.connect(MQTT_HOST, MQTT_TLS_PORT, 60)
-        client_tls.subscribe(MQTT_TOPIC)
-        threading.Thread(target=client_tls.loop_forever, daemon=True).start()
-        print("[tls] MQTT connected (8883, mTLS)")
-    except Exception as e:
-        print(f"[tls] MQTT FAILED on 8883: {e}")
+            client_tls.connect(MQTT_HOST, MQTT_TLS_PORT, 60)
+            client_tls.subscribe(MQTT_TOPIC)
+            threading.Thread(target=client_tls.loop_forever, daemon=True).start()
+            print("[tls] MQTT connected (8883, mTLS)")
+        except Exception as e:
+            print(f"[tls] MQTT FAILED on 8883: {e}")
 
 start_mqtt()
 

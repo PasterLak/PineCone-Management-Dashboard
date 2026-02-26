@@ -16,7 +16,7 @@ class MqttDashboardClient : public IDashboardClient {
  private:
   MQTT mqtt;
   bool debug_enabled;
-  const char* sublish_topic;
+  const char* publish_topic;
   bool isConnecting = false;
   float connectionTimer = 0.0f;
 
