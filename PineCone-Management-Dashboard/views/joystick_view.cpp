@@ -11,13 +11,13 @@ void JoystickView::init() {
   _cachedY = 0;
   
   _cachedBtnState = false;
-  _pinsManager.registerPin(_joystick.getPinX(), "X Axis", INPUT);
-  _pinsManager.registerPin(_joystick.getPinY(), "Y Axis", INPUT);
+  _pinsManager.registerPin(_joystick.getPinX(), "X", INPUT);
+  _pinsManager.registerPin(_joystick.getPinY(), "Y", INPUT);
   setStringFromInt(_joystick.getPinX(), 0);
   setStringFromInt(_joystick.getPinY(), 0);
 
-  _pinsManager.registerPin(_joystick.getPinBtn(), "Joystick Button", INPUT_PULLUP);
-  _pinsManager.setValueString(_joystick.getPinBtn(), "RELEASED");
+  _pinsManager.registerPin(_joystick.getPinBtn(), "Joy But", INPUT_PULLUP);
+  _pinsManager.setValueString(_joystick.getPinBtn(), "0");
 }
 
 void JoystickView::setStringFromInt(uint8_t pin, int8_t val) {
@@ -49,8 +49,8 @@ void JoystickView::update() {
 
   if (newState != _cachedBtnState) {
     if (newState)
-      _pinsManager.setValueString(_joystick.getPinBtn(), "PRESSED");
+      _pinsManager.setValueString(_joystick.getPinBtn(), "1");
     else
-      _pinsManager.setValueString(_joystick.getPinBtn(), "RELEASED");
+      _pinsManager.setValueString(_joystick.getPinBtn(), "0");
   }
 }

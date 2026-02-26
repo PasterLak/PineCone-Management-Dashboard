@@ -22,7 +22,7 @@ bool JsonPinsFormatter::formatPin(char* buffer, size_t buffer_size,
   const char* prefix = is_first ? "" : ",";
   int written = snprintf(
       buffer + offset, buffer_size - offset,
-      "%s\"GPIO%d\":{\"name\":\"%s\",\"mode\":\"%s\",\"value\":\"%s\"}", prefix,
+      "%s\"GPIO%d\":{\"n\":\"%s\",\"m\":\"%s\",\"v\":\"%s\"}", prefix,
       pin, name, mode, value);
 
   if (written > 0 && (size_t)written < (buffer_size - offset)) {

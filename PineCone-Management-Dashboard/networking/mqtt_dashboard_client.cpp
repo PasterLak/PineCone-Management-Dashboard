@@ -5,6 +5,8 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <FreeRTOS.h>
+#include <task.h>
 }
 
 MqttDashboardClient::MqttDashboardClient(const char* user, const char* password,
@@ -30,46 +32,51 @@ bool MqttDashboardClient::sync(const char* server_ip, uint16_t port,
   response.force_full_sync = false;
 
   if (!mqtt.isConnected()) {
-    mqtt.connectToIP(server_ip);
+    if (!isConnecting) {
+      printf("Starting MQTT connection...\n");
+      mqtt.connectToIP(server_ip);
+      isConnecting = true;
+    }
     return false;
   }
+
+  isConnecting = false;
 
   cJSON* root = cJSON_CreateObject();
-  if (!root) {
-    return false;
-  }
-
-  cJSON_AddStringToObject(root, "node_id", state.node_id);
-
-  if (state.send_full_sync) {
-    cJSON_AddTrueToObject(root, "full_sync");
-  }
-
-  if (state.send_desc) {
-    cJSON_AddStringToObject(root, "description", state.description);
-  }
-
-  if (state.send_pins && state.pins_json) {
-    cJSON* pins_obj = cJSON_Parse(state.pins_json);
-    if (pins_obj) {
-      cJSON_AddItemToObject(root, "pins", pins_obj);
+  if (root) {
+    if (state.node_id != nullptr) {
+      cJSON_AddStringToObject(root, "id", state.node_id);
     }
+
+    if (state.send_full_sync) {
+      cJSON_AddTrueToObject(root, "f");
+    }
+
+    if (state.send_desc && state.description != nullptr) {
+      cJSON_AddStringToObject(root, "d", state.description);
+    }
+
+    if (state.send_pins && state.pins_json != nullptr) {
+      cJSON* pins_obj = cJSON_Parse(state.pins_json);
+      if (pins_obj) {
+        cJSON_AddItemToObject(root, "p", pins_obj);
+      }
+    }
+
+    static char payload_buffer[1024]; 
+    if (cJSON_PrintPreallocated(root, payload_buffer, sizeof(payload_buffer), 0)) {
+      mqtt.publish(publish_topic, payload_buffer);
+    }
+    
+    cJSON_Delete(root);
   }
-
-  char* payload = cJSON_PrintUnformatted(root);
-  cJSON_Delete(root);
-
-  if (!payload) {
-    return false;
-  }
-
-  mqtt.publish(publish_topic, payload);
-  cJSON_free(payload);
 
   if (mqtt.hasNewMessage()) {
     const char* msg = mqtt.getNextMessage();
-    parseServerResponse(msg, response);
-    return response.status_ok;
+    if (msg != nullptr && strlen(msg) > 0) {
+      parseServerResponse(msg, response);
+      return response.status_ok;
+    }
   }
 
   return true;
@@ -82,7 +89,7 @@ void MqttDashboardClient::parseServerResponse(const char* json,
     return;
   }
 
-  cJSON* status = cJSON_GetObjectItem(root, "status");
+  cJSON* status = cJSON_GetObjectItem(root, "s");
   if (status && status->type == cJSON_String &&
       strcmp(status->valuestring, "ok") == 0) {
     response.status_ok = true;
@@ -91,22 +98,22 @@ void MqttDashboardClient::parseServerResponse(const char* json,
     return;
   }
 
-  cJSON* parsed_node_id = cJSON_GetObjectItem(root, "node_id");
+  cJSON* parsed_node_id = cJSON_GetObjectItem(root, "id");
   if (parsed_node_id && parsed_node_id->type == cJSON_String) {
     snprintf(response.new_node_id, sizeof(response.new_node_id), "%s",
              parsed_node_id->valuestring);
   }
 
-  cJSON* parsed_description = cJSON_GetObjectItem(root, "description");
+  cJSON* parsed_description = cJSON_GetObjectItem(root, "d");
   if (parsed_description && parsed_description->type == cJSON_String) {
     snprintf(response.new_description, sizeof(response.new_description), "%s",
              parsed_description->valuestring);
   }
 
-  cJSON* blink = cJSON_GetObjectItem(root, "blink");
+  cJSON* blink = cJSON_GetObjectItem(root, "b");
   response.should_blink = (blink && blink->type == cJSON_True);
 
-  cJSON* force_full_sync = cJSON_GetObjectItem(root, "force_full_sync");
+  cJSON* force_full_sync = cJSON_GetObjectItem(root, "ffs");
   response.force_full_sync =
       (force_full_sync && force_full_sync->type == cJSON_True);
 

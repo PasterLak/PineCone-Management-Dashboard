@@ -24,8 +24,12 @@ MQTT::MQTT(const char* u, const char* p, const char* subscribeTopic) {
     mqttConnected = false;
     topicNr = 0;
     subscribedTopic = subscribeTopic;
+    memset(&mqttClient,0,sizeof(mqttClient));
     memset(&mqttClient, 0, sizeof(mqttClient));
     memset(brokerIpString, 0, sizeof(brokerIpString));
+    #if defined(ENABLE_MQTTS) && (ENABLE_MQTTS == 1)
+        tls_config = nullptr;
+    #endif
 }
 
 void MQTT::disconnect() {
@@ -41,7 +45,8 @@ const char* MQTT::getNextMessage() {
 }
 
 void MQTT::publish_cb(void *arg, err_t result) {
-    (void)arg;
+    (void) arg;
+
     if (result == ERR_OK) {
         printf("[%s] Published message\r\n", "publish_cb");
     } else {
@@ -52,16 +57,23 @@ void MQTT::publish_cb(void *arg, err_t result) {
 void MQTT::publish(const char* topic, const char* payloadStr) {
     if (!mqttConnected) {
         printf("[%s] Not connected\r\n", "publish");
-    } else {
-        auto payload = etl::string_view(payloadStr);
-        auto err = mqtt_publish(&mqttClient, topic, payload.data(),
-                                payload.length(), 1, 0,
-                                MQTT::publish_cb, 0);
+        return;
+    } 
 
-        if (err != ERR_OK) {
-            printf("[%s] Error: %d\r\n", "publish", err);
-        }
+    auto payload = etl::string_view(payloadStr);
+
+    auto err = mqtt_publish(&mqttClient, topic, payload.data(),
+                            payload.length(), 0, 0,
+                            MQTT::publish_cb, 0);
+    if (err != ERR_OK) {
+        printf("[%s] Error: %d\r\n", "publish", err);
+        // Disconnect immediately so the main loop can trigger a clean reconnect.
+        if (err == -3 || err == -4) {
+            printf("[%s] Fatal network error, forcing disconnect...\r\n", "publish");
+            this->disconnect();
     }
+    }
+    
 }
 
 void MQTT::incoming_topic_cb(void *arg, const char *topic, u32_t total_len) {
@@ -77,11 +89,12 @@ void MQTT::incoming_topic_cb(void *arg, const char *topic, u32_t total_len) {
     }
 }
 
-void MQTT::incoming_payload_cb(void *arg, const u8_t *data, u16_t len, u8_t flags) {
+void MQTT::incoming_payload_cb([[gnu::unused]] void *arg, const u8_t *data, u16_t len, u8_t flags) {
     MQTT* self = static_cast<MQTT*>(arg);
     if (flags & MQTT_DATA_FLAG_LAST && self->topicNr == 0) {
         self->lastMessage.assign(reinterpret_cast<const char*>(data), len);
         self->newMessageReceived = true;
+        printf("Received message: %s\r\n", self->lastMessage.c_str());
     }
 }
 
@@ -117,7 +130,6 @@ void MQTT::connectToIP(const char* brokerIP) {
         strncpy(this->brokerIpString, brokerIP, sizeof(this->brokerIpString) - 1);
     }
 
-    struct mqtt_connect_client_info_t client_info;
     int ip1, ip2, ip3, ip4;
     sscanf(this->brokerIpString, "%d.%d.%d.%d", &ip1, &ip2, &ip3, &ip4);
     IP_ADDR4(&this->mqttBrokerIp, ip1, ip2, ip3, ip4);
@@ -133,11 +145,20 @@ void MQTT::connectToIP(const char* brokerIP) {
     client_info.keep_alive = 60;
 
 #if defined(ENABLE_MQTTS) && (ENABLE_MQTTS == 1)
-    client_info.tls_config = altcp_tls_create_config_client_2wayauth(
-        CA_CERT.data(), CA_CERT_LEN, PRIV_KEY.data(), PRIV_KEY_LEN, nullptr, 0,
-        CERT.data(), CERT_LEN);
-    mqtt_client_connect(&mqttClient, &mqttBrokerIp, MQTT_TLS_PORT, MQTT::connected_cb, this, &client_info);
+    if (this->tls_config != nullptr) {
+        altcp_tls_free_config(this->tls_config); 
+    }
+    
+    this->tls_config = altcp_tls_create_config_client_2wayauth(
+        (const u8_t*)CA_CERT.data(), CA_CERT_LEN, 
+        (const u8_t*)PRIV_KEY.data(), PRIV_KEY_LEN, 
+        nullptr, 0,
+        (const u8_t*)CERT.data(), CERT_LEN);
+        
+    this->client_info.tls_config = this->tls_config;
+    
+    mqtt_client_connect(&mqttClient, &mqttBrokerIp, 8883, MQTT::connected_cb, this, &this->client_info);
 #else
-    mqtt_client_connect(&mqttClient, &mqttBrokerIp, MQTT_PORT, MQTT::connected_cb, this, &client_info);
+    mqtt_client_connect(&mqttClient, &mqttBrokerIp, 1883, MQTT::connected_cb, this, &this->client_info);
 #endif
 }

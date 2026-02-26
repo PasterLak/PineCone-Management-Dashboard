@@ -25,20 +25,20 @@ bool HttpDashboardClient::sync(const char* server_ip, uint16_t port,
     return false;
   }
 
-  cJSON_AddStringToObject(root, "node_id", state.node_id);
+  cJSON_AddStringToObject(root, "id", state.node_id);
 
   if (state.send_full_sync) {
-    cJSON_AddTrueToObject(root, "full_sync");
+    cJSON_AddTrueToObject(root, "f");
   }
 
   if (state.send_desc) {
-    cJSON_AddStringToObject(root, "description", state.description);
+    cJSON_AddStringToObject(root, "d", state.description);
   }
 
   if (state.send_pins && state.pins_json) {
     cJSON* pins_obj = cJSON_Parse(state.pins_json);
     if (pins_obj) {
-      cJSON_AddItemToObject(root, "pins", pins_obj);
+      cJSON_AddItemToObject(root, "p", pins_obj);
     }
   }
 
@@ -72,7 +72,7 @@ void HttpDashboardClient::parseServerResponse(const char* json,
     return;
   }
 
-  cJSON* status = cJSON_GetObjectItem(root, "status");
+  cJSON* status = cJSON_GetObjectItem(root, "s");
   if (status && status->type == cJSON_String &&
       strcmp(status->valuestring, "ok") == 0) {
     response.status_ok = true;
@@ -81,22 +81,22 @@ void HttpDashboardClient::parseServerResponse(const char* json,
     return;
   }
 
-  cJSON* parsed_node_id = cJSON_GetObjectItem(root, "node_id");
+  cJSON* parsed_node_id = cJSON_GetObjectItem(root, "id");
   if (parsed_node_id && parsed_node_id->type == cJSON_String) {
     snprintf(response.new_node_id, sizeof(response.new_node_id), "%s",
              parsed_node_id->valuestring);
   }
 
-  cJSON* parsed_description = cJSON_GetObjectItem(root, "description");
+  cJSON* parsed_description = cJSON_GetObjectItem(root, "d");
   if (parsed_description && parsed_description->type == cJSON_String) {
     snprintf(response.new_description, sizeof(response.new_description), "%s",
              parsed_description->valuestring);
   }
 
-  cJSON* blink = cJSON_GetObjectItem(root, "blink");
+  cJSON* blink = cJSON_GetObjectItem(root, "b");
   response.should_blink = (blink && blink->type == cJSON_True);
 
-  cJSON* force_full_sync = cJSON_GetObjectItem(root, "force_full_sync");
+  cJSON* force_full_sync = cJSON_GetObjectItem(root, "ffs");
   response.force_full_sync =
       (force_full_sync && force_full_sync->type == cJSON_True);
 

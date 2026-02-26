@@ -11,39 +11,45 @@ _force_full_sync_nodes = set()
 BERLIN_TZ = ZoneInfo("Europe/Berlin")
 
 def process_device_data(data, remote_addr):
-    req_node_id = (data.get("node_id") or "").strip()
+    # Extract data using the new short keys
+    req_node_id = (data.get("id") or "").strip()
     if not req_node_id:
-        return {"error": "node_id required"}, 400
+        return {"error": "id required"}, 400
 
-    has_desc = "description" in data
-    has_pins = "pins" in data
+    has_desc = "d" in data
+    has_pins = "p" in data
     has_is_simulator = "is_simulator" in data
-    incoming_desc = (data.get("description") or "").strip() if has_desc else None
-    incoming_pins = data.get("pins") if has_pins else None
+    
+    # Get description and strictly limit it to 100 characters to save memory
+    incoming_desc = (data.get("d") or "").strip()[:100] if has_desc else None
+    incoming_pins = data.get("p") if has_pins else None
     incoming_is_simulator = bool(data.get("is_simulator")) if has_is_simulator else None
-    full_sync = bool(data.get("full_sync", False))
+    
+    # 'f' replaces 'full_sync'
+    full_sync = bool(data.get("f", False))
 
     existing_device = device_manager.get_device(req_node_id)
+    print(existing_device)
     node_id = req_node_id
     force_full_sync = False
 
-    if not existing_device and not (full_sync and has_desc and has_pins):
-        _force_full_sync_nodes.add(node_id)
-        return {
-            "status": "ok",
-            "node_id": node_id,
-            "force_full_sync": True,
-        }, 200
-
     if not existing_device:
+        _force_full_sync_nodes.add(node_id)
         description = incoming_desc if has_desc else ""
         pins = incoming_pins if has_pins else {}
         blink = False
     else:
-        node_id = req_node_id
         description = incoming_desc if has_desc else existing_device.get("description", "")
         pins = _merge_pins(existing_device.get("pins", {}), incoming_pins, full_sync=full_sync)
         blink = existing_device.get("blink", False)
+
+        return_pins = {}
+        for k in pins.keys():
+            return_pins[k] = {}
+            return_pins[k]["name"] = pins[k]["n"]
+            return_pins[k]["mode"] = pins[k]["m"]
+            return_pins[k]["value"] = pins[k]["v"]
+        pins = return_pins
 
     device_data = {
         "ip": remote_addr or "",
@@ -61,21 +67,21 @@ def process_device_data(data, remote_addr):
     device_manager.update_device(node_id, device_data)
 
     if node_id in _force_full_sync_nodes:
-        if full_sync and has_desc and has_pins:
+        if device_data.get("description") and device_data.get("pins"):
             _force_full_sync_nodes.discard(node_id)
         else:
             force_full_sync = True
 
     response = {
-        "status": "ok",
-        "node_id": node_id,
-        "description": description,
+        "s": "ok",
+        "id": node_id,
+        "d": description[:50]
     }
 
     if blink:
-        response["blink"] = True
+        response["b"] = True # 'b' stands for blink
     if force_full_sync:
-        response["force_full_sync"] = True
+        response["ffs"] = True # 'ffs' stands for force_full_sync
 
     return response, 200
 

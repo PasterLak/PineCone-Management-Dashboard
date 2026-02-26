@@ -17,6 +17,8 @@ class MqttDashboardClient : public IDashboardClient {
   MQTT mqtt;
   bool debug_enabled;
   const char* publish_topic;
+  bool isConnecting = false;
+  float connectionTimer = 0.0f;
 
   void parseServerResponse(const char* json, ServerCommand& response);
 };

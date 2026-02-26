@@ -52,7 +52,7 @@ INCLUDE_COMPONENTS += $(PROJECT_NAME)/data
 
 
 #Only for me necessary because I use another directory: (Timkroe21)
-#ALTERNATIVE_PROJECT_DIR = /home/tim-kroeckel/Dokumente/Iot_Project/PineCone-Management-Dashboard/
+ALTERNATIVE_PROJECT_DIR = /home/tim-kroeckel/Dokumente/Iot_Project/PineCone-Management-Dashboard/
 
 
 

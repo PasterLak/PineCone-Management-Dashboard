@@ -24,12 +24,14 @@ public:
 
 private:
     mqtt_client_t mqttClient;
+    struct mqtt_connect_client_info_t client_info;
+
     ip_addr_t mqttBrokerIp;
     char brokerIpString[32];
     
     etl::string<32> clientIdStr;
     etl::string<64> subscribedTopic;
-    etl::string<128> lastMessage;
+    etl::string<512> lastMessage;
     
     const char* user;
     const char* password;
@@ -43,4 +45,8 @@ private:
     static void incoming_payload_cb(void *arg, const u8_t *data, u16_t len, u8_t flags);
     static void sub_request_cb(void *arg, err_t result);
     static void publish_cb(void *arg, err_t result);
+
+    #if defined(ENABLE_MQTTS) && (ENABLE_MQTTS == 1)
+        struct altcp_tls_config *tls_config;
+    #endif
 };
