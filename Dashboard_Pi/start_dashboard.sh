@@ -7,7 +7,7 @@ echo "PineCone Dashboard Setup + Start (Linux)"
 cd "$APP_DIR"
 
 CERT_DIR="${1:-/etc/mosquitto/certs}"
-CERT_SRC_DIR="${2:-$APP_DIR/mqtt_certs}"
+CERT_SRC_DIR="${2:-$APP_DIR/keys}" # <--- search in folder keys
 
 MOSQUITTO_LISTENERS_CONF="/etc/mosquitto/conf.d/listeners.conf"
 
@@ -87,8 +87,6 @@ fi
 # --- Write listeners.conf (mTLS on 8883) ---
 echo "Writing Mosquitto listeners.conf to $MOSQUITTO_LISTENERS_CONF..."
 sudo tee "$MOSQUITTO_LISTENERS_CONF" >/dev/null <<EOF
-per_listener_settings true
-
 # Plain MQTT (local only)
 listener 1883 127.0.0.1
 allow_anonymous true

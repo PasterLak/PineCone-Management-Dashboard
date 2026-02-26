@@ -22,6 +22,7 @@ from routes.device_routes import process_device_data
 
 import threading
 import paho.mqtt.client as mqtt
+from paho.mqtt.enums import CallbackAPIVersion
 import ssl
 import json
 
@@ -87,13 +88,18 @@ def start_mqtt():
     MQTT_TOPIC = "/api/data"
 
     # Your required scheme:
-    CA_CERT = "/etc/mosquitto/certs/ca.crt"
-    CLIENT_CERT = "/etc/mosquitto/certs/mosquitto.crt"
-    CLIENT_KEY = "/etc/mosquitto/certs/mosquitto.key"
+    CA_CERT = "./keys/ca.crt"
+    CLIENT_CERT = "./keys/mosquitto.crt"
+    CLIENT_KEY = "./keys/mosquitto.key"
 
     # --- Plain MQTT client ---
     try:
-        client_plain = mqtt.Client(client_id="flask-plain", protocol=mqtt.MQTTv311, userdata="plain")
+        client_plain = mqtt.Client(
+            callback_api_version=CallbackAPIVersion.VERSION1,
+            client_id="flask-plain", 
+            protocol=mqtt.MQTTv311, 
+            userdata="plain"
+            )
         client_plain.on_message = on_message
         client_plain.connect(MQTT_HOST, MQTT_PLAIN_PORT, 60)
         client_plain.subscribe(MQTT_TOPIC)
@@ -104,7 +110,12 @@ def start_mqtt():
 
     # --- TLS (mTLS) MQTT client ---
     try:
-        client_tls = mqtt.Client(client_id="flask-tls", protocol=mqtt.MQTTv311, userdata="tls")
+        client_tls = mqtt.Client(
+            callback_api_version=CallbackAPIVersion.VERSION1,
+            client_id="flask-tls", 
+            protocol=mqtt.MQTTv311, 
+            userdata="tls"
+            )
         client_tls.on_message = on_message
 
         client_tls.tls_set(
