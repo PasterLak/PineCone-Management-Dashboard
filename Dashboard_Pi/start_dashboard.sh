@@ -91,7 +91,7 @@ fi
 echo "Writing Mosquitto listeners.conf to $MOSQUITTO_LISTENERS_CONF..."
 sudo tee "$MOSQUITTO_LISTENERS_CONF" >/dev/null <<EOF
 # Plain MQTT (local only)
-listener 1883 127.0.0.1
+listener 1883
 allow_anonymous true
 
 # TLS MQTT (local only) with client-certificate required (mTLS)
