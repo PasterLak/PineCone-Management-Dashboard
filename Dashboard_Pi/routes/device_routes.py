@@ -20,8 +20,8 @@ def process_device_data(data, remote_addr):
     has_pins = "p" in data
     has_is_simulator = "is_simulator" in data
     
-    # Get description and strictly limit it to 100 characters to save memory
-    incoming_desc = (data.get("d") or "").strip()[:100] if has_desc else None
+    # Get description and strictly limit it to 50 characters to save memory
+    incoming_desc = (data.get("d") or "").strip()[:50] if has_desc else None
     incoming_pins = data.get("p") if has_pins else None
     incoming_is_simulator = bool(data.get("is_simulator")) if has_is_simulator else None
     
