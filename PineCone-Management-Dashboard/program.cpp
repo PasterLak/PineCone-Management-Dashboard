@@ -70,6 +70,14 @@ void start() {
   dashboardManager.setDebugEnabled(false);
   
   wifi.start();
+  #if USE_MQTT
+    // update subscribe topic with mac/id to identify the specific PineCone
+    etl::string<64> fullSubTopic(Config::MQTT::SUB_TOPIC);
+    fullSubTopic.append("/");
+    fullSubTopic.append(wifi.getMacAdressAsString());
+
+    dashboardClient.setMQTTSubScribeTopic(fullSubTopic);
+  #endif
 }
 
 void loop() {

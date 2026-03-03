@@ -55,6 +55,8 @@ void MQTT::publish_cb(void *arg, err_t result) {
 }
 
 void MQTT::publish(const char* topic, const char* payloadStr) {
+    static int err_mem_count = 0;
+
     if (!mqttConnected) {
         printf("[%s] Not connected\r\n", "publish");
         return;
@@ -67,13 +69,33 @@ void MQTT::publish(const char* topic, const char* payloadStr) {
                             MQTT::publish_cb, 0);
     if (err != ERR_OK) {
         printf("[%s] Error: %d\r\n", "publish", err);
+
+        // Catch ERR_MEM (-1): Out of memory / TX buffer full.
+    if (err == -1) {
+        err_mem_count++;
+        printf("[%s] Warning: TX buffer full (ERR_MEM). Count: %d. Yielding CPU...\r\n", "publish", err_mem_count);
+        
+        vTaskDelay(pdMS_TO_TICKS(50)); 
+        
+        // If the buffer is permanently blocked, the TCP socket is a "Zombie".
+        // Force a disconnect to trigger a clean reconnect.
+        if (err_mem_count >= 10) {
+            printf("[%s] Fatal: Buffer permanently blocked. Zombie connection detected. Forcing disconnect...\r\n", "publish");
+            err_mem_count = 0; // Reset counter
+            this->disconnect();
+        }
+        return; 
+    }
+
+    // Reset the counter if any other error occurs
+    err_mem_count = 0;
+
         // Disconnect immediately so the main loop can trigger a clean reconnect.
         if (err == -3 || err == -4) {
             printf("[%s] Fatal network error, forcing disconnect...\r\n", "publish");
             this->disconnect();
+        }
     }
-    }
-    
 }
 
 void MQTT::incoming_topic_cb(void *arg, const char *topic, u32_t total_len) {
@@ -109,6 +131,13 @@ void MQTT::sub_request_cb(void *arg, err_t result) {
 
 void MQTT::connected_cb(mqtt_client_t *client, void *arg, mqtt_connection_status_t status) {
     (void)client;
+
+    if (arg == nullptr) {
+        printf("[%s] Fatal Error: 'arg' is NULL! Ignoring callback.\r\n", "connected_cb");
+        return;
+    }
+
+
     MQTT* self = static_cast<MQTT*>(arg);
 
     if (status == MQTT_CONNECT_ACCEPTED) {

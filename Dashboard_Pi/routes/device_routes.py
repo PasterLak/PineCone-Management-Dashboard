@@ -39,16 +39,25 @@ def process_device_data(data, remote_addr):
         pins = incoming_pins if has_pins else {}
         blink = False
     else:
-        description = incoming_desc if has_desc else existing_device.get("description", "")
+        if has_desc and incoming_desc:
+            description = incoming_desc
+        else:
+            description = existing_device.get("description", "")
         pins = _merge_pins(existing_device.get("pins", {}), incoming_pins, full_sync=full_sync)
         blink = existing_device.get("blink", False)
 
         return_pins = {}
         for k in pins.keys():
             return_pins[k] = {}
-            return_pins[k]["name"] = pins[k]["n"]
-            return_pins[k]["mode"] = pins[k]["m"]
-            return_pins[k]["value"] = pins[k]["v"]
+            return_pins[k]["name"] = pins[k].get("n", pins[k].get("name", ""))
+            return_pins[k]["mode"] = pins[k].get("m", pins[k].get("mode", ""))
+            return_pins[k]["value"] = pins[k].get("v", pins[k].get("value", ""))
+            
+            if return_pins[k]["name"] == "X":
+                return_pins[k]["name"] = "X Axis"
+            if return_pins[k]["name"] == "Y":
+                return_pins[k]["name"] = "Y Axis"
+            
         pins = return_pins
 
     device_data = {

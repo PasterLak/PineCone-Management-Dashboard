@@ -9,7 +9,7 @@ extern "C" {
 #include <lwip/apps/mqtt_priv.h>
 }
 
-#define ENABLE_MQTTS 1
+#include <include/config.hpp>
 
 class MQTT {
 public:
@@ -21,6 +21,7 @@ public:
     bool hasNewMessage() const { return newMessageReceived; }
     const char* getNextMessage();
     bool isConnected() const { return mqttConnected; }
+    void setSubscribeTopic(etl::string<64> newTopic) {subscribedTopic = newTopic;}
 
 private:
     mqtt_client_t mqttClient;

@@ -12,6 +12,10 @@ class MqttDashboardClient : public IDashboardClient {
             ServerCommand& response) override;
 
   void setDebugEnabled(bool enabled) override;
+  
+  void setMQTTSubScribeTopic(etl::string<64> newTopic) {
+    mqtt.setSubscribeTopic(newTopic);
+  };
 
  private:
   MQTT mqtt;

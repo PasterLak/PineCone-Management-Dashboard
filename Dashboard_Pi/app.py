@@ -64,7 +64,8 @@ def on_message(client, userdata, msg):
         response_topic = data.get("response_topic")
         node_id = data.get("id")
         if not response_topic and node_id:
-            response_topic = f"/api/data/response"
+            response_topic = f"/api/data/response/{node_id}"
+        print("Response topic",response_topic)
         if response_topic:
             response_payload = {
                 "s": resp.get("s", "ok"),
@@ -137,7 +138,8 @@ def start_mqtt(tls :bool = True):
         except Exception as e:
             print(f"[tls] MQTT FAILED on 8883: {e}")
 
-start_mqtt()
+start_mqtt(True) # True: use TSL to encrypted the messages
+                  # False: transfer data clear
 
 if __name__ == "__main__":
     app.run(host=HOST, port=PORT, debug=DEBUG, threaded=True)

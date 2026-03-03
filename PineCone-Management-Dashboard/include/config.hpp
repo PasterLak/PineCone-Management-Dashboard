@@ -21,7 +21,8 @@ constexpr uint8_t LED_PIN = 11;  // Blue
 
 // Timing Configuration
 //constexpr float DASHBOARD_UPDATE_INTERVAL_SEC = 0.025f;
-constexpr float DASHBOARD_UPDATE_INTERVAL_SEC = 0.4f;
+//constexpr float DASHBOARD_UPDATE_INTERVAL_SEC = 0.04f; // for MQTT unencrypted
+constexpr float DASHBOARD_UPDATE_INTERVAL_SEC = 0.3f; // Interval for MQTT encrypted
 constexpr float LED_BLINK_INTERVAL_SEC = 0.5f;
 
 namespace MQTT {
@@ -30,6 +31,8 @@ constexpr const char* PASSWORD = "J4auBDJYzcrL8s9TEZJt";
 constexpr const char* PUB_TOPIC = "/api/data";
 constexpr const char* SUB_TOPIC = "/api/data/response";
 }  // namespace MQTT
+
+#define ENABLE_MQTTS 1
 
 namespace WIFI {
 
