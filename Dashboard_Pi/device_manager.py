@@ -18,6 +18,7 @@ def load_devices():
             device.setdefault("description", "")
             device.setdefault("ip", "")
             device.setdefault("last_seen", "")
+            device.setdefault("request_rate_hz", 0.0)
             device.setdefault("pins", {})
             device.setdefault("blink", False)
         

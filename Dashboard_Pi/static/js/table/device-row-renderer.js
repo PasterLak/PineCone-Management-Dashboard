@@ -5,6 +5,21 @@ class DeviceRowRenderer {
     this.dataService = dataService;
   }
 
+  formatLastSeenWithRate(lastSeenSource, nowMs, requestRateHz, isOffline) {
+    const lastSeenDisplay = (window.TimeUtils && typeof window.TimeUtils.formatRelativeTime === 'function')
+      ? window.TimeUtils.formatRelativeTime(lastSeenSource, nowMs)
+      : (lastSeenSource || 'unknown');
+
+    if (isOffline) {
+      return lastSeenDisplay;
+    }
+
+    const safeRate = Number.isFinite(Number(requestRateHz)) ? Number(requestRateHz) : 0;
+    const formattedRate = safeRate.toFixed(2);
+
+    return `${lastSeenDisplay} (${formattedRate}/s)`;
+  }
+
   // Creates a full table row
   createRow(rowData, offlineThreshold) {
     const tr = document.createElement('tr');
@@ -18,9 +33,12 @@ class DeviceRowRenderer {
     const statusClass = isOffline ? 'device-status--offline' : 'device-status--online';
     const statusText = isOffline ? 'Offline' : 'Online ';
     const nowMs = this.dataService.getServerNow();
-    const lastSeenDisplay = (window.TimeUtils && typeof window.TimeUtils.formatRelativeTime === 'function')
-      ? window.TimeUtils.formatRelativeTime(lastSeenSource, nowMs)
-      : (rowData.last_seen || 'unknown');
+    const lastSeenDisplay = this.formatLastSeenWithRate(
+      lastSeenSource,
+      nowMs,
+      rowData.request_rate_hz,
+      isOffline,
+    );
     
     tr.innerHTML = `
       <td class="status-cell" data-label="Status">
@@ -94,9 +112,13 @@ class DeviceRowRenderer {
     // Update Last Seen
     if (cells[DeviceConfig.COLUMNS.LAST_SEEN]) {
       const nowMs = this.dataService.getServerNow();
-      const display = (window.TimeUtils && typeof window.TimeUtils.formatRelativeTime === 'function')
-        ? window.TimeUtils.formatRelativeTime(deviceData.last_seen, nowMs)
-        : (deviceData.last_seen || 'unknown');
+      const isOffline = this.dataService.isOffline(deviceData, threshold);
+      const display = this.formatLastSeenWithRate(
+        deviceData.last_seen,
+        nowMs,
+        Number(deviceData.request_rate_hz || 0),
+        isOffline,
+      );
 
       if (cells[DeviceConfig.COLUMNS.LAST_SEEN].textContent !== display) {
         cells[DeviceConfig.COLUMNS.LAST_SEEN].textContent = display;

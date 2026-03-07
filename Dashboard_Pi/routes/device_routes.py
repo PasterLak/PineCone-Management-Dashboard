@@ -4,11 +4,72 @@ Device API endpoints - handle device data, updates, and actions
 from flask import request, jsonify
 import simulator_manager
 from datetime import datetime
+from time import monotonic
 from zoneinfo import ZoneInfo
 import device_manager
 
 _force_full_sync_nodes = set()
+_request_rate_state = {}
 BERLIN_TZ = ZoneInfo("Europe/Berlin")
+RATE_RESET_AFTER_SEC = 3.0
+RATE_EMA_ALPHA = 0.35
+
+
+def _update_request_rate(node_id):
+    now = monotonic()
+    state = _request_rate_state.get(node_id)
+
+    if not state:
+        _request_rate_state[node_id] = {
+            "last_request_monotonic": now,
+            "request_rate_hz": 0.0,
+        }
+        return 0.0
+
+    delta_sec = now - state["last_request_monotonic"]
+    state["last_request_monotonic"] = now
+
+    if delta_sec <= 0:
+        return state["request_rate_hz"]
+
+    if delta_sec > RATE_RESET_AFTER_SEC:
+        state["request_rate_hz"] = 0.0
+        return 0.0
+
+    instantaneous_hz = 1.0 / delta_sec
+    previous_hz = state["request_rate_hz"]
+    if previous_hz <= 0:
+        state["request_rate_hz"] = instantaneous_hz
+    else:
+        state["request_rate_hz"] = (
+            RATE_EMA_ALPHA * instantaneous_hz
+            + (1.0 - RATE_EMA_ALPHA) * previous_hz
+        )
+
+    return state["request_rate_hz"]
+
+
+def get_devices():
+    now = monotonic()
+    devices = {}
+
+    for node_id, device in device_manager.get_all_devices().items():
+        device_copy = dict(device)
+        state = _request_rate_state.get(node_id)
+
+        if not state:
+            device_copy["request_rate_hz"] = 0.0
+        else:
+            delta_sec = now - state["last_request_monotonic"]
+            if delta_sec > RATE_RESET_AFTER_SEC:
+                state["request_rate_hz"] = 0.0
+                device_copy["request_rate_hz"] = 0.0
+            else:
+                device_copy["request_rate_hz"] = round(state["request_rate_hz"], 2)
+
+        devices[node_id] = device_copy
+
+    return devices
 
 def process_device_data(data, remote_addr):
     # Extract data using the new short keys
@@ -32,6 +93,7 @@ def process_device_data(data, remote_addr):
     print(existing_device)
     node_id = req_node_id
     force_full_sync = False
+    request_rate_hz = _update_request_rate(node_id)
 
     if not existing_device:
         _force_full_sync_nodes.add(node_id)
@@ -64,6 +126,7 @@ def process_device_data(data, remote_addr):
         "ip": remote_addr or "",
         "description": description,
         "last_seen": datetime.now(BERLIN_TZ).isoformat(timespec="milliseconds"),
+        "request_rate_hz": round(request_rate_hz, 2),
         "pins": pins,
         "blink": blink,
     }
@@ -170,14 +233,15 @@ def register_device_routes(app):
 
         if node_id:
             _force_full_sync_nodes.add(node_id)
+            _request_rate_state.pop(node_id, None)
         
         return jsonify({"status": "ok"})
 
     
     @app.route("/api/devices", methods=["GET"])
-    def get_devices():
+    def get_devices_api():
         """Return all devices (polled by browser)"""
         return jsonify({
-            "devices": device_manager.get_all_devices(),
+            "devices": get_devices(),
             "server_now_ms": int(datetime.now().timestamp() * 1000)
         })

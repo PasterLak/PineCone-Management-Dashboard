@@ -83,7 +83,15 @@ class DeviceRenderer {
           ? device.last_seen
           : new Date(device.last_seen).getTime();
         const nowMs = this.dataService.getServerNow();
-        const display = Number.isNaN(ts) ? 'unknown' : window.TimeUtils.formatRelativeTime(ts, nowMs);
+        const isOffline = this.dataService.isOffline(device, threshold);
+        const display = Number.isNaN(ts)
+          ? 'unknown'
+          : this.rowRenderer.formatLastSeenWithRate(
+              ts,
+              nowMs,
+              Number(device.request_rate_hz || 0),
+              isOffline,
+            );
         if (lastSeenCell.textContent !== display) {
           lastSeenCell.textContent = display;
         }

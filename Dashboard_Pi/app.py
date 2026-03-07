@@ -18,7 +18,7 @@ from routes.simulator_routes import register_simulator_routes
 from routes.console_routes import register_console_routes
 from routes.realtimeapi_routes import register_realtimeapi_routes
 
-from routes.device_routes import process_device_data
+from routes.device_routes import process_device_data, get_devices
 
 import threading
 import paho.mqtt.client as mqtt
@@ -48,7 +48,7 @@ def index():
     dashboard_endpoints = resolve_dashboard_endpoints(request.host, request.host_url, PORT)
     return render_template(
         "index.html",
-        devices=device_manager.get_all_devices(),
+        devices=get_devices(),
         server_now_ms=int(datetime.now().timestamp() * 1000),
         dashboard_endpoint=current_endpoint,
         dashboard_endpoints=dashboard_endpoints,

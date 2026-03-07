@@ -57,6 +57,7 @@ class DeviceDataService {
         id,
         ip: d.ip,
         description: d.description || '',
+        request_rate_hz: Number(d.request_rate_hz || 0),
           last_seen: (window.TimeUtils && typeof window.TimeUtils.formatRelativeTime === 'function')
             ? window.TimeUtils.formatRelativeTime(timestamp, nowMs)
             : new Date(timestamp).toISOString(),
@@ -96,6 +97,7 @@ class DeviceDataService {
       if (!prev) return true;
       
       return prev.last_seen !== curr.last_seen || 
+              Number(prev.request_rate_hz || 0) !== Number(curr.request_rate_hz || 0) ||
              prev.description !== curr.description ||
              prev.blink !== curr.blink ||
              JSON.stringify(prev.pins || {}) !== JSON.stringify(curr.pins || {});
