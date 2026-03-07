@@ -28,12 +28,18 @@ constexpr float LED_BLINK_INTERVAL_SEC = 0.5f;
 namespace MQTT {
 constexpr const char* USER = "suas";
 constexpr const char* PASSWORD = "J4auBDJYzcrL8s9TEZJt";
-constexpr const char* PUB_TOPIC = "/api/data";
-constexpr const char* SUB_TOPIC = "/api/data/response";
+#define ENABLE_MQTTS 1
+#define USE_MQTT 1
+#if defined(ENABLE_MQTTS) && (ENABLE_MQTTS == 1)
+constexpr const char* PUB_TOPIC = "/api/data/tls";
+constexpr const char* SUB_TOPIC = "/api/data/response/tls";
+#else
+constexpr const char* PUB_TOPIC = "/api/data/plain";
+constexpr const char* SUB_TOPIC = "/api/data/response/plain";
+#endif
 }  // namespace MQTT
 
-#define ENABLE_MQTTS 0
-#define USE_MQTT 1
+
 
 namespace WIFI {
 

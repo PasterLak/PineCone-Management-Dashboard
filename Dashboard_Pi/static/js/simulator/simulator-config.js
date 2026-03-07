@@ -49,37 +49,37 @@ class SimulatorConfig {
   // Example payloads
   static EXAMPLES = {
     button: {
-      node_id: "PineCone_001",
-      description: "Button Device",
-      pins: {
-        GPIO0: { name: "button", mode: "pullup", value: "1" }
+      id: "PineCone_001",
+      d: "Button Device",
+      p: {
+        GPIO0: { n: "button", m: "pullup", v: "1" }
       }
     },
     led: {
-      node_id: "PineCone_002",
-      description: "LED Controller",
-      pins: {
-        GPIO1: { name: "led_red", mode: "output", value: "0" },
-        GPIO2: { name: "led_green", mode: "output", value: "1" },
-        GPIO3: { name: "led_blue", mode: "output", value: "0" }
+      id: "PineCone_002",
+      d: "LED Controller",
+      p: {
+        GPIO1: { n: "led_red", m: "output", v: "0" },
+        GPIO2: { n: "led_green", m: "output", v: "1" },
+        GPIO3: { n: "led_blue", m: "output", v: "0" }
       }
     },
     sensor: {
-      node_id: "PineCone_003",
-      description: "Sensor Module",
-      pins: {
-        GPIO4: { name: "temp_sensor", mode: "input", value: "23" },
-        GPIO5: { name: "motion_detect", mode: "pulldown", value: "0" }
+      id: "PineCone_003",
+      d: "Sensor Module",
+      p: {
+        GPIO4: { n: "temp_sensor", m: "input", v: "23" },
+        GPIO5: { n: "motion_detect", m: "pulldown", v: "0" }
       }
     },
     joystick: {
-      node_id: "PineCone_Joystick_001",
-      description: "Joystick Controller",
-      pins: {
-        GPIO11: { mode: "output", name: "LED", value: "On" },
-        GPIO4: { mode: "input", name: "X Axis", value: "0" },
-        GPIO5: { mode: "input", name: "Y Axis", value: "0" },
-        GPIO6: { mode: "input", name: "Joystick Button", value: "PRESSED" }
+      id: "PineCone_Joystick_001",
+      d: "Joystick Controller",
+      p: {
+        GPIO11: { n: "LED", m: "output", v: "1" },
+        GPIO4: { n: "X", m: "input", v: "0" },
+        GPIO5: { n: "Y", m: "input", v: "0" },
+        GPIO6: { n: "Joystick Button", m: "input", v: "1" }
       }
     }
 

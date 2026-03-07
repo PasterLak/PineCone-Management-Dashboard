@@ -52,7 +52,7 @@ class SimulatorCardRenderer {
   _generateAutoUpdateSwitch(sim) {
     return `
       <div class="sim-switch-field">
-        <span>Adopt received configuration (node_id & description)</span>
+        <span>Adopt received configuration (id & d)</span>
         <label class="switch">
           <input type="checkbox" ${sim.autoUpdate ? 'checked' : ''} 
                  data-id="${sim.id}" data-field="${SimulatorConfig.FIELDS.AUTO_UPDATE}" />

@@ -36,10 +36,10 @@ def sync_simulator_descriptions(node_id, description):
                 continue
 
             normalized = _normalize_payload(sim_id, dict(payload))
-            if normalized.get("node_id") != node_id:
+            if normalized.get("id") != node_id:
                 continue
 
-            normalized["description"] = new_description
+            normalized["d"] = new_description
             cfg["currentPayload"] = normalized
             cfg["payload"] = normalized
             simulator_pending_payloads[sim_id] = normalized
@@ -55,27 +55,49 @@ def _normalize_payload(sim_id, payload):
     if not isinstance(payload, dict):
         payload = {}
 
-    node_id = str(payload.get("node_id", "")).strip()
+    node_id = str(payload.get("id") or payload.get("node_id") or "").strip()
     if not node_id:
         node_id = f"sim_{sim_id}"
 
-    description = payload.get("description", "")
+    description = payload.get("d", payload.get("description", ""))
     if description is None:
         description = ""
 
-    pins = payload.get("pins", {})
+    pins = payload.get("p", payload.get("pins", {}))
     if not isinstance(pins, dict):
         pins = {}
 
-    payload["node_id"] = node_id
-    payload["description"] = str(description)
-    payload["pins"] = pins
+    normalized_pins = {}
+    for gpio, pin_data in pins.items():
+        if not isinstance(pin_data, dict):
+            continue
+
+        normalized_pins[gpio] = {
+            "n": pin_data.get("n", pin_data.get("name", "")),
+            "m": pin_data.get("m", pin_data.get("mode", "")),
+            "v": pin_data.get("v", pin_data.get("value", "")),
+        }
+
+    full_sync = bool(payload.get("f", payload.get("full_sync", False)))
+
+    payload["id"] = node_id
+    payload["d"] = str(description)
+    payload["p"] = normalized_pins
+    if full_sync:
+        payload["f"] = True
+    else:
+        payload.pop("f", None)
+
+    payload.pop("node_id", None)
+    payload.pop("description", None)
+    payload.pop("pins", None)
+    payload.pop("full_sync", None)
     return payload
 
 
 def _simulator_request_payload(payload):
     """Create API payload and mark it as simulator traffic."""
-    out = dict(payload or {})
+    out = _normalize_payload("simulator", dict(payload or {}))
     out["is_simulator"] = True
     return out
 
@@ -135,19 +157,19 @@ def simulator_worker(app, sim_id, interval_ms, payload_str, auto_update):
                 # Log response
                 add_log(sim_id, json.dumps(result))
                 
-                if result and result.get("status") == "ok":
-                    if result.get("force_full_sync"):
+                if result and result.get("s") == "ok":
+                    if result.get("ffs"):
                         current_payload = _normalize_payload(sim_id, current_payload)
-                        current_payload["full_sync"] = True
+                        current_payload["f"] = True
                         add_log(sim_id, "force_full_sync requested -> sending full payload next")
                     else:
-                        current_payload.pop("full_sync", None)
+                        current_payload.pop("f", None)
 
                     if should_auto_update:
-                        if "node_id" in result:
-                            current_payload["node_id"] = result["node_id"]
-                        if "description" in result:
-                            current_payload["description"] = result["description"]
+                        if "id" in result:
+                            current_payload["id"] = result["id"]
+                        if "d" in result:
+                            current_payload["d"] = result["d"]
                         print(f"[Simulator {sim_id}] Updated payload: {current_payload}")
 
                 # Store current payload
@@ -282,11 +304,11 @@ def update_simulator_payload(sim_id, payload_str, app=None):
                 response = client.post("/api/data", json=_simulator_request_payload(payload))
                 result = response.get_json()
 
-                if result and result.get("force_full_sync"):
+                if result and result.get("ffs"):
                     retry_payload = dict(payload)
-                    retry_payload["full_sync"] = True
-                    retry_payload.setdefault("pins", {})
-                    retry_payload.setdefault("description", "")
+                    retry_payload["f"] = True
+                    retry_payload.setdefault("p", {})
+                    retry_payload.setdefault("d", "")
                     response = client.post("/api/data", json=_simulator_request_payload(retry_payload))
                     result = response.get_json()
                     payload = retry_payload
@@ -306,7 +328,7 @@ def update_simulator_payload(sim_id, payload_str, app=None):
 def send_payload_once(app, sim_id, payload_str):
     """Send a payload once without running simulator"""
     try:
-        payload = json.loads(payload_str)
+        payload = _normalize_payload(sim_id, json.loads(payload_str))
         with app.test_client() as client:
             response = client.post("/api/data", json=_simulator_request_payload(payload))
             result = response.get_json()

@@ -255,14 +255,18 @@ class SimulatorActions {
     const payload = JSON.parse(JSON.stringify(example));
     const padded = String(newId).padStart(3, '0');
 
-    if (typeof payload.node_id === 'string' && payload.node_id.length > 0) {
-      if (/_(\d+)$/.test(payload.node_id)) {
-        payload.node_id = payload.node_id.replace(/_(\d+)$/, `_${padded}`);
+    if (typeof payload.id === 'string' && payload.id.length > 0) {
+      if (/_(\d+)$/.test(payload.id)) {
+        payload.id = payload.id.replace(/_(\d+)$/, `_${padded}`);
       } else {
-        payload.node_id = `${payload.node_id}_${padded}`;
+        payload.id = `${payload.id}_${padded}`;
       }
     } else {
-      payload.node_id = `PineCone_${padded}`;
+      payload.id = `PineCone_${padded}`;
+    }
+
+    if (typeof payload.d === 'string' && payload.d.length > 0) {
+      payload.d = `${payload.d} ${newId}`;
     }
 
     return payload;
