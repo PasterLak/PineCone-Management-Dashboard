@@ -38,6 +38,13 @@ void DashboardManager::initNodeIdFromMac() {
            mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
+void DashboardManager::markConnectionLost() {
+  connected = false;
+  should_blink_state = false;
+  startup_handshake_done = false;
+  force_full_sync_next = true;
+}
+
 bool DashboardManager::update(float delta_time_sec) {
   if (delta_time_sec <= 0.0f) {
     return connected;
@@ -51,7 +58,7 @@ bool DashboardManager::update(float delta_time_sec) {
   time_accumulator -= update_interval_sec;
 
   if (!wlan.isConnected()) {
-    connected = false;
+    markConnectionLost();
     return false;
   }
 
@@ -113,7 +120,7 @@ void DashboardManager::sendDataToDashboard() {
   bool success = client.sync(server_ip, server_port, state, response);
 
   if (!success) {
-    connected = false;
+    markConnectionLost();
     return;
   }
 
@@ -122,7 +129,7 @@ void DashboardManager::sendDataToDashboard() {
   }
 
   if (!response.status_ok) {
-    connected = false;
+    markConnectionLost();
     return;
   }
 

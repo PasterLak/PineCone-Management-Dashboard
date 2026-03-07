@@ -40,6 +40,7 @@ class DashboardManager {
   
 
   void initNodeIdFromMac();
+  void markConnectionLost();
   void sendDataToDashboard();
   void logDashboardInfo();
 };

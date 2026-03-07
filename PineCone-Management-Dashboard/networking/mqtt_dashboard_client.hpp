@@ -25,6 +25,7 @@ class MqttDashboardClient : public IDashboardClient {
   static constexpr uint32_t PUBLISH_STALL_TIMEOUT_MS = 2500;
   static constexpr uint32_t ERR_MEM_RETRY_DELAY_MS = 1200;
   static constexpr uint32_t MAX_ERR_MEM_RETRY_DELAY_MS = 2500;
+  static constexpr uint8_t MAX_RESPONSE_TIMEOUTS_BEFORE_RECONNECT = 2;
 
   MQTT mqtt;
   bool debug_enabled;
@@ -34,7 +35,9 @@ class MqttDashboardClient : public IDashboardClient {
   bool awaiting_response = false;
   uint32_t last_publish_tick_ms = 0;
   uint32_t publish_retry_delay_ms = PUBLISH_RETRY_DELAY_MS;
+  uint8_t response_timeout_count = 0;
 
   void parseServerResponse(const char* json, ServerCommand& response);
   void updateResponseTopicForNodeId(const char* node_id);
+  void resetSessionState();
 };

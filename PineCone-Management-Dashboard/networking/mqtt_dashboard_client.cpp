@@ -23,6 +23,14 @@ void MqttDashboardClient::setDebugEnabled(bool enabled) {
   debug_enabled = enabled;
 }
 
+void MqttDashboardClient::resetSessionState() {
+  awaiting_response = false;
+  isConnecting = false;
+  last_publish_tick_ms = 0;
+  publish_retry_delay_ms = PUBLISH_RETRY_DELAY_MS;
+  response_timeout_count = 0;
+}
+
 bool MqttDashboardClient::sync(const char* server_ip, uint16_t port,
                                const DeviceSyncState& state,
                                ServerCommand& response) {
@@ -36,6 +44,7 @@ bool MqttDashboardClient::sync(const char* server_ip, uint16_t port,
   response.force_full_sync = false;
 
   if (!mqtt.isConnected()) {
+    resetSessionState();
     if (!isConnecting) {
       printf("Starting MQTT connection...\n");
       mqtt.connectToIP(server_ip);
@@ -51,6 +60,7 @@ bool MqttDashboardClient::sync(const char* server_ip, uint16_t port,
     if (msg != nullptr && strlen(msg) > 0) {
       response.has_response = true;
       awaiting_response = false;
+      response_timeout_count = 0;
       publish_retry_delay_ms = PUBLISH_RETRY_DELAY_MS;
       parseServerResponse(msg, response);
       if (response.new_node_id[0] != '\0') {
@@ -72,9 +82,8 @@ bool MqttDashboardClient::sync(const char* server_ip, uint16_t port,
       printf("[mqtt_sync] Publish stalled after %lu ms. Reconnecting.\r\n",
              static_cast<unsigned long>(now_ms - last_publish_tick_ms));
       mqtt.disconnect();
-      awaiting_response = false;
-            publish_retry_delay_ms = ERR_MEM_RETRY_DELAY_MS;
-      isConnecting = false;
+      resetSessionState();
+      publish_retry_delay_ms = ERR_MEM_RETRY_DELAY_MS;
       return false;
     }
 
@@ -85,6 +94,15 @@ bool MqttDashboardClient::sync(const char* server_ip, uint16_t port,
     printf("[mqtt_sync] Response timeout after %lu ms. Allowing retry.\r\n",
            static_cast<unsigned long>(now_ms - last_publish_tick_ms));
     awaiting_response = false;
+    response_timeout_count++;
+
+    if (response_timeout_count >= MAX_RESPONSE_TIMEOUTS_BEFORE_RECONNECT) {
+      printf("[mqtt_sync] Too many response timeouts. Reconnecting MQTT.\r\n");
+      mqtt.disconnect();
+      resetSessionState();
+      publish_retry_delay_ms = ERR_MEM_RETRY_DELAY_MS;
+      return false;
+    }
   }
 
   if (!has_state_update && (now_ms - last_publish_tick_ms) < IDLE_POLL_INTERVAL_MS) {
@@ -126,6 +144,7 @@ bool MqttDashboardClient::sync(const char* server_ip, uint16_t port,
         awaiting_response = true;
         last_publish_tick_ms = now_ms;
         publish_retry_delay_ms = PUBLISH_RETRY_DELAY_MS;
+        response_timeout_count = 0;
       } else {
         awaiting_response = false;
         last_publish_tick_ms = now_ms;
