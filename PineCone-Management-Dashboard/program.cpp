@@ -25,7 +25,7 @@ void* __dso_handle = nullptr;
 #include "extentions/log.hpp"
 #include "include/config.hpp"
 
-#define USE_MQTT 1
+
 
 DeltaTime deltaTime;
 PinsManager pinsManager;  

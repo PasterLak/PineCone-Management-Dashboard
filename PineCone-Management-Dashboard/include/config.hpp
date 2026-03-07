@@ -32,7 +32,8 @@ constexpr const char* PUB_TOPIC = "/api/data";
 constexpr const char* SUB_TOPIC = "/api/data/response";
 }  // namespace MQTT
 
-#define ENABLE_MQTTS 1
+#define ENABLE_MQTTS 0
+#define USE_MQTT 1
 
 namespace WIFI {
 
