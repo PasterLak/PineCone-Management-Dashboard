@@ -94,19 +94,34 @@ void DashboardManager::sendDataToDashboard() {
   bool desc_changed = (strcmp(description, last_sent_description) != 0);
   bool pins_changed = (strcmp(cached_pins_json, last_sent_pins_json) != 0);
   bool send_only_node_id = (!startup_handshake_done && !sending_full_sync);
+  bool send_desc_now = !send_only_node_id && (sending_full_sync || desc_changed);
+  bool send_pins_now = !send_only_node_id && (sending_full_sync || pins_changed);
+
+  if (send_desc_now && send_pins_now) {
+    send_pins_now = false;
+  }
 
   DeviceSyncState state;
   state.node_id = node_id;
   state.description = description;
   state.pins_json = cached_pins_json;
   state.send_full_sync = sending_full_sync;
-  state.send_desc = !send_only_node_id && (sending_full_sync || desc_changed);
-  state.send_pins = !send_only_node_id && (sending_full_sync || pins_changed);
+  state.send_desc = send_desc_now;
+  state.send_pins = send_pins_now;
 
   ServerCommand response;
   bool success = client.sync(server_ip, server_port, state, response);
 
-  if (!success || !response.status_ok) {
+  if (!success) {
+    connected = false;
+    return;
+  }
+
+  if (!response.has_response) {
+    return;
+  }
+
+  if (!response.status_ok) {
     connected = false;
     return;
   }
@@ -127,13 +142,8 @@ void DashboardManager::sendDataToDashboard() {
     force_full_sync_next = true;
   }
 
-  if (!startup_handshake_done) {
+  if (state.send_desc || state.send_pins) {
     startup_handshake_done = true;
-    snprintf(last_sent_description, sizeof(last_sent_description), "%s",
-             description);
-    snprintf(last_sent_pins_json, sizeof(last_sent_pins_json), "%s",
-             cached_pins_json);
-    return;
   }
 
   if (state.send_desc) {

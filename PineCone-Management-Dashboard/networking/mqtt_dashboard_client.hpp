@@ -14,15 +14,27 @@ class MqttDashboardClient : public IDashboardClient {
   void setDebugEnabled(bool enabled) override;
   
   void setMQTTSubScribeTopic(etl::string<64> newTopic) {
+    response_topic = newTopic;
     mqtt.setSubscribeTopic(newTopic);
   };
 
  private:
+  static constexpr uint32_t RESPONSE_TIMEOUT_MS = 1200;
+  static constexpr uint32_t IDLE_POLL_INTERVAL_MS = 500;
+  static constexpr uint32_t PUBLISH_RETRY_DELAY_MS = 250;
+  static constexpr uint32_t PUBLISH_STALL_TIMEOUT_MS = 2500;
+  static constexpr uint32_t ERR_MEM_RETRY_DELAY_MS = 1200;
+  static constexpr uint32_t MAX_ERR_MEM_RETRY_DELAY_MS = 2500;
+
   MQTT mqtt;
   bool debug_enabled;
   const char* publish_topic;
   bool isConnecting = false;
-  float connectionTimer = 0.0f;
+  etl::string<64> response_topic;
+  bool awaiting_response = false;
+  uint32_t last_publish_tick_ms = 0;
+  uint32_t publish_retry_delay_ms = PUBLISH_RETRY_DELAY_MS;
 
   void parseServerResponse(const char* json, ServerCommand& response);
+  void updateResponseTopicForNodeId(const char* node_id);
 };

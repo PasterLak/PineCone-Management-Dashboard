@@ -2,6 +2,7 @@
 
 #include <etl/string.h>
 #include <etl/string_view.h>
+#include <stdint.h>
 
 extern "C" {
 #include <lwip/apps/mqtt.h>
@@ -17,11 +18,14 @@ public:
 
     void connectToIP(const char* brokerIP);
     void disconnect();
-    void publish(const char* topic, const char* payload);
+    bool publish(const char* topic, const char* payload);
     bool hasNewMessage() const { return newMessageReceived; }
     const char* getNextMessage();
     bool isConnected() const { return mqttConnected; }
-    void setSubscribeTopic(etl::string<64> newTopic) {subscribedTopic = newTopic;}
+    bool isPublishInFlight() const { return publishInFlight; }
+    int getLastPublishError() const { return lastPublishError; }
+    void setSubscribeTopic(const etl::string<64>& newTopic);
+    const etl::string<64>& getSubscribeTopic() const { return subscribedTopic; }
 
 private:
     mqtt_client_t mqttClient;
@@ -33,12 +37,15 @@ private:
     etl::string<32> clientIdStr;
     etl::string<64> subscribedTopic;
     etl::string<512> lastMessage;
+    etl::string<512> incomingMessageBuffer;
     
     const char* user;
     const char* password;
     
     bool mqttConnected;
     bool newMessageReceived;
+    bool publishInFlight;
+    int lastPublishError;
     uint8_t topicNr;
 
     static void connected_cb(mqtt_client_t* client, void* arg, mqtt_connection_status_t status);

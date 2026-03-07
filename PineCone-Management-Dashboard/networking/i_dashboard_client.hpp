@@ -12,6 +12,7 @@ struct DeviceSyncState {
 };
 
 struct ServerCommand {
+  bool has_response;
   bool status_ok;
   char new_node_id[64];
   char new_description[128];

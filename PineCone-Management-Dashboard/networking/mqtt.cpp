@@ -22,11 +22,15 @@ MQTT::MQTT(const char* u, const char* p, const char* subscribeTopic) {
     user = u;
     password = p;
     mqttConnected = false;
+    newMessageReceived = false;
+    publishInFlight = false;
+    lastPublishError = ERR_OK;
     topicNr = 0;
     subscribedTopic = subscribeTopic;
     memset(&mqttClient,0,sizeof(mqttClient));
     memset(&mqttClient, 0, sizeof(mqttClient));
     memset(brokerIpString, 0, sizeof(brokerIpString));
+    incomingMessageBuffer.clear();
     #if defined(ENABLE_MQTTS) && (ENABLE_MQTTS == 1)
         tls_config = nullptr;
     #endif
@@ -36,7 +40,29 @@ void MQTT::disconnect() {
     mqtt_unsubscribe(&mqttClient, subscribedTopic.data(), nullptr, 0);
     mqtt_disconnect(&mqttClient);
     mqttConnected = false;
+    publishInFlight = false;
     printf("[%s] Done\r\n", "disconnect");
+}
+
+void MQTT::setSubscribeTopic(const etl::string<64>& newTopic) {
+    if (subscribedTopic == newTopic) {
+        return;
+    }
+
+    etl::string<64> oldTopic(subscribedTopic);
+    subscribedTopic = newTopic;
+
+    if (!mqttConnected) {
+        return;
+    }
+
+    if (!oldTopic.empty()) {
+        mqtt_unsubscribe(&mqttClient, oldTopic.data(), nullptr, 0);
+    }
+
+    if (!subscribedTopic.empty()) {
+        mqtt_subscribe(&mqttClient, subscribedTopic.data(), 1, MQTT::sub_request_cb, this);
+    }
 }
 
 const char* MQTT::getNextMessage() {
@@ -45,7 +71,11 @@ const char* MQTT::getNextMessage() {
 }
 
 void MQTT::publish_cb(void *arg, err_t result) {
-    (void) arg;
+    MQTT* self = static_cast<MQTT*>(arg);
+    if (self != nullptr) {
+        self->publishInFlight = false;
+        self->lastPublishError = result;
+    }
 
     if (result == ERR_OK) {
         printf("[%s] Published message\r\n", "publish_cb");
@@ -54,20 +84,28 @@ void MQTT::publish_cb(void *arg, err_t result) {
     }
 }
 
-void MQTT::publish(const char* topic, const char* payloadStr) {
+bool MQTT::publish(const char* topic, const char* payloadStr) {
     static int err_mem_count = 0;
 
     if (!mqttConnected) {
         printf("[%s] Not connected\r\n", "publish");
-        return;
+        lastPublishError = ERR_CONN;
+        return false;
     } 
+
+    if (publishInFlight) {
+        printf("[%s] Publish already in flight\r\n", "publish");
+        lastPublishError = ERR_INPROGRESS;
+        return false;
+    }
 
     auto payload = etl::string_view(payloadStr);
 
     auto err = mqtt_publish(&mqttClient, topic, payload.data(),
                             payload.length(), 0, 0,
-                            MQTT::publish_cb, 0);
+                            MQTT::publish_cb, this);
     if (err != ERR_OK) {
+        lastPublishError = err;
         printf("[%s] Error: %d\r\n", "publish", err);
 
         // Catch ERR_MEM (-1): Out of memory / TX buffer full.
@@ -84,7 +122,7 @@ void MQTT::publish(const char* topic, const char* payloadStr) {
             err_mem_count = 0; // Reset counter
             this->disconnect();
         }
-        return; 
+        return false; 
     }
 
     // Reset the counter if any other error occurs
@@ -95,7 +133,13 @@ void MQTT::publish(const char* topic, const char* payloadStr) {
             printf("[%s] Fatal network error, forcing disconnect...\r\n", "publish");
             this->disconnect();
         }
+        return false;
     }
+
+    err_mem_count = 0;
+    publishInFlight = true;
+    lastPublishError = ERR_OK;
+    return true;
 }
 
 void MQTT::incoming_topic_cb(void *arg, const char *topic, u32_t total_len) {
@@ -103,6 +147,7 @@ void MQTT::incoming_topic_cb(void *arg, const char *topic, u32_t total_len) {
 
     MQTT* self = static_cast<MQTT*>(arg);
     auto messageTopic = etl::string_view(topic);
+    self->incomingMessageBuffer.clear();
 
     if (messageTopic == etl::string_view(self->subscribedTopic)) {
         self->topicNr = 0;
@@ -113,8 +158,19 @@ void MQTT::incoming_topic_cb(void *arg, const char *topic, u32_t total_len) {
 
 void MQTT::incoming_payload_cb([[gnu::unused]] void *arg, const u8_t *data, u16_t len, u8_t flags) {
     MQTT* self = static_cast<MQTT*>(arg);
-    if (flags & MQTT_DATA_FLAG_LAST && self->topicNr == 0) {
-        self->lastMessage.assign(reinterpret_cast<const char*>(data), len);
+    if (self->topicNr != 0) {
+        return;
+    }
+
+    size_t free_space = self->incomingMessageBuffer.max_size() - self->incomingMessageBuffer.size();
+    size_t bytes_to_copy = (len < free_space) ? len : free_space;
+
+    if (bytes_to_copy > 0) {
+        self->incomingMessageBuffer.append(reinterpret_cast<const char*>(data), bytes_to_copy);
+    }
+
+    if (flags & MQTT_DATA_FLAG_LAST) {
+        self->lastMessage = self->incomingMessageBuffer;
         self->newMessageReceived = true;
         printf("Received message: %s\r\n", self->lastMessage.c_str());
     }
@@ -150,6 +206,7 @@ void MQTT::connected_cb(mqtt_client_t *client, void *arg, mqtt_connection_status
         mqtt_subscribe(&self->mqttClient, self->subscribedTopic.data(), 1, MQTT::sub_request_cb, self);
     } else {
         self->mqttConnected = false;
+        self->publishInFlight = false;
         printf("[%s] Disconnected/Error\r\n", "connected_cb");
     }
 }

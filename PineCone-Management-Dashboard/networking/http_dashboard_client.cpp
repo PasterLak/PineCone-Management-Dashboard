@@ -14,6 +14,7 @@ void HttpDashboardClient::setDebugEnabled(bool enabled) {
 bool HttpDashboardClient::sync(const char* server_ip, uint16_t port,
                                const DeviceSyncState& state,
                                ServerCommand& response) {
+  response.has_response = false;
   response.status_ok = false;
   response.new_node_id[0] = '\0';
   response.new_description[0] = '\0';
@@ -61,6 +62,7 @@ bool HttpDashboardClient::sync(const char* server_ip, uint16_t port,
     return false;
   }
 
+  response.has_response = true;
   parseServerResponse(response_body, response);
   return response.status_ok;
 }

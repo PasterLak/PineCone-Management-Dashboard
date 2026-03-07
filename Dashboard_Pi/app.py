@@ -69,14 +69,19 @@ def on_message(client, userdata, msg):
         if response_topic:
             response_payload = {
                 "s": resp.get("s", "ok"),
-                "id": resp.get("id"),
-                "d": resp.get("d"),
             }
+            if resp.get("id") is not None:
+                response_payload["id"] = resp.get("id")
+            if resp.get("d") is not None:
+                response_payload["d"] = resp.get("d")
             for key in ("b", "ffs", "error"):
                 if key in resp:
                     response_payload[key] = resp[key]
-            response_payload["http_code"] = code
-            client.publish(response_topic, json.dumps(response_payload), qos=1)
+            client.publish(
+                response_topic,
+                json.dumps(response_payload, separators=(",", ":")),
+                qos=0,
+            )
             #print(f"[{userdata}] MQTT response sent to {response_topic}: {response_payload}")
 
     except Exception as e:
